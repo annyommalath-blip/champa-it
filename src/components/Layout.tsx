@@ -2,21 +2,23 @@ import { Link, useLocation } from "react-router-dom";
 import { Home, ShoppingBag, ShoppingCart, Wrench, Bell, User, Headphones, X, MessageSquare, Phone } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useState, useRef, useEffect } from "react";
 import logo from "@/assets/logo.jpg";
 import ChatPopup from "@/components/ChatPopup";
 
-const navItems = [
-  { to: "/", label: "Home", icon: Home },
-  { to: "/shop", label: "Shop", icon: ShoppingBag },
-  { to: "/services", label: "Services", icon: Wrench },
-  { to: "/profile", label: "Profile", icon: User },
+const navKeys = [
+  { to: "/", labelKey: "nav.home", icon: Home },
+  { to: "/shop", labelKey: "nav.shop", icon: ShoppingBag },
+  { to: "/services", labelKey: "nav.services", icon: Wrench },
+  { to: "/profile", labelKey: "nav.profile", icon: User },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const { cartCount } = useApp();
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [supportOpen, setSupportOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const supportRef = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Announcement bar - desktop only */}
       <div className="hidden md:block relative overflow-hidden bg-gradient-to-r from-primary/90 via-primary to-primary/90 text-primary-foreground text-xs text-center py-2 px-4 font-semibold tracking-wide">
         <span className="relative z-10">
-          🔥 Free shipping on orders over $1,000 — <Link to="/shop" className="underline underline-offset-2 font-bold">Shop Now</Link>
+          {t("banner.freeShipping")} <Link to="/shop" className="underline underline-offset-2 font-bold">{t("banner.shopNow")}</Link>
         </span>
       </div>
 
@@ -51,7 +53,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </div>
           </Link>
           <nav className="flex items-center gap-1">
-            {navItems.map((item) => {
+            {navKeys.map((item) => {
               const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
               return (
                 <Link
@@ -63,7 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
                   }`}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
@@ -78,7 +80,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Link>
             {!user && (
               <Link to="/auth" className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all">
-                Sign In
+                {t("nav.signIn")}
               </Link>
             )}
           </nav>
@@ -126,8 +128,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <MessageSquare className="w-5 h-5 text-primary" />
                 <div className="text-left">
-                  <span className="text-sm font-semibold text-foreground block">Live Agent</span>
-                  <span className="text-[10px] text-muted-foreground">Chat with support</span>
+                  <span className="text-sm font-semibold text-foreground block">{t("support.liveAgent")}</span>
+                  <span className="text-[10px] text-muted-foreground">{t("support.chatWithSupport")}</span>
                 </div>
               </button>
               <Link
@@ -137,8 +139,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 <Phone className="w-5 h-5 text-primary" />
                 <div>
-                  <span className="text-sm font-semibold text-foreground block">Contact Sales</span>
-                  <span className="text-[10px] text-muted-foreground">Get a quote</span>
+                  <span className="text-sm font-semibold text-foreground block">{t("support.contactSales")}</span>
+                  <span className="text-[10px] text-muted-foreground">{t("support.getAQuote")}</span>
                 </div>
               </Link>
             </div>
@@ -155,7 +157,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile bottom tab bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card backdrop-blur-xl border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around px-2 py-2">
-          {navItems.map((item) => {
+          {navKeys.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
             return (
@@ -168,7 +170,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   <Icon className={`w-5 h-5 transition-colors ${active ? "text-primary" : "text-muted-foreground"}`} />
                 </div>
                 <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
-                  {item.label}
+                  {t(item.labelKey)}
                 </span>
               </Link>
             );
@@ -187,37 +189,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <span className="block text-[10px] text-muted-foreground tracking-widest uppercase">Enterprise</span>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">Best Service Mind With Reasonable Price. Your trusted partner for enterprise technology solutions.</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{t("footer.tagline")}</p>
           </div>
           <div>
-            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Products</h4>
+            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">{t("footer.products")}</h4>
             <div className="flex flex-col gap-2.5 text-sm">
-              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Servers & Hardware</Link>
-              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Networking</Link>
-              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Security</Link>
-              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Software</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.serversHardware")}</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.networking")}</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.security")}</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.software")}</Link>
             </div>
           </div>
           <div>
-            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Services</h4>
+            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">{t("footer.services")}</h4>
             <div className="flex flex-col gap-2.5 text-sm">
-              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">IT Consulting</Link>
-              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">Cloud Migration</Link>
-              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">Managed IT</Link>
-              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">Get a Quote</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.itConsulting")}</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.cloudMigration")}</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.managedIT")}</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.getAQuote")}</Link>
             </div>
           </div>
           <div>
-            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Company</h4>
+            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">{t("footer.company")}</h4>
             <div className="flex flex-col gap-2.5 text-sm">
-              <Link to="/" className="text-secondary-foreground hover:text-primary transition-colors">About Us</Link>
-              <Link to="/contact" className="text-secondary-foreground hover:text-primary transition-colors">Contact Sales</Link>
-              <Link to="/profile" className="text-secondary-foreground hover:text-primary transition-colors">My Profile</Link>
+              <Link to="/" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.aboutUs")}</Link>
+              <Link to="/contact" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.contactSales")}</Link>
+              <Link to="/profile" className="text-secondary-foreground hover:text-primary transition-colors">{t("footer.myProfile")}</Link>
             </div>
           </div>
         </div>
         <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Champa Private Enterprise. All rights reserved.
+          © {new Date().getFullYear()} Champa Private Enterprise. {t("footer.rights")}
         </div>
       </footer>
     </div>
