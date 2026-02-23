@@ -1,11 +1,12 @@
 import { Product, SalesRep, Conversation, ChatMessage, Notification } from "@/types";
 
 export const products: Product[] = [
+  // ──── Servers ────
   {
     id: "p1",
     name: "Champa X1 Pro Server",
-    description: "Enterprise-grade server solution with cutting-edge performance.",
-    longDescription: "The Champa X1 Pro Server delivers unmatched performance for enterprise workloads. Built with the latest generation processors and high-speed memory, it handles demanding applications with ease. Perfect for data centers, cloud infrastructure, and mission-critical operations.",
+    description: "Enterprise-grade rack server with cutting-edge performance for data centers.",
+    longDescription: "The Champa X1 Pro Server delivers unmatched performance for enterprise workloads. Built with the latest generation processors and high-speed memory, it handles demanding applications with ease.",
     price: 4999,
     category: "Servers",
     images: ["/placeholder.svg"],
@@ -14,9 +15,23 @@ export const products: Product[] = [
     rating: 4.8,
   },
   {
+    id: "p7",
+    name: "Champa Edge Mini Server",
+    description: "Compact edge computing server for branch offices and IoT deployments.",
+    longDescription: "Deploy enterprise-grade computing at the edge. The Edge Mini packs server-class performance in a fanless, ruggedized form factor ideal for retail, manufacturing, and remote sites.",
+    price: 1299,
+    category: "Servers",
+    images: ["/placeholder.svg"],
+    specs: { Processor: "8-Core Intel", RAM: "32GB DDR5", Storage: "1TB NVMe", Form: "Desktop / DIN Rail" },
+    inStock: true,
+    rating: 4.5,
+  },
+
+  // ──── Security ────
+  {
     id: "p2",
     name: "SecureNet Firewall 500",
-    description: "Advanced network security appliance with AI-driven threat detection.",
+    description: "Advanced next-gen firewall with AI-driven threat detection.",
     longDescription: "SecureNet Firewall 500 uses machine learning to detect and neutralize threats in real-time. With deep packet inspection and zero-trust architecture, your network stays protected 24/7.",
     price: 2499,
     category: "Security",
@@ -25,6 +40,8 @@ export const products: Product[] = [
     inStock: true,
     rating: 4.6,
   },
+
+  // ──── Networking ────
   {
     id: "p3",
     name: "CloudLink SD-WAN Gateway",
@@ -38,6 +55,20 @@ export const products: Product[] = [
     rating: 4.7,
   },
   {
+    id: "p6",
+    name: "Champa Managed Switch 48P",
+    description: "48-port managed gigabit switch with PoE+ support.",
+    longDescription: "The Champa Managed Switch 48P delivers enterprise networking at scale. With full PoE+ budget, VLAN support, and centralized management, it's the backbone of modern networks.",
+    price: 749,
+    category: "Networking",
+    images: ["/placeholder.svg"],
+    specs: { Ports: "48x 1GbE + 4x 10GbE SFP+", PoE: "740W budget", Management: "CLI, Web, SNMP", VLAN: "4096" },
+    inStock: true,
+    rating: 4.4,
+  },
+
+  // ──── Power ────
+  {
     id: "p4",
     name: "Champa UPS 3000VA",
     description: "Uninterruptible power supply for critical infrastructure.",
@@ -49,6 +80,8 @@ export const products: Product[] = [
     inStock: false,
     rating: 4.5,
   },
+
+  // ──── Storage ────
   {
     id: "p5",
     name: "DataVault NAS Enterprise",
@@ -61,21 +94,91 @@ export const products: Product[] = [
     inStock: true,
     rating: 4.9,
   },
+
+  // ──── Software ────
   {
-    id: "p6",
-    name: "Champa Managed Switch 48P",
-    description: "48-port managed gigabit switch with PoE+ support.",
-    longDescription: "The Champa Managed Switch 48P delivers enterprise networking at scale. With full PoE+ budget, VLAN support, and centralized management, it's the backbone of modern networks.",
-    price: 749,
-    category: "Networking",
+    id: "s1",
+    name: "Champa Endpoint Security Suite",
+    description: "All-in-one endpoint protection with EDR, antivirus, and patch management.",
+    longDescription: "Protect every endpoint in your organization. Combines next-gen antivirus, EDR, vulnerability scanning, and automated patch management in a single lightweight agent.",
+    price: 12,
+    category: "Software",
     images: ["/placeholder.svg"],
-    specs: { Ports: "48x 1GbE + 4x 10GbE SFP+", PoE: "740W budget", Management: "CLI, Web, SNMP", VLAN: "4096" },
+    specs: { License: "Per seat / month", Platforms: "Windows, macOS, Linux", Management: "Cloud Console", Updates: "Automatic" },
     inStock: true,
-    rating: 4.4,
+    rating: 4.7,
+  },
+  {
+    id: "s2",
+    name: "CloudOps Monitoring Platform",
+    description: "Infrastructure monitoring and alerting for hybrid cloud environments.",
+    longDescription: "CloudOps gives you real-time visibility into servers, containers, networks, and cloud services. Features customizable dashboards, anomaly detection, and integrations with Slack, PagerDuty, and more.",
+    price: 29,
+    category: "Software",
+    images: ["/placeholder.svg"],
+    specs: { License: "Per host / month", Metrics: "Unlimited", Retention: "13 months", Integrations: "200+" },
+    inStock: true,
+    rating: 4.6,
+  },
+  {
+    id: "s3",
+    name: "Champa Backup Pro",
+    description: "Enterprise backup and disaster recovery for physical and virtual environments.",
+    longDescription: "Automated backup with instant recovery. Supports VMware, Hyper-V, physical servers, and SaaS apps. Offsite replication and immutable storage ensure ransomware resilience.",
+    price: 499,
+    category: "Software",
+    images: ["/placeholder.svg"],
+    specs: { License: "Per server / year", Recovery: "Instant VM / Bare Metal", Cloud: "AWS S3, Azure Blob", Dedup: "Variable-length" },
+    inStock: true,
+    rating: 4.8,
+  },
+
+  // ──── Services ────
+  {
+    id: "sv1",
+    name: "IT Infrastructure Assessment",
+    description: "Comprehensive audit of your IT infrastructure with actionable recommendations.",
+    longDescription: "Our certified engineers will assess your servers, network, security, and cloud readiness. You'll receive a detailed report with risk scoring, performance benchmarks, and a prioritized upgrade roadmap.",
+    price: 2500,
+    category: "Services",
+    images: ["/placeholder.svg"],
+    specs: { Duration: "1-2 weeks", Deliverable: "Assessment Report", Format: "On-site + Remote", "Follow-up": "30-day consultation" },
+    inStock: true,
+    rating: 5.0,
+  },
+  {
+    id: "sv2",
+    name: "Managed IT Support Plan",
+    description: "24/7 proactive monitoring, maintenance, and helpdesk for your entire IT stack.",
+    longDescription: "Outsource your IT headaches. Our NOC team monitors your infrastructure around the clock, handles incidents, manages patches, and provides end-user support via phone, email, or chat.",
+    price: 1500,
+    category: "Services",
+    images: ["/placeholder.svg"],
+    specs: { License: "Per month", SLA: "99.9% uptime", Support: "24/7/365", Includes: "Monitoring, patching, helpdesk" },
+    inStock: true,
+    rating: 4.9,
+  },
+  {
+    id: "sv3",
+    name: "Cloud Migration & Consulting",
+    description: "Expert-led cloud migration planning and execution for AWS, Azure, or GCP.",
+    longDescription: "Move to the cloud with confidence. Our architects design the migration strategy, handle data transfers, re-platform applications, and train your team — all with minimal downtime.",
+    price: 5000,
+    category: "Services",
+    images: ["/placeholder.svg"],
+    specs: { Duration: "4-12 weeks", Platforms: "AWS, Azure, GCP", Includes: "Architecture, migration, training", Warranty: "60-day post-migration support" },
+    inStock: true,
+    rating: 4.8,
   },
 ];
 
-export const categories = ["All", "Servers", "Security", "Networking", "Power", "Storage"];
+export const categories = ["All", "Servers", "Security", "Networking", "Power", "Storage", "Software", "Services"];
+
+export const deals = [
+  { id: "d1", productId: "p1", badge: "Hot Deal", discount: 15, endsIn: "2 days" },
+  { id: "d2", productId: "s3", badge: "Bundle", discount: 20, endsIn: "5 days" },
+  { id: "d3", productId: "sv2", badge: "New", discount: 0, endsIn: "" },
+];
 
 export const salesReps: SalesRep[] = [
   { id: "rep1", name: "Alex Johnson", email: "alex@champa.com", status: "online" },

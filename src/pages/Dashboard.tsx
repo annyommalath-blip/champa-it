@@ -12,7 +12,7 @@ export default function Dashboard() {
   if (!isLoggedIn) {
     return (
       <div className="section-padding flex items-center justify-center min-h-[70vh]">
-        <div className="glass-card rounded-xl p-8 w-full max-w-sm">
+        <div className="glass-card p-8 w-full max-w-sm">
           <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <LogIn className="w-6 h-6 text-primary" />
           </div>
@@ -21,11 +21,11 @@ export default function Dashboard() {
           <form onSubmit={(e) => { e.preventDefault(); login(email, password); }} className="space-y-4">
             <div>
               <label className="text-sm text-muted-foreground mb-1 block">Email</label>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full px-4 py-2.5 rounded-lg bg-secondary border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+              <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
             </div>
             <div>
               <label className="text-sm text-muted-foreground mb-1 block">Password</label>
-              <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full px-4 py-2.5 rounded-lg bg-secondary border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
+              <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50" />
             </div>
             <button type="submit" className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:brightness-110 transition-all">
               Sign In
@@ -48,7 +48,7 @@ export default function Dashboard() {
             <h1 className="text-2xl md:text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground text-sm">Welcome, {repName}</p>
           </div>
-          <button onClick={logout} className="flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={logout} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm text-muted-foreground hover:text-foreground transition-colors">
             <LogOut className="w-4 h-4" /> Logout
           </button>
         </div>
@@ -57,14 +57,14 @@ export default function Dashboard() {
         <div className="flex gap-2 mb-6">
           <button
             onClick={() => setActiveTab("notifications")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "notifications" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "notifications" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground"}`}
           >
             <Bell className="w-4 h-4" />
-            Notifications {unreadCount > 0 && <span className="w-5 h-5 rounded-full bg-primary-foreground text-primary text-xs flex items-center justify-center">{unreadCount}</span>}
+            Notifications {unreadCount > 0 && <span className="w-5 h-5 rounded-full bg-destructive text-white text-xs flex items-center justify-center">{unreadCount}</span>}
           </button>
           <button
             onClick={() => setActiveTab("chat")}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "chat" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "chat" ? "bg-primary text-primary-foreground" : "bg-card border border-border text-muted-foreground"}`}
           >
             <MessageSquare className="w-4 h-4" />
             Conversations
@@ -78,7 +78,7 @@ export default function Dashboard() {
               <button
                 key={n.id}
                 onClick={() => markNotificationRead(n.id)}
-                className={`w-full text-left glass-card rounded-xl p-5 transition-all ${!n.read ? "border-l-2 border-l-primary" : "opacity-60"}`}
+                className={`w-full text-left glass-card p-5 transition-all ${!n.read ? "border-l-4 border-l-primary" : "opacity-60"}`}
               >
                 <div className="flex items-start justify-between">
                   <div>
@@ -97,13 +97,12 @@ export default function Dashboard() {
 
         {activeTab === "chat" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ minHeight: "24rem" }}>
-            {/* Conversation list */}
             <div className="space-y-2">
               {conversations.map((conv) => (
                 <button
                   key={conv.id}
                   onClick={() => setSelectedConv(conv.id)}
-                  className={`w-full text-left glass-card rounded-xl p-4 transition-all ${selectedConv === conv.id ? "border border-primary/30" : ""}`}
+                  className={`w-full text-left glass-card p-4 transition-all ${selectedConv === conv.id ? "border-primary/40 ring-1 ring-primary/20" : ""}`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -122,8 +121,7 @@ export default function Dashboard() {
               {conversations.length === 0 && <p className="text-muted-foreground text-center py-8 text-sm">No conversations yet.</p>}
             </div>
 
-            {/* Chat view */}
-            <div className="md:col-span-2 glass-card rounded-xl flex flex-col overflow-hidden">
+            <div className="md:col-span-2 glass-card flex flex-col overflow-hidden">
               {selectedConv ? (
                 <>
                   <div className="px-5 py-3 border-b border-border flex items-center gap-2">
@@ -132,11 +130,11 @@ export default function Dashboard() {
                       {conversations.find((c) => c.id === selectedConv)?.userName}
                     </span>
                   </div>
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-muted/20">
                     {convMessages.map((msg) => (
                       <div key={msg.id} className={`flex ${msg.senderType === "sales" ? "justify-end" : "justify-start"}`}>
                         <div className={`max-w-[75%] px-3.5 py-2 rounded-xl text-sm ${
-                          msg.senderType === "sales" ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-secondary rounded-bl-sm"
+                          msg.senderType === "sales" ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border border-border rounded-bl-sm"
                         }`}>
                           {msg.content}
                           <div className="text-[10px] opacity-60 mt-1">{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</div>
@@ -175,7 +173,7 @@ function SalesInput({ conversationId, addMessage, repName }: { conversationId: s
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && send()}
         placeholder="Reply..."
-        className="flex-1 px-3 py-2 rounded-lg bg-secondary border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+        className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
       />
       <button onClick={send} className="w-10 h-10 rounded-lg bg-primary text-primary-foreground flex items-center justify-center hover:brightness-110">
         <Send className="w-4 h-4" />
