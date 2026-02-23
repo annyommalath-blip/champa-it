@@ -10,7 +10,7 @@ const navItems = [
   { to: "/shop", label: "Shop", icon: ShoppingBag },
   { to: "/services", label: "Services", icon: Wrench },
   { to: "/contact", label: "Contact", icon: MessageCircle },
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/profile", label: "Profile", icon: User },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -98,7 +98,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <button className="p-2 rounded-xl">
               <Bell className="w-5 h-5 text-primary-foreground/80" />
             </button>
-            <Link to="/dashboard" className="p-2 rounded-xl">
+            <Link to="/profile" className="p-2 rounded-xl">
               <User className="w-5 h-5 text-primary-foreground/80" />
             </Link>
           </div>
@@ -207,7 +207,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="flex flex-col gap-2.5 text-sm">
               <Link to="/" className="text-secondary-foreground hover:text-primary transition-colors">About Us</Link>
               <Link to="/contact" className="text-secondary-foreground hover:text-primary transition-colors">Contact Sales</Link>
-              <Link to="/dashboard" className="text-secondary-foreground hover:text-primary transition-colors">Partner Portal</Link>
+              <Link to="/profile" className="text-secondary-foreground hover:text-primary transition-colors">My Profile</Link>
             </div>
           </div>
         </div>

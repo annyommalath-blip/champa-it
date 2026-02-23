@@ -17,7 +17,7 @@ const quickActions = [
   { icon: MessageCircle, label: "Get Quote", link: "/contact" },
   { icon: MessageCircle, label: "Live Chat", link: "/contact" },
   { icon: Tag, label: "Deals", link: "/shop" },
-  { icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
+  { icon: LayoutDashboard, label: "Profile", link: "/profile" },
 ];
 
 const stats = [
