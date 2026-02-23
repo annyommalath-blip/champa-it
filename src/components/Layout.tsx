@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Building2, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart } from "lucide-react";
 import { useApp } from "@/context/AppContext";
+import logo from "@/assets/logo.jpg";
 
 const navItems = [
   { to: "/", label: "About", icon: Building2 },
@@ -18,9 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Desktop top nav */}
       <header className="hidden md:flex items-center justify-between px-8 py-4 border-b border-border bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">C</span>
-          </div>
+          <img src={logo} alt="Champa Enterprise" className="h-9 w-9 rounded-md object-cover" />
           <span className="font-bold text-lg tracking-tight">Champa</span>
         </Link>
         <nav className="flex items-center gap-1">

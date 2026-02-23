@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Shield, Zap, HeadphonesIcon, Award, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import logo from "@/assets/logo.jpg";
 
 const faqs = [
   { q: "What industries do you serve?", a: "We serve a wide range of industries including finance, healthcare, government, telecom, and manufacturing with our enterprise-grade IT solutions." },
@@ -21,10 +22,11 @@ export default function AboutPage() {
     <div>
       {/* Hero */}
       <section className="section-padding min-h-[80vh] flex flex-col items-center justify-center text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(48_100%_50%/0.06)_0%,transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(45_96%_53%/0.06)_0%,transparent_70%)]" />
         <div className="relative z-10 max-w-3xl mx-auto animate-fade-in">
+          <img src={logo} alt="Champa Enterprise" className="w-24 h-24 rounded-2xl object-cover mx-auto mb-6 shadow-lg" />
           <div className="inline-block px-4 py-1.5 rounded-full border border-primary/20 text-primary text-sm font-medium mb-6">
-            Enterprise Technology Solutions
+            Best Service Mind With Reasonable Price
           </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
             <span className="gradient-text">Champa</span> Private Enterprise
@@ -128,9 +130,7 @@ export default function AboutPage() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">C</span>
-              </div>
+              <img src={logo} alt="Champa Enterprise" className="w-8 h-8 rounded-md object-cover" />
               <span className="font-bold text-lg">Champa</span>
             </div>
             <p className="text-sm text-muted-foreground">Enterprise technology solutions for the modern business.</p>
