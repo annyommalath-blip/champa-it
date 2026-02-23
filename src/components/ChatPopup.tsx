@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Send, Headphones } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useApp } from "@/context/AppContext";
 
 interface Message {
   id: string;
@@ -10,6 +11,7 @@ interface Message {
 }
 
 export default function ChatPopup({ onClose }: { onClose: () => void }) {
+  const { addNotification } = useApp();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -64,7 +66,17 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
           filter: `conversation_id=eq.${conversationId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message]);
+          const newMsg = payload.new as Message;
+          setMessages((prev) => [...prev, newMsg]);
+          // Fire notification when agent replies
+          if (newMsg.sender_type === "admin") {
+            addNotification({
+              type: "chat",
+              title: "Agent Reply",
+              message: `Support replied: "${newMsg.content.substring(0, 60)}${newMsg.content.length > 60 ? "..." : ""}"`,
+              referenceId: conversationId,
+            });
+          }
         }
       )
       .subscribe();

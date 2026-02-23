@@ -67,7 +67,7 @@ export interface Conversation {
 
 export interface Notification {
   id: string;
-  type: "chat" | "contact_form";
+  type: "chat" | "contact_form" | "order_placed" | "order_processing" | "order_shipped" | "order_delivered" | "order_pickup" | "contact_sales";
   title: string;
   message: string;
   timestamp: string;

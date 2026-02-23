@@ -14,7 +14,7 @@ const navItems = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { cartCount } = useApp();
+  const { cartCount, notifications } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -94,9 +94,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </Link>
-            <button className="p-2 rounded-xl">
+            <Link to="/notifications" className="relative p-2 rounded-xl">
               <Bell className="w-5 h-5 text-primary-foreground/80" />
-            </button>
+              {notifications.filter(n => !n.read).length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary-foreground text-primary text-[9px] flex items-center justify-center font-bold">
+                  {notifications.filter(n => !n.read).length}
+                </span>
+              )}
+            </Link>
             <Link to="/profile" className="p-2 rounded-xl">
               <User className="w-5 h-5 text-primary-foreground/80" />
             </Link>
