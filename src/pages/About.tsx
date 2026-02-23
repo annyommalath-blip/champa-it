@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, ShoppingBag, Wrench, MessageCircle, LayoutDashboard, Zap, Tag, Star, Users, Clock, TrendingUp, CheckCircle, ChevronRight } from "lucide-react";
 import { products, deals } from "@/data/mock";
+import { supabase } from "@/integrations/supabase/client";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
-const heroSlides = [
+const defaultHeroSlides = [
   { title: "New Arrivals", subtitle: "Latest enterprise hardware & tools", cta: "Shop Now", link: "/shop" },
   { title: "Request a Quote", subtitle: "Fast estimate from our sales team", cta: "Get Quote", link: "/contact" },
   { title: "Talk to Sales", subtitle: "Live chat with our engineers", cta: "Start Chat", link: "/contact" },
@@ -30,8 +31,20 @@ const stats = [
 const partners = ["Cisco", "AWS", "VMware", "Fortinet", "Microsoft", "ISO 27001"];
 
 export default function AboutPage() {
+  const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Fetch hero slides from settings
+  useEffect(() => {
+    async function loadSlides() {
+      const { data } = await supabase.from("settings").select("value").eq("key", "hero_slides").single();
+      if (data?.value && Array.isArray(data.value)) {
+        setHeroSlides(data.value as typeof defaultHeroSlides);
+      }
+    }
+    loadSlides();
+  }, []);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
