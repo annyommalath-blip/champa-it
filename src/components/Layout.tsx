@@ -70,11 +70,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="md:hidden px-5 pt-4 pb-3 bg-primary sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Champa" className="h-11 w-11 rounded-xl object-cover border-2 border-primary-foreground/20" />
-            <div className="leading-tight">
-              <span className="font-bold text-base tracking-tight text-primary-foreground">CHAMPA</span>
-              <span className="block text-[10px] text-primary-foreground/70 tracking-wide">Tech-driven solutions</span>
-            </div>
+            <img src={logo} alt="Champa" className="h-11 w-auto rounded-xl object-contain" />
           </div>
           <div className="flex items-center gap-1">
             <span className="text-[10px] font-semibold text-primary-foreground border border-primary-foreground/30 rounded-full px-2.5 py-1 mr-1">Online Support</span>
