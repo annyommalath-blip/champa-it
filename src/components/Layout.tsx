@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench, Menu, X, Bell, User } from "lucide-react";
+import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench, Bell, User, Headphones } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useState } from "react";
 import logo from "@/assets/logo.jpg";
@@ -73,7 +73,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <img src={logo} alt="Champa" className="h-11 w-auto rounded-xl object-contain" />
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-semibold text-primary-foreground border border-primary-foreground/30 rounded-full px-2.5 py-1 mr-1">Online Support</span>
             <Link to="/cart" className="relative p-2 rounded-xl">
               <ShoppingCart className="w-5 h-5 text-primary-foreground/80" />
               {cartCount > 0 && (
@@ -93,6 +92,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       <main className="flex-1 md:pb-0 pb-20">{children}</main>
+
+      {/* Floating support agent */}
+      <Link
+        to="/contact"
+        className="md:hidden fixed bottom-24 right-5 z-50 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center animate-fade-in hover-scale"
+      >
+        <Headphones className="w-6 h-6" />
+      </Link>
 
       {/* Mobile bottom tab bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card backdrop-blur-xl border-t border-border safe-area-bottom">
