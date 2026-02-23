@@ -1,25 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
-import { User, Package, ChevronRight, Settings, Heart, MapPin, CreditCard, HelpCircle, ShoppingBag, Truck, CheckCircle, RotateCcw } from "lucide-react";
+import { User, Package, ChevronRight, Settings, Heart, MapPin, CreditCard, HelpCircle, ShoppingBag, Truck, CheckCircle, RotateCcw, LogOut, LogIn } from "lucide-react";
 import { useApp } from "@/context/AppContext";
-
-const mockOrders = [
-  { id: "ORD-2024-001", product: "Champa X1 Pro Server", status: "Delivered", date: "Feb 20, 2026", initial: "C" },
-  { id: "ORD-2024-002", product: "SecureNet Firewall 500", status: "Shipped", date: "Feb 22, 2026", initial: "S" },
-  { id: "ORD-2024-003", product: "CloudOps Monitoring", status: "Processing", date: "Feb 23, 2026", initial: "C" },
-];
-
-const statusIcon: Record<string, typeof CheckCircle> = {
-  Delivered: CheckCircle,
-  Shipped: Truck,
-  Processing: RotateCcw,
-};
-
-const statusColor: Record<string, string> = {
-  Delivered: "text-green-600",
-  Shipped: "text-primary",
-  Processing: "text-muted-foreground",
-};
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
 
 const quickLinks = [
   { icon: Package, label: "Orders", desc: "Track & manage", link: "#orders" },
@@ -36,25 +19,60 @@ const accountItems = [
 
 export default function Profile() {
   const { cart, cartTotal } = useApp();
-  const [userName] = useState(() => {
-    return localStorage.getItem("champa_guest_name") || "Guest";
-  });
+  const { user, profile, role, signOut } = useAuth();
+
+  // Not logged in — show sign in prompt
+  if (!user) {
+    return (
+      <div className="px-5 py-16 space-y-6 md:max-w-md md:mx-auto text-center">
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto">
+          <User className="w-10 h-10 text-muted-foreground" />
+        </div>
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Welcome to Champa</h1>
+          <p className="text-sm text-muted-foreground mt-2">Sign in to view your orders, manage your profile, and access exclusive features.</p>
+        </div>
+        <div className="flex flex-col gap-3">
+          <Link to="/auth">
+            <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+              <LogIn className="w-4 h-4" /> Sign In
+            </Button>
+          </Link>
+          <Link to="/auth">
+            <Button variant="outline" className="w-full">Create Account</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const displayName = profile?.full_name || user.email?.split("@")[0] || "User";
 
   return (
     <div className="px-5 py-5 space-y-6 md:max-w-3xl md:mx-auto md:px-8 md:py-8">
-
       {/* Greeting */}
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-          <User className="w-7 h-7 text-muted-foreground" />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Hello, {userName}</h1>
-          <p className="text-sm text-muted-foreground">Welcome back to Champa</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt="" className="w-14 h-14 rounded-full object-cover" />
+            ) : (
+              <User className="w-7 h-7 text-muted-foreground" />
+            )}
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Hello, {displayName}</h1>
+            <p className="text-sm text-muted-foreground">{profile?.email}</p>
+            {role && (
+              <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary capitalize">
+                {role.replace("_", " ")}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Quick Links - pill row */}
+      {/* Quick Links */}
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-5 px-5">
         {quickLinks.map((item) => (
           <Link
@@ -68,38 +86,21 @@ export default function Profile() {
         ))}
       </div>
 
-      {/* Your Orders */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-foreground">Your Orders</h2>
-          <Link to="/shop" className="text-xs font-medium text-primary flex items-center gap-0.5">
-            View All <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
-          {mockOrders.map((order) => {
-            const StatusIcon = statusIcon[order.status] || Package;
-            return (
-              <div key={order.id} className="app-card flex-shrink-0 w-56 p-4">
-                <div className="flex items-center gap-1.5 mb-3">
-                  <StatusIcon className={`w-4 h-4 ${statusColor[order.status]}`} />
-                  <span className={`text-sm font-semibold ${statusColor[order.status]}`}>{order.status}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mb-1">{order.date}</p>
-                <div className="flex items-center gap-3 mt-2">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <span className="gradient-text font-bold text-lg">{order.initial}</span>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground line-clamp-2">{order.product}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{order.id}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
+      {/* Admin Portal link */}
+      {(role === "approved_admin" || role === "super_admin") && (
+        <Link to="/admin" className="app-card flex items-center justify-between p-4 border-primary/20 hover:border-primary/40">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Settings className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <span className="text-sm font-semibold text-foreground block">Admin Portal</span>
+              <span className="text-xs text-muted-foreground">Manage products, orders & more</span>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </Link>
+      )}
 
       {/* Cart Summary */}
       {cart.length > 0 && (
@@ -125,7 +126,7 @@ export default function Profile() {
             <button key={item.label} className="app-card w-full flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
-                  <item.icon className="w-4.5 h-4.5 text-muted-foreground" />
+                  <item.icon className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <span className="text-sm font-medium text-foreground">{item.label}</span>
               </div>
@@ -135,14 +136,14 @@ export default function Profile() {
         </div>
       </section>
 
-      {/* Savings */}
-      <div className="app-card p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-primary">${cartTotal > 0 ? Math.round(cartTotal * 0.12).toLocaleString() : "0"}</span>
-          <span className="text-sm text-muted-foreground">Your savings with Champa</span>
-        </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground" />
-      </div>
+      {/* Sign Out */}
+      <button
+        onClick={signOut}
+        className="app-card w-full flex items-center gap-3 p-4 text-destructive hover:bg-destructive/5 transition-colors"
+      >
+        <LogOut className="w-5 h-5" />
+        <span className="text-sm font-medium">Sign Out</span>
+      </button>
     </div>
   );
 }
