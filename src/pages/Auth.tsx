@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ import logo from "@/assets/logo.jpg";
 
 export default function Auth() {
   const { signIn, signUp, resetPassword } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [tab, setTab] = useState<"login" | "signup" | "forgot">("login");
   const [email, setEmail] = useState("");
@@ -30,7 +32,7 @@ export default function Auth() {
     if (error) {
       toast.error(error);
     } else {
-      toast.success("Welcome back!");
+      toast.success(t("auth.welcomeBack"));
       navigate("/");
     }
   };
@@ -38,7 +40,7 @@ export default function Auth() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
+      toast.error(t("auth.minPassword"));
       return;
     }
     setLoading(true);
@@ -47,7 +49,7 @@ export default function Auth() {
     if (error) {
       toast.error(error);
     } else {
-      toast.success("Check your email to verify your account!");
+      toast.success(t("auth.checkEmail"));
       setTab("login");
     }
   };
@@ -60,7 +62,7 @@ export default function Auth() {
     if (error) {
       toast.error(error);
     } else {
-      toast.success("Password reset email sent!");
+      toast.success(t("auth.resetSent"));
       setTab("login");
     }
   };
@@ -73,7 +75,7 @@ export default function Auth() {
           <img src={logo} alt="Champa" className="h-16 w-16 rounded-2xl object-cover mx-auto mb-4 ring-2 ring-primary/20" />
           <h1 className="text-2xl font-bold text-foreground">Champa Enterprise</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {tab === "login" ? "Sign in to your account" : tab === "signup" ? "Create a new account" : "Reset your password"}
+            {tab === "login" ? t("auth.signInTitle") : tab === "signup" ? t("auth.signUpTitle") : t("auth.resetTitle")}
           </p>
         </div>
 
@@ -86,7 +88,7 @@ export default function Auth() {
                 tab === "login" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
               }`}
             >
-              Sign In
+              {t("auth.signInTab")}
             </button>
             <button
               onClick={() => setTab("signup")}
@@ -94,7 +96,7 @@ export default function Auth() {
                 tab === "signup" ? "bg-card shadow-sm text-foreground" : "text-muted-foreground"
               }`}
             >
-              Sign Up
+              {t("auth.signUpTab")}
             </button>
           </div>
         )}
@@ -103,11 +105,11 @@ export default function Auth() {
         {tab === "login" && (
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth.email")}</Label>
               <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("auth.password")}</Label>
               <div className="relative">
                 <Input id="password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -116,10 +118,10 @@ export default function Auth() {
               </div>
             </div>
             <button type="button" onClick={() => setTab("forgot")} className="text-xs text-primary hover:underline">
-              Forgot password?
+              {t("auth.forgotPassword")}
             </button>
             <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Sign In"}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("auth.signInBtn")}
             </Button>
           </form>
         )}
@@ -128,15 +130,15 @@ export default function Auth() {
         {tab === "signup" && (
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">{t("auth.fullName")}</Label>
               <Input id="fullName" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="John Doe" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signupEmail">Email</Label>
+              <Label htmlFor="signupEmail">{t("auth.email")}</Label>
               <Input id="signupEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="signupPassword">Password</Label>
+              <Label htmlFor="signupPassword">{t("auth.password")}</Label>
               <div className="relative">
                 <Input id="signupPassword" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" required />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
@@ -147,18 +149,18 @@ export default function Auth() {
             <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border border-border">
               <Checkbox id="adminCheck" checked={isAdmin} onCheckedChange={(v) => setIsAdmin(v === true)} className="mt-0.5" />
               <div>
-                <Label htmlFor="adminCheck" className="text-sm font-medium cursor-pointer">Sign up as Champa Admin</Label>
-                <p className="text-xs text-muted-foreground mt-0.5">Request admin access (requires approval)</p>
+                <Label htmlFor="adminCheck" className="text-sm font-medium cursor-pointer">{t("auth.adminCheckbox")}</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">{t("auth.adminCheckboxDesc")}</p>
               </div>
             </div>
             {isAdmin && (
               <div className="space-y-2 animate-fade-in">
-                <Label htmlFor="reason">Reason for admin access</Label>
-                <Textarea id="reason" value={adminReason} onChange={(e) => setAdminReason(e.target.value)} placeholder="Explain why you need admin access..." rows={3} required />
+                <Label htmlFor="reason">{t("auth.adminReason")}</Label>
+                <Textarea id="reason" value={adminReason} onChange={(e) => setAdminReason(e.target.value)} placeholder={t("auth.adminReasonPlaceholder")} rows={3} required />
               </div>
             )}
             <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Create Account"}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("auth.signUpBtn")}
             </Button>
           </form>
         )}
@@ -167,14 +169,14 @@ export default function Auth() {
         {tab === "forgot" && (
           <form onSubmit={handleForgot} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="resetEmail">Email</Label>
+              <Label htmlFor="resetEmail">{t("auth.email")}</Label>
               <Input id="resetEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
             <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={loading}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Send Reset Link"}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : t("auth.sendResetLink")}
             </Button>
             <button type="button" onClick={() => setTab("login")} className="w-full text-sm text-muted-foreground hover:text-foreground text-center">
-              Back to Sign In
+              {t("auth.backToSignIn")}
             </button>
           </form>
         )}

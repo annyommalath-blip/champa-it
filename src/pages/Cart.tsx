@@ -1,20 +1,22 @@
 import { Link } from "react-router-dom";
 import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag } from "lucide-react";
 import { useApp } from "@/context/AppContext";
+import { useLanguage } from "@/context/LanguageContext";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
+  const { t } = useLanguage();
   const [showCheckout, setShowCheckout] = useState(false);
 
   if (cart.length === 0) {
     return (
       <div className="section-padding text-center min-h-[60vh] flex flex-col items-center justify-center">
         <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-        <h2 className="text-2xl font-bold mb-2">Your cart is empty</h2>
-        <p className="text-muted-foreground mb-6">Browse our products and add something you need.</p>
-        <Link to="/shop" className="btn-primary">Browse Shop</Link>
+        <h2 className="text-2xl font-bold mb-2">{t("cart.empty")}</h2>
+        <p className="text-muted-foreground mb-6">{t("cart.emptyDesc")}</p>
+        <Link to="/shop" className="btn-primary">{t("cart.browseShop")}</Link>
       </div>
     );
   }
@@ -23,10 +25,10 @@ export default function CartPage() {
     <div className="section-padding">
       <div className="max-w-4xl mx-auto">
         <Link to="/shop" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8 text-sm">
-          <ArrowLeft className="w-4 h-4" /> Continue Shopping
+          <ArrowLeft className="w-4 h-4" /> {t("cart.continueShopping")}
         </Link>
 
-        <h1 className="text-3xl font-bold mb-8">Cart ({cart.reduce((s, i) => s + i.quantity, 0)} items)</h1>
+        <h1 className="text-3xl font-bold mb-8">{t("cart.title")} ({cart.reduce((s, i) => s + i.quantity, 0)} {t("cart.items")})</h1>
 
         <div className="space-y-3 mb-8">
           {cart.map((item) => (
@@ -36,7 +38,7 @@ export default function CartPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold truncate text-sm">{item.product.name}</h3>
-                <p className="text-xs text-muted-foreground">${item.product.price.toLocaleString()} each</p>
+                <p className="text-xs text-muted-foreground">${item.product.price.toLocaleString()} {t("cart.each")}</p>
               </div>
               <div className="flex items-center gap-1.5">
                 <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-7 h-7 rounded border border-border flex items-center justify-center hover:bg-secondary">
@@ -57,16 +59,16 @@ export default function CartPage() {
 
         <div className="tech-card p-6">
           <div className="flex justify-between items-center text-lg font-bold mb-4">
-            <span>Total</span>
+            <span>{t("cart.total")}</span>
             <span className="gradient-text">${cartTotal.toLocaleString()}</span>
           </div>
           {!showCheckout ? (
             <button onClick={() => setShowCheckout(true)} className="btn-primary w-full justify-center">
-              Proceed to Checkout
+              {t("cart.checkout")}
             </button>
           ) : (
-            <CheckoutForm onComplete={() => {
-              toast.success("Order placed successfully! We'll contact you shortly.");
+            <CheckoutForm t={t} onComplete={() => {
+              toast.success(t("cart.orderSuccess"));
               clearCart();
               setShowCheckout(false);
             }} />
@@ -77,13 +79,13 @@ export default function CartPage() {
   );
 }
 
-function CheckoutForm({ onComplete }: { onComplete: () => void }) {
+function CheckoutForm({ onComplete, t }: { onComplete: () => void; t: (k: string) => string }) {
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone || !form.email || !form.address) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("contact.fillRequired"));
       return;
     }
     onComplete();
@@ -91,12 +93,12 @@ function CheckoutForm({ onComplete }: { onComplete: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-      <h3 className="font-semibold text-lg">Checkout</h3>
+      <h3 className="font-semibold text-lg">{t("cart.checkoutTitle")}</h3>
       {[
-        { key: "name", label: "Full Name", type: "text", required: true },
-        { key: "phone", label: "Phone Number", type: "tel", required: true },
-        { key: "email", label: "Email", type: "email", required: true },
-        { key: "address", label: "Delivery Address", type: "text", required: true },
+        { key: "name", label: t("cart.fullName"), type: "text", required: true },
+        { key: "phone", label: t("cart.phone"), type: "tel", required: true },
+        { key: "email", label: t("cart.email"), type: "email", required: true },
+        { key: "address", label: t("cart.address"), type: "text", required: true },
       ].map((field) => (
         <div key={field.key}>
           <label className="text-sm text-muted-foreground mb-1 block">{field.label} {field.required && "*"}</label>
@@ -104,10 +106,10 @@ function CheckoutForm({ onComplete }: { onComplete: () => void }) {
         </div>
       ))}
       <div>
-        <label className="text-sm text-muted-foreground mb-1 block">Notes</label>
+        <label className="text-sm text-muted-foreground mb-1 block">{t("cart.notes")}</label>
         <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} className="input-field resize-none" />
       </div>
-      <button type="submit" className="btn-primary w-full justify-center">Place Order</button>
+      <button type="submit" className="btn-primary w-full justify-center">{t("cart.placeOrder")}</button>
     </form>
   );
 }

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ShoppingBag, Wrench, MessageCircle, LayoutDashboard, Zap, Tag, Star, Users, Clock, TrendingUp, CheckCircle, ChevronRight } from "lucide-react";
 import { products, deals } from "@/data/mock";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/context/LanguageContext";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -12,25 +13,10 @@ const defaultHeroSlides = [
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
 ];
 
-const quickActions = [
-  { icon: ShoppingBag, label: "Shop", link: "/shop" },
-  { icon: Wrench, label: "Services", link: "/services" },
-  { icon: MessageCircle, label: "Get Quote", link: "/contact" },
-  { icon: MessageCircle, label: "Live Chat", link: "/contact" },
-  { icon: Tag, label: "Deals", link: "/shop" },
-  { icon: LayoutDashboard, label: "Profile", link: "/profile" },
-];
-
-const stats = [
-  { num: "500+", label: "Clients", icon: Users },
-  { num: "24/7", label: "Support", icon: Clock },
-  { num: "99.9%", label: "SLA", icon: TrendingUp },
-  { num: "50+", label: "Partners", icon: CheckCircle },
-];
-
 const partners = ["Cisco", "AWS", "VMware", "Fortinet", "Microsoft", "ISO 27001"];
 
 export default function AboutPage() {
+  const { t } = useLanguage();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -65,6 +51,22 @@ export default function AboutPage() {
     return () => clearInterval(interval);
   }, [emblaApi]);
 
+  const quickActions = [
+    { icon: ShoppingBag, label: t("nav.shop"), link: "/shop" },
+    { icon: Wrench, label: t("nav.services"), link: "/services" },
+    { icon: MessageCircle, label: t("home.getQuote"), link: "/contact" },
+    { icon: MessageCircle, label: t("home.liveChat"), link: "/contact" },
+    { icon: Tag, label: t("home.deals"), link: "/shop" },
+    { icon: LayoutDashboard, label: t("nav.profile"), link: "/profile" },
+  ];
+
+  const stats = [
+    { num: "500+", label: t("home.stats.clients"), icon: Users },
+    { num: "24/7", label: t("home.stats.support"), icon: Clock },
+    { num: "99.9%", label: t("home.stats.sla"), icon: TrendingUp },
+    { num: "50+", label: t("home.stats.partners"), icon: CheckCircle },
+  ];
+
   const featuredProducts = products.filter(p => p.category !== "Services").slice(0, 5);
   const dealProducts = deals.map(d => ({ deal: d, product: products.find(p => p.id === d.productId)! })).filter(d => d.product);
 
@@ -78,7 +80,6 @@ export default function AboutPage() {
             {heroSlides.map((slide, i) => (
               <div key={i} className="flex-[0_0_100%] min-w-0 px-1">
                 <div className="app-card relative overflow-hidden p-6 md:p-10 min-h-[160px] md:min-h-[240px] flex flex-col justify-end">
-                  {/* Yellow accent edge */}
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent rounded-l-2xl" />
                   <div className="absolute top-4 right-4 w-24 h-24 rounded-full bg-primary/8 blur-[40px]" />
                   <h2 className="text-xl md:text-3xl font-bold text-foreground mb-1.5">{slide.title}</h2>
@@ -94,7 +95,6 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-        {/* Dots */}
         <div className="flex justify-center gap-1.5 mt-3">
           {heroSlides.map((_, i) => (
             <button
@@ -110,7 +110,7 @@ export default function AboutPage() {
 
       {/* ── Quick Actions ── */}
       <section>
-        <h3 className="text-base font-semibold text-foreground mb-3">Quick Actions</h3>
+        <h3 className="text-base font-semibold text-foreground mb-3">{t("home.quickActions")}</h3>
         <div className="grid grid-cols-3 gap-3">
           {quickActions.map((action) => (
             <Link
@@ -130,9 +130,9 @@ export default function AboutPage() {
       {/* ── Featured Products ── */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-foreground">Featured Products</h3>
+          <h3 className="text-base font-semibold text-foreground">{t("home.featuredProducts")}</h3>
           <Link to="/shop" className="text-xs font-medium text-primary flex items-center gap-0.5">
-            More <ChevronRight className="w-3.5 h-3.5" />
+            {t("home.more")} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 scrollbar-hide">
@@ -168,12 +168,12 @@ export default function AboutPage() {
         <Link to="/services" className="app-card block p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/6 rounded-full blur-[50px]" />
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-primary/15 text-primary mb-3">
-            <Zap className="w-3 h-3" /> 6 Services
+            <Zap className="w-3 h-3" /> {t("home.6services")}
           </span>
-          <h3 className="text-lg font-bold text-foreground mb-1">IT Consulting & Managed Services</h3>
-          <p className="text-sm text-muted-foreground mb-4">Infrastructure assessments, cloud migration, 24/7 support</p>
+          <h3 className="text-lg font-bold text-foreground mb-1">{t("home.services")}</h3>
+          <p className="text-sm text-muted-foreground mb-4">{t("home.servicesDesc")}</p>
           <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-            Learn More <ArrowRight className="w-4 h-4" />
+            {t("home.learnMore")} <ArrowRight className="w-4 h-4" />
           </span>
         </Link>
       </section>
@@ -181,9 +181,9 @@ export default function AboutPage() {
       {/* ── Today's Deals ── */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-foreground">Today's Deals</h3>
+          <h3 className="text-base font-semibold text-foreground">{t("home.todaysDeals")}</h3>
           <Link to="/shop" className="text-xs font-medium text-primary flex items-center gap-0.5">
-            More <ChevronRight className="w-3.5 h-3.5" />
+            {t("home.more")} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
         <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 scrollbar-hide">
@@ -239,7 +239,7 @@ export default function AboutPage() {
 
       {/* ── Partners ── */}
       <section className="pb-4">
-        <h3 className="text-base font-semibold text-foreground mb-3">Trusted Partners</h3>
+        <h3 className="text-base font-semibold text-foreground mb-3">{t("home.trustedPartners")}</h3>
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
           {partners.map((name) => (
             <span

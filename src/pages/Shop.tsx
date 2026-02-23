@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { Search, Filter, Star, Server, Shield, Wifi, HardDrive, Zap, Monitor, Wrench } from "lucide-react";
 import { products, categories } from "@/data/mock";
 import { useApp } from "@/context/AppContext";
+import { useLanguage } from "@/context/LanguageContext";
 
 const categoryIcons: Record<string, any> = {
   Servers: Server, Security: Shield, Networking: Wifi, Storage: HardDrive, Power: Zap, Software: Monitor, Services: Wrench,
@@ -16,6 +17,7 @@ export default function ShopPage() {
   const [stockOnly, setStockOnly] = useState(false);
   const [sortPrice, setSortPrice] = useState<"asc" | "desc" | null>(null);
   const { addToCart } = useApp();
+  const { t } = useLanguage();
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
@@ -33,8 +35,8 @@ export default function ShopPage() {
       {/* Header */}
       <div className="border-b border-border/50 px-4 py-10 md:px-8 hero-section">
         <div className="max-w-7xl mx-auto relative z-10">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Shop</h1>
-          <p className="text-muted-foreground">Browse enterprise hardware, software, and service packages.</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">{t("shop.title")}</h1>
+          <p className="text-muted-foreground">{t("shop.subtitle")}</p>
         </div>
       </div>
 
@@ -46,7 +48,7 @@ export default function ShopPage() {
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search products..."
+                placeholder={t("shop.search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="input-field pl-10"
@@ -76,13 +78,13 @@ export default function ShopPage() {
           <div className="flex gap-4 mb-8 text-sm">
             <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
               <input type="checkbox" checked={stockOnly} onChange={(e) => setStockOnly(e.target.checked)} className="accent-primary rounded" />
-              In Stock Only
+              {t("shop.inStockOnly")}
             </label>
             <button onClick={() => setSortPrice(sortPrice === "asc" ? "desc" : "asc")} className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
               <Filter className="w-4 h-4" />
-              Price {sortPrice === "asc" ? "↑" : sortPrice === "desc" ? "↓" : ""}
+              {t("shop.price")} {sortPrice === "asc" ? "↑" : sortPrice === "desc" ? "↓" : ""}
             </button>
-            <span className="ml-auto text-muted-foreground">{filtered.length} product{filtered.length !== 1 && "s"}</span>
+            <span className="ml-auto text-muted-foreground">{filtered.length} {filtered.length !== 1 ? t("shop.products") : t("shop.product")}</span>
           </div>
 
           {/* Product Grid */}
@@ -95,7 +97,7 @@ export default function ShopPage() {
                       <span className="gradient-text font-bold text-2xl">{product.name.charAt(0)}</span>
                     </div>
                     {!product.inStock && (
-                      <span className="absolute top-2 right-2 badge-pill bg-destructive/20 text-destructive text-[10px]">Out of Stock</span>
+                      <span className="absolute top-2 right-2 badge-pill bg-destructive/20 text-destructive text-[10px]">{t("shop.outOfStock")}</span>
                     )}
                   </div>
                 </Link>
@@ -116,7 +118,7 @@ export default function ShopPage() {
                       disabled={!product.inStock}
                       className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Add to Cart
+                      {t("shop.addToCart")}
                     </button>
                   </div>
                 </div>
@@ -125,7 +127,7 @@ export default function ShopPage() {
           </div>
 
           {filtered.length === 0 && (
-            <div className="text-center py-20 text-muted-foreground">No products found matching your criteria.</div>
+            <div className="text-center py-20 text-muted-foreground">{t("shop.noProducts")}</div>
           )}
         </div>
       </div>
