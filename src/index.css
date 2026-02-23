@@ -13,7 +13,7 @@
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 48 100% 50%;
+    --primary: 45 96% 53%;
     --primary-foreground: 0 0% 4%;
 
     --secondary: 0 0% 14%;
@@ -22,7 +22,7 @@
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 55%;
 
-    --accent: 48 100% 50%;
+    --accent: 45 96% 53%;
     --accent-foreground: 0 0% 4%;
 
     --destructive: 0 72% 50%;
@@ -30,26 +30,26 @@
 
     --border: 0 0% 16%;
     --input: 0 0% 16%;
-    --ring: 48 100% 50%;
+    --ring: 45 96% 53%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 6%;
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 48 100% 50%;
+    --sidebar-primary: 45 96% 53%;
     --sidebar-primary-foreground: 0 0% 4%;
     --sidebar-accent: 0 0% 14%;
     --sidebar-accent-foreground: 0 0% 90%;
     --sidebar-border: 0 0% 16%;
-    --sidebar-ring: 48 100% 50%;
+    --sidebar-ring: 45 96% 53%;
 
     /* Custom tokens */
-    --glow-primary: 0 0 20px hsl(48 100% 50% / 0.3);
-    --glow-primary-strong: 0 0 40px hsl(48 100% 50% / 0.4);
+    --glow-primary: 0 0 20px hsl(45 96% 53% / 0.3);
+    --glow-primary-strong: 0 0 40px hsl(45 96% 53% / 0.4);
     --glass-bg: hsl(0 0% 100% / 0.04);
     --glass-border: hsl(0 0% 100% / 0.08);
     --glass-bg-hover: hsl(0 0% 100% / 0.08);
-    --gradient-primary: linear-gradient(135deg, hsl(48 100% 50%), hsl(40 100% 45%));
+    --gradient-primary: linear-gradient(135deg, hsl(45 96% 53%), hsl(38 90% 45%));
     --gradient-dark: linear-gradient(180deg, hsl(0 0% 6%), hsl(0 0% 2%));
   }
 }
@@ -76,12 +76,12 @@
 
   .glass-card:hover {
     background: var(--glass-bg-hover);
-    border-color: hsl(48 100% 50% / 0.15);
+    border-color: hsl(45 96% 53% / 0.15);
     box-shadow: var(--glow-primary);
   }
 
   .glow-text {
-    text-shadow: 0 0 30px hsl(48 100% 50% / 0.4);
+    text-shadow: 0 0 30px hsl(45 96% 53% / 0.4);
   }
 
   .glow-border {
@@ -120,7 +120,7 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 8px hsl(48 100% 50% / 0.2); }
-    50% { box-shadow: 0 0 20px hsl(48 100% 50% / 0.4); }
+    0%, 100% { box-shadow: 0 0 8px hsl(45 96% 53% / 0.2); }
+    50% { box-shadow: 0 0 20px hsl(45 96% 53% / 0.4); }
   }
 }
