@@ -19,7 +19,7 @@ export default function ContactPage() {
       <div className="section-padding">
         <div className="max-w-2xl mx-auto">
           <ContactForm onSubmit={(data) => {
-            addNotification({ type: "contact_form", title: "New Contact Form", message: `${data.name} submitted a contact form.`, referenceId: "form-" + Date.now() });
+            addNotification({ type: "contact_sales", title: "Sales Request Sent", message: `Your contact request has been submitted. Our team will reach out to ${data.name} soon.`, referenceId: "form-" + Date.now() });
             toast.success("Your message has been sent! Our team will reach out soon.");
           }} />
         </div>
