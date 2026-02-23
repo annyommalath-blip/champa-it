@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench, Menu, X } from "lucide-react";
+import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench, Menu, X, Bell, User } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useState } from "react";
 import logo from "@/assets/logo.jpg";
@@ -19,8 +19,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Announcement bar */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-primary/90 via-primary to-primary/90 text-primary-foreground text-xs text-center py-2 px-4 font-semibold tracking-wide">
+      {/* Announcement bar - desktop only */}
+      <div className="hidden md:block relative overflow-hidden bg-gradient-to-r from-primary/90 via-primary to-primary/90 text-primary-foreground text-xs text-center py-2 px-4 font-semibold tracking-wide">
         <span className="relative z-10">
           🔥 Free shipping on orders over $1,000 — <Link to="/shop" className="underline underline-offset-2 font-bold">Shop Now</Link>
         </span>
@@ -66,54 +66,64 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Mobile nav */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border/50 bg-background/90 backdrop-blur-xl sticky top-0 z-50">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Champa" className="h-9 w-9 rounded-lg object-cover" />
-          <span className="font-bold text-lg tracking-tight">Champa</span>
-        </Link>
-        <div className="flex items-center gap-1">
-          <Link to="/cart" className="relative p-2 rounded-lg">
-            <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold">
-                {cartCount}
-              </span>
-            )}
-          </Link>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg hover:bg-secondary/50">
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+      {/* Mobile app header */}
+      <header className="md:hidden px-5 pt-4 pb-3 bg-background sticky top-0 z-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Champa" className="h-10 w-10 rounded-xl object-cover" />
+            <div className="leading-tight">
+              <span className="font-bold text-base tracking-tight text-foreground">CHAMPA</span>
+              <span className="block text-[10px] text-muted-foreground tracking-wide">Tech-driven solutions</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] font-semibold text-primary border border-primary/30 rounded-full px-2.5 py-1 mr-1">Online Support</span>
+            <Link to="/cart" className="relative p-2 rounded-xl">
+              <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <button className="p-2 rounded-xl">
+              <Bell className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <Link to="/dashboard" className="p-2 rounded-xl">
+              <User className="w-5 h-5 text-muted-foreground" />
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* Mobile dropdown */}
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-card/95 backdrop-blur-xl border-b border-border px-4 py-3 space-y-1 z-40 animate-fade-in">
+      <main className="flex-1 md:pb-0 pb-20">{children}</main>
+
+      {/* Mobile bottom tab bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
+        <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = location.pathname === item.to;
+            const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
             return (
               <Link
                 key={item.to}
                 to={item.to}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                  active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"
-                }`}
+                className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors"
               >
-                <Icon className="w-4 h-4" />
-                {item.label}
+                <div className={`p-1.5 rounded-xl transition-colors ${active ? "bg-primary/15" : ""}`}>
+                  <Icon className={`w-5 h-5 transition-colors ${active ? "text-primary" : "text-muted-foreground"}`} />
+                </div>
+                <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
+                  {item.label}
+                </span>
               </Link>
             );
           })}
         </div>
-      )}
+      </nav>
 
-      <main className="flex-1">{children}</main>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card/50">
+      {/* Footer - desktop only */}
+      <footer className="hidden md:block border-t border-border bg-card/50">
         <div className="max-w-7xl mx-auto px-4 py-14 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
