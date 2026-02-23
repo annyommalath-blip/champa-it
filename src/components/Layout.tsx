@@ -3,6 +3,7 @@ import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench
 import { useApp } from "@/context/AppContext";
 import { useState, useRef, useEffect } from "react";
 import logo from "@/assets/logo.jpg";
+import ChatPopup from "@/components/ChatPopup";
 
 const navItems = [
   { to: "/", label: "Home", icon: Home },
@@ -17,6 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { cartCount } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const supportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -105,41 +107,45 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <main className="flex-1 md:pb-0 pb-20">{children}</main>
 
+      {/* Chat popup */}
+      {chatOpen && <ChatPopup onClose={() => setChatOpen(false)} />}
+
       {/* Floating support agent */}
-      <div ref={supportRef} className="md:hidden fixed bottom-24 right-5 z-50 flex flex-col items-end gap-2">
-        {supportOpen && (
-          <div className="bg-card rounded-2xl border border-border shadow-xl p-2 w-52 animate-fade-in">
-            <Link
-              to="/contact"
-              onClick={() => setSupportOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors"
-            >
-              <MessageSquare className="w-5 h-5 text-primary" />
-              <div>
-                <span className="text-sm font-semibold text-foreground block">Live Agent</span>
-                <span className="text-[10px] text-muted-foreground">Chat with support</span>
-              </div>
-            </Link>
-            <Link
-              to="/contact"
-              onClick={() => setSupportOpen(false)}
-              className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors"
-            >
-              <Phone className="w-5 h-5 text-primary" />
-              <div>
-                <span className="text-sm font-semibold text-foreground block">Contact Sales</span>
-                <span className="text-[10px] text-muted-foreground">Get a quote</span>
-              </div>
-            </Link>
-          </div>
-        )}
-        <button
-          onClick={() => setSupportOpen(!supportOpen)}
-          className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center hover-scale transition-transform"
-        >
-          {supportOpen ? <X className="w-6 h-6" /> : <Headphones className="w-6 h-6" />}
-        </button>
-      </div>
+      {!chatOpen && (
+        <div ref={supportRef} className="md:hidden fixed bottom-24 right-5 z-50 flex flex-col items-end gap-2">
+          {supportOpen && (
+            <div className="bg-card rounded-2xl border border-border shadow-xl p-2 w-52 animate-fade-in">
+              <button
+                onClick={() => { setSupportOpen(false); setChatOpen(true); }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors"
+              >
+                <MessageSquare className="w-5 h-5 text-primary" />
+                <div className="text-left">
+                  <span className="text-sm font-semibold text-foreground block">Live Agent</span>
+                  <span className="text-[10px] text-muted-foreground">Chat with support</span>
+                </div>
+              </button>
+              <Link
+                to="/contact"
+                onClick={() => setSupportOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors"
+              >
+                <Phone className="w-5 h-5 text-primary" />
+                <div>
+                  <span className="text-sm font-semibold text-foreground block">Contact Sales</span>
+                  <span className="text-[10px] text-muted-foreground">Get a quote</span>
+                </div>
+              </Link>
+            </div>
+          )}
+          <button
+            onClick={() => setSupportOpen(!supportOpen)}
+            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center hover-scale transition-transform"
+          >
+            {supportOpen ? <X className="w-6 h-6" /> : <Headphones className="w-6 h-6" />}
+          </button>
+        </div>
+      )}
 
       {/* Mobile bottom tab bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card backdrop-blur-xl border-t border-border safe-area-bottom">
