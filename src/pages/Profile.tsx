@@ -1,14 +1,45 @@
 import { Link } from "react-router-dom";
-import { User, Package, ChevronRight, Settings, Heart, MapPin, CreditCard, HelpCircle, ShoppingBag, LogOut, LogIn, Globe } from "lucide-react";
+import { User, Package, ChevronRight, Settings, Heart, MapPin, CreditCard, HelpCircle, ShoppingBag, LogOut, LogIn, Globe, ArrowLeft } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage, Language } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function Profile() {
   const { cart, cartTotal } = useApp();
   const { user, profile, role, signOut } = useAuth();
   const { t, language, setLanguage } = useLanguage();
+  const [showLanguage, setShowLanguage] = useState(false);
+
+  // Language sub-page
+  if (showLanguage) {
+    return (
+      <div className="px-5 py-5 space-y-6 md:max-w-md md:mx-auto md:px-8 md:py-8">
+        <button onClick={() => setShowLanguage(false)} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="w-4 h-4" /> {t("profile.account")}
+        </button>
+        <h1 className="text-xl font-bold text-foreground">{t("profile.language")}</h1>
+        <p className="text-sm text-muted-foreground">{t("profile.languageDesc")}</p>
+        <div className="flex flex-col gap-2">
+          {([["en", "🇺🇸 English"], ["lo", "🇱🇦 ລາວ"]] as [Language, string][]).map(([code, label]) => (
+            <button
+              key={code}
+              onClick={() => setLanguage(code)}
+              className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
+                language === code
+                  ? "border-primary bg-primary/10 text-primary font-semibold"
+                  : "border-border bg-card text-foreground hover:border-primary/30"
+              }`}
+            >
+              <span className="text-sm">{label}</span>
+              {language === code && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   // Not logged in — show sign in prompt
   if (!user) {
@@ -32,9 +63,19 @@ export default function Profile() {
           </Link>
         </div>
 
-        {/* Language selector even for guests */}
+        {/* Language selector for guests */}
         <div className="pt-4">
-          <LanguageSelector language={language} setLanguage={setLanguage} t={t} />
+          <button
+            onClick={() => setShowLanguage(true)}
+            className="app-card w-full flex items-center justify-between p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+                <Globe className="w-4 h-4 text-muted-foreground" />
+              </div>
+              <span className="text-sm font-medium text-foreground">{t("profile.language")}</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
       </div>
     );
@@ -50,9 +91,10 @@ export default function Profile() {
   ];
 
   const accountItems = [
-    { icon: Settings, label: t("profile.accountSettings") },
-    { icon: HelpCircle, label: t("profile.helpSupport") },
-    { icon: ShoppingBag, label: t("profile.buyAgain") },
+    { icon: Settings, label: t("profile.accountSettings"), onClick: undefined },
+    { icon: HelpCircle, label: t("profile.helpSupport"), onClick: undefined },
+    { icon: ShoppingBag, label: t("profile.buyAgain"), onClick: undefined },
+    { icon: Globe, label: t("profile.language"), onClick: () => setShowLanguage(true) },
   ];
 
   return (
@@ -132,7 +174,7 @@ export default function Profile() {
         <h2 className="text-lg font-bold text-foreground mb-3">{t("profile.account")}</h2>
         <div className="space-y-2">
           {accountItems.map((item) => (
-            <button key={item.label} className="app-card w-full flex items-center justify-between p-4">
+            <button key={item.label} onClick={item.onClick} className="app-card w-full flex items-center justify-between p-4">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
                   <item.icon className="w-4 h-4 text-muted-foreground" />
@@ -142,9 +184,6 @@ export default function Profile() {
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
             </button>
           ))}
-
-          {/* Language Setting */}
-          <LanguageSelector language={language} setLanguage={setLanguage} t={t} />
         </div>
       </section>
 
@@ -160,40 +199,3 @@ export default function Profile() {
   );
 }
 
-function LanguageSelector({ language, setLanguage, t }: { language: Language; setLanguage: (l: Language) => void; t: (k: string) => string }) {
-  return (
-    <div className="app-card p-4">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
-          <Globe className="w-4 h-4 text-muted-foreground" />
-        </div>
-        <div>
-          <span className="text-sm font-medium text-foreground block">{t("profile.language")}</span>
-          <span className="text-xs text-muted-foreground">{t("profile.languageDesc")}</span>
-        </div>
-      </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => setLanguage("en")}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-            language === "en"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          🇺🇸 English
-        </button>
-        <button
-          onClick={() => setLanguage("lo")}
-          className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-            language === "lo"
-              ? "bg-primary text-primary-foreground"
-              : "bg-muted text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          🇱🇦 ລາວ
-        </button>
-      </div>
-    </div>
-  );
-}
