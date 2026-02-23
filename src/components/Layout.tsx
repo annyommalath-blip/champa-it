@@ -67,30 +67,30 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Mobile app header */}
-      <header className="md:hidden px-5 pt-4 pb-3 bg-background sticky top-0 z-50">
+      <header className="md:hidden px-5 pt-4 pb-3 bg-primary sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="Champa" className="h-10 w-10 rounded-xl object-cover" />
+            <img src={logo} alt="Champa" className="h-11 w-11 rounded-xl object-cover border-2 border-primary-foreground/20" />
             <div className="leading-tight">
-              <span className="font-bold text-base tracking-tight text-foreground">CHAMPA</span>
-              <span className="block text-[10px] text-muted-foreground tracking-wide">Tech-driven solutions</span>
+              <span className="font-bold text-base tracking-tight text-primary-foreground">CHAMPA</span>
+              <span className="block text-[10px] text-primary-foreground/70 tracking-wide">Tech-driven solutions</span>
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-semibold text-primary border border-primary/30 rounded-full px-2.5 py-1 mr-1">Online Support</span>
+            <span className="text-[10px] font-semibold text-primary-foreground border border-primary-foreground/30 rounded-full px-2.5 py-1 mr-1">Online Support</span>
             <Link to="/cart" className="relative p-2 rounded-xl">
-              <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+              <ShoppingCart className="w-5 h-5 text-primary-foreground/80" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold">
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary-foreground text-primary text-[9px] flex items-center justify-center font-bold">
                   {cartCount}
                 </span>
               )}
             </Link>
             <button className="p-2 rounded-xl">
-              <Bell className="w-5 h-5 text-muted-foreground" />
+              <Bell className="w-5 h-5 text-primary-foreground/80" />
             </button>
             <Link to="/dashboard" className="p-2 rounded-xl">
-              <User className="w-5 h-5 text-muted-foreground" />
+              <User className="w-5 h-5 text-primary-foreground/80" />
             </Link>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main className="flex-1 md:pb-0 pb-20">{children}</main>
 
       {/* Mobile bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border/50 safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card backdrop-blur-xl border-t border-border safe-area-bottom">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
             const Icon = item.icon;
