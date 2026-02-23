@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, FileText, Menu, X } from "lucide-react";
+import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench, Menu, X } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useState } from "react";
 import logo from "@/assets/logo.jpg";
@@ -7,7 +7,7 @@ import logo from "@/assets/logo.jpg";
 const navItems = [
   { to: "/", label: "Home", icon: Home },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
-  { to: "/services", label: "Services", icon: FileText },
+  { to: "/services", label: "Services", icon: Wrench },
   { to: "/contact", label: "Contact", icon: MessageCircle },
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
 ];
@@ -19,53 +19,60 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Top bar - promo strip */}
-      <div className="bg-navy text-white text-xs text-center py-2 px-4 font-medium">
-        🔥 Free shipping on orders over $1,000 — <Link to="/shop" className="underline underline-offset-2">Shop Now</Link>
+      {/* Announcement bar */}
+      <div className="relative overflow-hidden bg-gradient-to-r from-primary/90 via-primary to-primary/90 text-primary-foreground text-xs text-center py-2 px-4 font-semibold tracking-wide">
+        <span className="relative z-10">
+          🔥 Free shipping on orders over $1,000 — <Link to="/shop" className="underline underline-offset-2 font-bold">Shop Now</Link>
+        </span>
       </div>
 
-      {/* Desktop top nav */}
-      <header className="hidden md:flex items-center justify-between px-8 py-3 border-b border-border bg-card sticky top-0 z-50">
-        <Link to="/" className="flex items-center gap-2.5">
-          <img src={logo} alt="Champa Enterprise" className="h-10 w-10 rounded-lg object-cover" />
-          <div className="leading-tight">
-            <span className="font-bold text-lg tracking-tight text-foreground">Champa</span>
-            <span className="block text-[10px] text-muted-foreground tracking-wide uppercase">Enterprise Solutions</span>
-          </div>
-        </Link>
-        <nav className="flex items-center gap-1">
-          {navItems.map((item) => {
-            const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-          <Link to="/cart" className="relative ml-3 p-2.5 rounded-lg hover:bg-muted transition-colors">
-            <ShoppingCart className="w-5 h-5 text-foreground" />
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">
-                {cartCount}
-              </span>
-            )}
+      {/* Desktop nav */}
+      <header className="hidden md:block sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-3">
+          <Link to="/" className="flex items-center gap-3 group">
+            <img src={logo} alt="Champa Enterprise" className="h-10 w-10 rounded-lg object-cover ring-1 ring-border group-hover:ring-primary/50 transition-all" />
+            <div className="leading-tight">
+              <span className="font-bold text-lg tracking-tight">Champa</span>
+              <span className="block text-[10px] text-muted-foreground tracking-widest uppercase font-medium">Enterprise</span>
+            </div>
           </Link>
-        </nav>
+          <nav className="flex items-center gap-1">
+            {navItems.map((item) => {
+              const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            <div className="w-px h-6 bg-border mx-2" />
+            <Link to="/cart" className="relative p-2.5 rounded-lg hover:bg-secondary/50 transition-all group">
+              <ShoppingCart className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold ring-2 ring-background">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          </nav>
+        </div>
       </header>
 
-      {/* Mobile top nav */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-card sticky top-0 z-50">
+      {/* Mobile nav */}
+      <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border/50 bg-background/90 backdrop-blur-xl sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Champa Enterprise" className="h-9 w-9 rounded-lg object-cover" />
+          <img src={logo} alt="Champa" className="h-9 w-9 rounded-lg object-cover" />
           <span className="font-bold text-lg tracking-tight">Champa</span>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <Link to="/cart" className="relative p-2 rounded-lg">
             <ShoppingCart className="w-5 h-5" />
             {cartCount > 0 && (
@@ -74,15 +81,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </span>
             )}
           </Link>
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg">
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 rounded-lg hover:bg-secondary/50">
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </header>
 
-      {/* Mobile dropdown menu */}
+      {/* Mobile dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-card border-b border-border px-4 py-3 space-y-1 z-40">
+        <div className="md:hidden bg-card/95 backdrop-blur-xl border-b border-border px-4 py-3 space-y-1 z-40 animate-fade-in">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.to;
@@ -91,8 +98,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 key={item.to}
                 to={item.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                  active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                  active ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary/50"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -103,50 +110,49 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      {/* Main content */}
       <main className="flex-1">{children}</main>
 
       {/* Footer */}
-      <footer className="bg-navy text-white">
-        <div className="max-w-6xl mx-auto px-4 py-12 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+      <footer className="border-t border-border bg-card/50">
+        <div className="max-w-7xl mx-auto px-4 py-14 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <img src={logo} alt="Champa Enterprise" className="w-10 h-10 rounded-lg object-cover" />
+            <div className="flex items-center gap-2.5 mb-4">
+              <img src={logo} alt="Champa" className="w-10 h-10 rounded-lg object-cover" />
               <div>
                 <span className="font-bold text-lg">Champa</span>
-                <span className="block text-xs text-white/60">Enterprise Solutions</span>
+                <span className="block text-[10px] text-muted-foreground tracking-widest uppercase">Enterprise</span>
               </div>
             </div>
-            <p className="text-sm text-white/60 leading-relaxed">Best Service Mind With Reasonable Price. Your trusted partner for enterprise technology.</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Best Service Mind With Reasonable Price. Your trusted partner for enterprise technology solutions.</p>
           </div>
           <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-white/80">Products</h4>
-            <div className="flex flex-col gap-2 text-sm text-white/60">
-              <Link to="/shop" className="hover:text-white transition-colors">Servers & Hardware</Link>
-              <Link to="/shop" className="hover:text-white transition-colors">Networking</Link>
-              <Link to="/shop" className="hover:text-white transition-colors">Security</Link>
-              <Link to="/shop" className="hover:text-white transition-colors">Software</Link>
+            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Products</h4>
+            <div className="flex flex-col gap-2.5 text-sm">
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Servers & Hardware</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Networking</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Security</Link>
+              <Link to="/shop" className="text-secondary-foreground hover:text-primary transition-colors">Software</Link>
             </div>
           </div>
           <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-white/80">Services</h4>
-            <div className="flex flex-col gap-2 text-sm text-white/60">
-              <Link to="/services" className="hover:text-white transition-colors">IT Consulting</Link>
-              <Link to="/services" className="hover:text-white transition-colors">Cloud Migration</Link>
-              <Link to="/services" className="hover:text-white transition-colors">Managed IT</Link>
-              <Link to="/services" className="hover:text-white transition-colors">Get a Quote</Link>
+            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Services</h4>
+            <div className="flex flex-col gap-2.5 text-sm">
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">IT Consulting</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">Cloud Migration</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">Managed IT</Link>
+              <Link to="/services" className="text-secondary-foreground hover:text-primary transition-colors">Get a Quote</Link>
             </div>
           </div>
           <div>
-            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-white/80">Company</h4>
-            <div className="flex flex-col gap-2 text-sm text-white/60">
-              <Link to="/" className="hover:text-white transition-colors">About Us</Link>
-              <Link to="/contact" className="hover:text-white transition-colors">Contact Sales</Link>
-              <Link to="/dashboard" className="hover:text-white transition-colors">Partner Portal</Link>
+            <h4 className="font-semibold text-xs uppercase tracking-widest text-muted-foreground mb-4">Company</h4>
+            <div className="flex flex-col gap-2.5 text-sm">
+              <Link to="/" className="text-secondary-foreground hover:text-primary transition-colors">About Us</Link>
+              <Link to="/contact" className="text-secondary-foreground hover:text-primary transition-colors">Contact Sales</Link>
+              <Link to="/dashboard" className="text-secondary-foreground hover:text-primary transition-colors">Partner Portal</Link>
             </div>
           </div>
         </div>
-        <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-white/40">
+        <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground">
           © {new Date().getFullYear()} Champa Private Enterprise. All rights reserved.
         </div>
       </footer>

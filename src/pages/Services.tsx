@@ -5,42 +5,12 @@ import { toast } from "sonner";
 import { useApp } from "@/context/AppContext";
 
 const services = [
-  {
-    icon: BarChart3,
-    title: "IT Infrastructure Assessment",
-    desc: "Comprehensive audit of your servers, network, security, and cloud readiness with actionable recommendations.",
-    price: "From $2,500",
-  },
-  {
-    icon: Cloud,
-    title: "Cloud Migration & Consulting",
-    desc: "Expert-led migration planning and execution for AWS, Azure, or GCP with minimal downtime.",
-    price: "From $5,000",
-  },
-  {
-    icon: HeadphonesIcon,
-    title: "Managed IT Support",
-    desc: "24/7 proactive monitoring, maintenance, patching, and helpdesk for your entire IT stack.",
-    price: "$1,500/mo",
-  },
-  {
-    icon: Shield,
-    title: "Cybersecurity Services",
-    desc: "Penetration testing, vulnerability assessments, incident response planning, and security training.",
-    price: "Custom",
-  },
-  {
-    icon: Server,
-    title: "Data Center Design",
-    desc: "End-to-end data center planning, build-out, and optimization for on-prem and hybrid environments.",
-    price: "Custom",
-  },
-  {
-    icon: Wrench,
-    title: "Hardware Maintenance & Warranty",
-    desc: "Extended warranties, break-fix support, and spare parts management for all enterprise hardware.",
-    price: "From $200/mo",
-  },
+  { icon: BarChart3, title: "IT Infrastructure Assessment", desc: "Comprehensive audit of your servers, network, security, and cloud readiness with actionable recommendations.", price: "From $2,500" },
+  { icon: Cloud, title: "Cloud Migration & Consulting", desc: "Expert-led migration planning and execution for AWS, Azure, or GCP with minimal downtime.", price: "From $5,000" },
+  { icon: HeadphonesIcon, title: "Managed IT Support", desc: "24/7 proactive monitoring, maintenance, patching, and helpdesk for your entire IT stack.", price: "$1,500/mo" },
+  { icon: Shield, title: "Cybersecurity Services", desc: "Penetration testing, vulnerability assessments, incident response planning, and security training.", price: "Custom" },
+  { icon: Server, title: "Data Center Design", desc: "End-to-end data center planning, build-out, and optimization for on-prem and hybrid environments.", price: "Custom" },
+  { icon: Wrench, title: "Hardware Maintenance", desc: "Extended warranties, break-fix support, and spare parts management for all enterprise hardware.", price: "From $200/mo" },
 ];
 
 export default function ServicesPage() {
@@ -48,43 +18,45 @@ export default function ServicesPage() {
 
   return (
     <div>
-      {/* Hero */}
-      <section className="hero-dark">
-        <div className="max-w-6xl mx-auto px-4 py-16 md:py-20 md:px-8 text-center">
+      <section className="hero-section border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-4 py-16 md:py-20 md:px-8 text-center relative z-10">
+          <span className="badge-pill bg-primary/15 text-primary border border-primary/20 mb-6">Professional Services</span>
           <h1 className="text-3xl md:text-5xl font-bold mb-4">IT Services & Consulting</h1>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto mb-8">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
             From infrastructure audits to fully managed IT — we help businesses run reliably, securely, and at scale.
           </p>
-          <a href="#quote" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold hover:brightness-110 transition-all">
+          <a href="#quote" className="btn-primary">
             Request a Free Quote <ArrowRight className="w-4 h-4" />
           </a>
         </div>
       </section>
 
-      {/* Service Cards */}
       <section className="section-padding">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">What We Offer</h2>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold">What We Offer</h2>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.map((s) => (
-              <div key={s.title} className="glass-card p-6">
+              <div key={s.title} className="tech-card p-6">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <s.icon className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-bold text-lg mb-2">{s.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{s.desc}</p>
-                <span className="text-sm font-semibold text-accent">{s.price}</span>
+                <span className="text-sm font-bold gradient-text">{s.price}</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Quote Form */}
-      <section id="quote" className="section-padding bg-muted/50">
+      <section id="quote" className="section-padding border-t border-border/50">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-3">Request a Quote</h2>
-          <p className="text-muted-foreground text-center mb-8">Tell us about your project and we'll get back to you within 24 hours.</p>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-2">Request a Quote</h2>
+            <p className="text-muted-foreground">Tell us about your project and we'll get back to you within 24 hours.</p>
+          </div>
           <QuoteForm onSubmit={(data) => {
             addNotification({ type: "contact_form", title: "New Quote Request", message: `${data.name} requested a quote for ${data.serviceType}.`, referenceId: "quote-" + Date.now() });
             toast.success("Quote request submitted! Our team will contact you within 24 hours.");
@@ -92,14 +64,11 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="section-padding">
+      <section className="section-padding border-t border-border/50">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">Not Sure What You Need?</h2>
-          <p className="text-muted-foreground mb-6">Our sales engineers can help you find the right combination of hardware, software, and services for your business.</p>
-          <Link to="/contact" className="inline-flex items-center gap-2 px-7 py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold hover:brightness-110 transition-all">
-            Chat with Sales <ArrowRight className="w-4 h-4" />
-          </Link>
+          <p className="text-muted-foreground mb-6">Our sales engineers can help you find the right combination of hardware, software, and services.</p>
+          <Link to="/contact" className="btn-primary">Chat with Sales <ArrowRight className="w-4 h-4" /></Link>
         </div>
       </section>
     </div>
@@ -120,7 +89,7 @@ function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass-card p-6 md:p-8 space-y-5">
+    <form onSubmit={handleSubmit} className="tech-card p-6 md:p-8 space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {[
           { key: "name", label: "Name", type: "text", required: true },
@@ -130,22 +99,13 @@ function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
         ].map((f) => (
           <div key={f.key}>
             <label className="text-sm text-muted-foreground mb-1.5 block">{f.label} {f.required && "*"}</label>
-            <input
-              type={f.type}
-              value={form[f.key as keyof typeof form]}
-              onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-            />
+            <input type={f.type} value={form[f.key as keyof typeof form]} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })} className="input-field" />
           </div>
         ))}
       </div>
       <div>
         <label className="text-sm text-muted-foreground mb-1.5 block">Service Type *</label>
-        <select
-          value={form.serviceType}
-          onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
-          className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-        >
+        <select value={form.serviceType} onChange={(e) => setForm({ ...form, serviceType: e.target.value })} className="input-field">
           <option value="">Select a service...</option>
           {services.map(s => <option key={s.title} value={s.title}>{s.title}</option>)}
         </select>
@@ -153,11 +113,7 @@ function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
           <label className="text-sm text-muted-foreground mb-1.5 block">Budget Range</label>
-          <select
-            value={form.budget}
-            onChange={(e) => setForm({ ...form, budget: e.target.value })}
-            className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
+          <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="input-field">
             <option value="">Select...</option>
             <option value="<5k">Under $5,000</option>
             <option value="5k-25k">$5,000 – $25,000</option>
@@ -167,11 +123,7 @@ function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
         </div>
         <div>
           <label className="text-sm text-muted-foreground mb-1.5 block">Timeline</label>
-          <select
-            value={form.timeline}
-            onChange={(e) => setForm({ ...form, timeline: e.target.value })}
-            className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-          >
+          <select value={form.timeline} onChange={(e) => setForm({ ...form, timeline: e.target.value })} className="input-field">
             <option value="">Select...</option>
             <option value="asap">ASAP</option>
             <option value="1-3months">1–3 months</option>
@@ -182,17 +134,9 @@ function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       </div>
       <div>
         <label className="text-sm text-muted-foreground mb-1.5 block">Project Details *</label>
-        <textarea
-          value={form.details}
-          onChange={(e) => setForm({ ...form, details: e.target.value })}
-          rows={4}
-          placeholder="Describe your project requirements, current infrastructure, and goals..."
-          className="w-full px-4 py-2.5 rounded-lg bg-background border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
-        />
+        <textarea value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} rows={4} placeholder="Describe your project requirements..." className="input-field resize-none" />
       </div>
-      <button type="submit" className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold hover:brightness-110 transition-all">
-        Submit Quote Request
-      </button>
+      <button type="submit" className="btn-primary w-full justify-center">Submit Quote Request</button>
     </form>
   );
 }
