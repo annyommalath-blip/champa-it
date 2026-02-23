@@ -9,7 +9,6 @@ const navItems = [
   { to: "/", label: "Home", icon: Home },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
   { to: "/services", label: "Services", icon: Wrench },
-  { to: "/contact", label: "Contact", icon: MessageCircle },
   { to: "/profile", label: "Profile", icon: User },
 ];
 
