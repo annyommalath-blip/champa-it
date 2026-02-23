@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, clearCart, cartTotal, addNotification } = useApp();
+  const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
   const [showCheckout, setShowCheckout] = useState(false);
 
   if (cart.length === 0) {
@@ -66,14 +66,7 @@ export default function CartPage() {
             </button>
           ) : (
             <CheckoutForm onComplete={() => {
-              const orderId = "ORD-" + Date.now().toString().slice(-6);
-              addNotification({ type: "order_placed", title: "Order Placed", message: `Your order ${orderId} has been placed successfully!`, referenceId: orderId });
-              setTimeout(() => {
-                addNotification({ type: "order_processing", title: "Order Processing", message: `Your order ${orderId} is now being processed.`, referenceId: orderId });
-              }, 3000);
-              setTimeout(() => {
-                addNotification({ type: "order_shipped", title: "Order Shipped", message: `Your order ${orderId} has been shipped!`, referenceId: orderId });
-              }, 8000);
+              toast.success("Order placed successfully! We'll contact you shortly.");
               clearCart();
               setShowCheckout(false);
             }} />
@@ -93,7 +86,6 @@ function CheckoutForm({ onComplete }: { onComplete: () => void }) {
       toast.error("Please fill in all required fields");
       return;
     }
-    toast.success("Order placed successfully! We'll contact you shortly.");
     onComplete();
   };
 

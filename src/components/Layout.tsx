@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, MessageCircle, LayoutDashboard, ShoppingCart, Wrench, Bell, User, Headphones, X, MessageSquare, Phone } from "lucide-react";
+import { Home, ShoppingBag, ShoppingCart, Wrench, Bell, User, Headphones, X, MessageSquare, Phone } from "lucide-react";
 import { useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import logo from "@/assets/logo.jpg";
 import ChatPopup from "@/components/ChatPopup";
@@ -14,8 +15,8 @@ const navItems = [
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
-  const { cartCount, notifications } = useApp();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { cartCount } = useApp();
+  const { user } = useAuth();
   const [supportOpen, setSupportOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const supportRef = useRef<HTMLDivElement>(null);
@@ -75,6 +76,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </Link>
+            {!user && (
+              <Link to="/auth" className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all">
+                Sign In
+              </Link>
+            )}
           </nav>
         </div>
       </header>
@@ -96,11 +102,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Link>
             <Link to="/notifications" className="relative p-2 rounded-xl">
               <Bell className="w-5 h-5 text-primary-foreground/80" />
-              {notifications.filter(n => !n.read).length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary-foreground text-primary text-[9px] flex items-center justify-center font-bold">
-                  {notifications.filter(n => !n.read).length}
-                </span>
-              )}
             </Link>
             <Link to="/profile" className="p-2 rounded-xl">
               <User className="w-5 h-5 text-primary-foreground/80" />
@@ -144,7 +145,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           )}
           <button
             onClick={() => setSupportOpen(!supportOpen)}
-            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center hover-scale transition-transform"
+            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-transform"
           >
             {supportOpen ? <X className="w-6 h-6" /> : <Headphones className="w-6 h-6" />}
           </button>

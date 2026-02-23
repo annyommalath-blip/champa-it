@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Send, Headphones } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useApp } from "@/context/AppContext";
 
 interface Message {
   id: string;
@@ -11,7 +10,6 @@ interface Message {
 }
 
 export default function ChatPopup({ onClose }: { onClose: () => void }) {
-  const { addNotification } = useApp();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
@@ -19,7 +17,6 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
   const [started, setStarted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Create conversation
   const startChat = async () => {
     const name = guestName.trim() || "Guest";
     const { data, error } = await supabase
@@ -30,20 +27,17 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
     if (data && !error) {
       setConversationId(data.id);
       setStarted(true);
-      // Send welcome message from admin side
       await supabase.from("chat_messages").insert({
         conversation_id: data.id,
         sender_type: "admin",
-        content: `Hi ${name}! 👋 Welcome to Champa Support. An agent will be with you shortly. How can we help you today?`,
+        content: `Hi ${name}! 👋 Welcome to Champa Support. An agent will be with you shortly.`,
       });
     }
   };
 
-  // Subscribe to messages
   useEffect(() => {
     if (!conversationId) return;
 
-    // Fetch existing messages
     const fetchMessages = async () => {
       const { data } = await supabase
         .from("chat_messages")
@@ -54,39 +48,20 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
     };
     fetchMessages();
 
-    // Realtime subscription
     const channel = supabase
       .channel(`chat-${conversationId}`)
       .on(
         "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "chat_messages",
-          filter: `conversation_id=eq.${conversationId}`,
-        },
+        { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
-          const newMsg = payload.new as Message;
-          setMessages((prev) => [...prev, newMsg]);
-          // Fire notification when agent replies
-          if (newMsg.sender_type === "admin") {
-            addNotification({
-              type: "chat",
-              title: "Agent Reply",
-              message: `Support replied: "${newMsg.content.substring(0, 60)}${newMsg.content.length > 60 ? "..." : ""}"`,
-              referenceId: conversationId,
-            });
-          }
+          setMessages((prev) => [...prev, payload.new as Message]);
         }
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [conversationId]);
 
-  // Auto-scroll
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
@@ -105,7 +80,6 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed bottom-24 right-5 z-[60] w-[calc(100%-2.5rem)] max-w-sm animate-fade-in md:right-8 md:bottom-8">
       <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col" style={{ height: "420px" }}>
-        {/* Header */}
         <div className="bg-primary px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
@@ -122,7 +96,6 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
         </div>
 
         {!started ? (
-          /* Name entry */
           <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
             <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
               <Headphones className="w-7 h-7 text-primary" />
@@ -139,33 +112,23 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
               onKeyDown={(e) => e.key === "Enter" && startChat()}
               className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <button
-              onClick={startChat}
-              className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:brightness-110 transition-all"
-            >
+            <button onClick={startChat} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:brightness-110 transition-all">
               Start Chat
             </button>
           </div>
         ) : (
           <>
-            {/* Messages */}
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
-                  <div
-                    className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                      msg.sender_type === "guest"
-                        ? "bg-primary text-primary-foreground rounded-br-md"
-                        : "bg-muted text-foreground rounded-bl-md"
-                    }`}
-                  >
+                  <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    msg.sender_type === "guest" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted text-foreground rounded-bl-md"
+                  }`}>
                     {msg.content}
                   </div>
                 </div>
               ))}
             </div>
-
-            {/* Input */}
             <div className="border-t border-border p-3 flex items-center gap-2">
               <input
                 type="text"
@@ -175,11 +138,7 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 className="flex-1 px-3.5 py-2.5 rounded-xl bg-muted border-none text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
-              <button
-                onClick={sendMessage}
-                disabled={!input.trim()}
-                className="p-2.5 rounded-xl bg-primary text-primary-foreground disabled:opacity-40 hover:brightness-110 transition-all"
-              >
+              <button onClick={sendMessage} disabled={!input.trim()} className="p-2.5 rounded-xl bg-primary text-primary-foreground disabled:opacity-40 hover:brightness-110 transition-all">
                 <Send className="w-4 h-4" />
               </button>
             </div>

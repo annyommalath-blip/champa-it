@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Server, Cloud, Shield, HeadphonesIcon, BarChart3, Wrench } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useApp } from "@/context/AppContext";
 
 const services = [
   { icon: BarChart3, title: "IT Infrastructure Assessment", desc: "Comprehensive audit of your servers, network, security, and cloud readiness with actionable recommendations.", price: "From $2,500" },
@@ -14,8 +13,6 @@ const services = [
 ];
 
 export default function ServicesPage() {
-  const { addNotification } = useApp();
-
   return (
     <div>
       <section className="hero-section border-b border-border/50">
@@ -57,10 +54,7 @@ export default function ServicesPage() {
             <h2 className="text-3xl font-bold mb-2">Request a Quote</h2>
             <p className="text-muted-foreground">Tell us about your project and we'll get back to you within 24 hours.</p>
           </div>
-          <QuoteForm onSubmit={(data) => {
-            addNotification({ type: "contact_form", title: "New Quote Request", message: `${data.name} requested a quote for ${data.serviceType}.`, referenceId: "quote-" + Date.now() });
-            toast.success("Quote request submitted! Our team will contact you within 24 hours.");
-          }} />
+          <QuoteForm />
         </div>
       </section>
 
@@ -75,7 +69,7 @@ export default function ServicesPage() {
   );
 }
 
-function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
+function QuoteForm() {
   const [form, setForm] = useState({ name: "", email: "", phone: "", company: "", serviceType: "", budget: "", timeline: "", details: "" });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -84,7 +78,7 @@ function QuoteForm({ onSubmit }: { onSubmit: (data: any) => void }) {
       toast.error("Please fill in all required fields.");
       return;
     }
-    onSubmit(form);
+    toast.success("Quote request submitted! Our team will contact you within 24 hours.");
     setForm({ name: "", email: "", phone: "", company: "", serviceType: "", budget: "", timeline: "", details: "" });
   };
 
