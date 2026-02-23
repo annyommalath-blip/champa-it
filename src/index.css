@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 40 90% 50%;
+    --primary: 49 85% 52%;
     --primary-foreground: 222 47% 11%;
 
     --secondary: 220 14% 92%;
@@ -32,30 +32,30 @@
 
     --border: 220 13% 88%;
     --input: 220 13% 88%;
-    --ring: 40 90% 50%;
+    --ring: 49 85% 52%;
 
     --radius: 0.625rem;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 40 90% 50%;
+    --sidebar-primary: 49 85% 52%;
     --sidebar-primary-foreground: 222 47% 11%;
     --sidebar-accent: 220 14% 95%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 40 90% 50%;
+    --sidebar-ring: 49 85% 52%;
 
     /* Custom tokens */
     --navy: 222 47% 11%;
     --navy-light: 220 14% 92%;
     --navy-lighter: 220 14% 95%;
-    --gold: 40 90% 50%;
+    --gold: 49 85% 52%;
     --cyan: 199 89% 48%;
 
-    --glow-gold: 0 0 30px hsl(40 90% 50% / 0.15);
+    --glow-gold: 0 0 30px hsl(49 85% 52% / 0.15);
     --glow-cyan: 0 0 30px hsl(199 89% 48% / 0.1);
-    --gradient-gold: linear-gradient(135deg, hsl(40 90% 50%), hsl(35 85% 42%));
-    --gradient-hero: linear-gradient(160deg, hsl(40 90% 52%) 0%, hsl(40 90% 50%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(49 85% 52%), hsl(44 80% 44%));
+    --gradient-hero: linear-gradient(160deg, hsl(49 85% 54%) 0%, hsl(49 85% 52%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 97%));
     --gradient-accent: linear-gradient(135deg, hsl(199 89% 48%), hsl(210 90% 55%));
   }
@@ -86,7 +86,7 @@
   }
 
   .glass-card:hover {
-    border-color: hsl(40 90% 50% / 0.25);
+    border-color: hsl(49 85% 52% / 0.25);
     box-shadow: 0 8px 32px hsl(0 0% 0% / 0.3), var(--glow-gold);
     transform: translateY(-2px);
   }
@@ -107,13 +107,13 @@
     left: 0;
     right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(40 90% 50% / 0.2), transparent);
+    background: linear-gradient(90deg, transparent, hsl(49 85% 52% / 0.2), transparent);
     opacity: 0;
     transition: opacity 0.3s;
   }
 
   .tech-card:hover {
-    border-color: hsl(40 90% 50% / 0.2);
+    border-color: hsl(49 85% 52% / 0.2);
     box-shadow: 0 4px 16px hsl(0 0% 0% / 0.06);
     transform: translateY(-2px);
   }
@@ -155,7 +155,7 @@
     position: absolute;
     inset: 0;
     background:
-      radial-gradient(ellipse at 20% 50%, hsl(40 90% 50% / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 50%, hsl(49 85% 52% / 0.06) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 20%, hsl(199 89% 48% / 0.04) 0%, transparent 40%);
     pointer-events: none;
   }
@@ -172,18 +172,18 @@
   }
 
   .stat-glow {
-    text-shadow: 0 0 40px hsl(40 90% 50% / 0.3);
+    text-shadow: 0 0 40px hsl(49 85% 52% / 0.3);
   }
 
   .btn-primary {
     @apply inline-flex items-center gap-2 px-7 py-3.5 rounded-lg font-semibold transition-all;
     background: var(--gradient-gold);
     color: hsl(var(--primary-foreground));
-    box-shadow: 0 4px 14px hsl(40 90% 50% / 0.25);
+    box-shadow: 0 4px 14px hsl(49 85% 52% / 0.25);
   }
 
   .btn-primary:hover {
-    box-shadow: 0 6px 20px hsl(40 90% 50% / 0.35);
+    box-shadow: 0 6px 20px hsl(49 85% 52% / 0.35);
     transform: translateY(-1px);
     filter: brightness(1.1);
   }
@@ -195,8 +195,8 @@
   }
 
   .btn-outline:hover {
-    border-color: hsl(40 90% 50% / 0.4);
-    background: hsl(40 90% 50% / 0.05);
+    border-color: hsl(49 85% 52% / 0.4);
+    background: hsl(49 85% 52% / 0.05);
   }
 
   .input-field {
@@ -208,8 +208,8 @@
 
   .input-field:focus {
     outline: none;
-    border-color: hsl(40 90% 50% / 0.5);
-    box-shadow: 0 0 0 3px hsl(40 90% 50% / 0.1);
+    border-color: hsl(49 85% 52% / 0.5);
+    box-shadow: 0 0 0 3px hsl(49 85% 52% / 0.1);
   }
 
   /* Mobile app card */
@@ -254,8 +254,8 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 12px hsl(40 90% 50% / 0.25); }
-    50% { box-shadow: 0 0 24px hsl(40 90% 50% / 0.45); }
+    0%, 100% { box-shadow: 0 0 12px hsl(49 85% 52% / 0.25); }
+    50% { box-shadow: 0 0 24px hsl(49 85% 52% / 0.45); }
   }
 
   @keyframes float {
