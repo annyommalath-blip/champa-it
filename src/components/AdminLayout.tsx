@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   ChevronRight,
+  Home,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
@@ -116,9 +117,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu className="w-5 h-5" />
           </button>
           <span className="font-bold text-sm text-gold">Champa Admin</span>
-          <button onClick={handleSignOut} className="p-2 text-muted-foreground">
-            <LogOut className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <Link to="/" className="p-2 text-muted-foreground hover:text-primary transition-colors" title="Back to Store">
+              <Home className="w-4 h-4" />
+            </Link>
+            <button onClick={handleSignOut} className="p-2 text-muted-foreground">
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
         </header>
 
         {/* Mobile sidebar overlay */}
