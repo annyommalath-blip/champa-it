@@ -1,16 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, GripVertical } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, Upload, X, Image } from "lucide-react";
 
 interface HeroSlide {
   title: string;
   subtitle: string;
   cta: string;
   link: string;
+  image?: string;
 }
 
 const defaultSlides: HeroSlide[] = [
@@ -28,6 +29,7 @@ export default function AdminSettings() {
   const [bannerText, setBannerText] = useState("🔥 Free shipping on orders over $1,000");
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultSlides);
   const [loading, setLoading] = useState(false);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -75,11 +77,51 @@ export default function AdminSettings() {
   };
 
   const addSlide = () => {
-    setHeroSlides((prev) => [...prev, { title: "", subtitle: "", cta: "Learn More", link: "/shop" }]);
+    setHeroSlides((prev) => [...prev, { title: "", subtitle: "", cta: "Learn More", link: "/shop", image: "" }]);
   };
 
   const removeSlide = (index: number) => {
     setHeroSlides((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleImageUpload = async (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    setUploadingIndex(index);
+    const fileName = `hero-slide-${index}-${Date.now()}.${file.name.split(".").pop()}`;
+    
+    const { error } = await supabase.storage
+      .from("hero-images")
+      .upload(fileName, file, { upsert: true });
+
+    if (error) {
+      toast.error("Upload failed: " + error.message);
+      setUploadingIndex(null);
+      return;
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("hero-images")
+      .getPublicUrl(fileName);
+
+    setHeroSlides((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, image: urlData.publicUrl } : s))
+    );
+    setUploadingIndex(null);
+    toast.success("Image uploaded!");
+  };
+
+  const removeImage = (index: number) => {
+    setHeroSlides((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, image: "" } : s))
+    );
   };
 
   return (
@@ -111,6 +153,44 @@ export default function AdminSettings() {
                   </Button>
                 )}
               </div>
+
+              {/* Image Upload & Preview */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Background Image</label>
+                {slide.image ? (
+                  <div className="relative rounded-lg overflow-hidden border border-border group">
+                    <img
+                      src={slide.image}
+                      alt={`Slide ${i + 1} background`}
+                      className="w-full h-36 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <SlideImageUploadButton
+                        index={i}
+                        uploading={uploadingIndex === i}
+                        onUpload={handleImageUpload}
+                        label="Replace"
+                      />
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        className="gap-1.5"
+                        onClick={() => removeImage(i)}
+                      >
+                        <X className="w-3.5 h-3.5" /> Remove
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <SlideImageUploadButton
+                    index={i}
+                    uploading={uploadingIndex === i}
+                    onUpload={handleImageUpload}
+                    isPlaceholder
+                  />
+                )}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Title</label>
@@ -179,5 +259,71 @@ export default function AdminSettings() {
         <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Settings"}
       </Button>
     </div>
+  );
+}
+
+function SlideImageUploadButton({
+  index,
+  uploading,
+  onUpload,
+  label,
+  isPlaceholder,
+}: {
+  index: number;
+  uploading: boolean;
+  onUpload: (index: number, file: File) => void;
+  label?: string;
+  isPlaceholder?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) onUpload(index, file);
+    e.target.value = "";
+  };
+
+  if (isPlaceholder) {
+    return (
+      <>
+        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="w-full h-36 rounded-lg border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 flex flex-col items-center justify-center gap-2 transition-colors disabled:opacity-50"
+        >
+          {uploading ? (
+            <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <>
+              <Image className="w-8 h-8 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground font-medium">Click to upload background image</span>
+              <span className="text-[10px] text-muted-foreground">JPG, PNG, WebP • Max 5MB</span>
+            </>
+          )}
+        </button>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleChange} />
+      <Button
+        size="sm"
+        variant="secondary"
+        className="gap-1.5"
+        onClick={() => inputRef.current?.click()}
+        disabled={uploading}
+      >
+        {uploading ? (
+          <div className="w-3.5 h-3.5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        ) : (
+          <Upload className="w-3.5 h-3.5" />
+        )}
+        {label || "Upload"}
+      </Button>
+    </>
   );
 }

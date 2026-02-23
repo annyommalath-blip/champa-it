@@ -6,7 +6,15 @@ import { useLanguage } from "@/context/LanguageContext";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
-const defaultHeroSlides = [
+interface HeroSlide {
+  title: string;
+  subtitle: string;
+  cta: string;
+  link: string;
+  image?: string;
+}
+
+const defaultHeroSlides: HeroSlide[] = [
   { title: "New Arrivals", subtitle: "Latest enterprise hardware & tools", cta: "Shop Now", link: "/shop" },
   { title: "Request a Quote", subtitle: "Fast estimate from our sales team", cta: "Get Quote", link: "/contact" },
   { title: "Talk to Sales", subtitle: "Live chat with our engineers", cta: "Start Chat", link: "/contact" },
@@ -26,7 +34,7 @@ export default function AboutPage() {
     async function loadSlides() {
       const { data } = await supabase.from("settings").select("value").eq("key", "hero_slides").single();
       if (data?.value && Array.isArray(data.value)) {
-        setHeroSlides(data.value as typeof defaultHeroSlides);
+        setHeroSlides(data.value as unknown as HeroSlide[]);
       }
     }
     loadSlides();
@@ -80,13 +88,25 @@ export default function AboutPage() {
             {heroSlides.map((slide, i) => (
               <div key={i} className="flex-[0_0_100%] min-w-0 px-1">
                 <div className="app-card relative overflow-hidden p-6 md:p-10 min-h-[160px] md:min-h-[240px] flex flex-col justify-end">
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent rounded-l-2xl" />
+                  {/* Background image */}
+                  {slide.image && (
+                    <img
+                      src={slide.image}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+                  {/* Overlay for readability */}
+                  {slide.image && (
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/60 to-background/30" />
+                  )}
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent rounded-l-2xl z-10" />
                   <div className="absolute top-4 right-4 w-24 h-24 rounded-full bg-primary/8 blur-[40px]" />
-                  <h2 className="text-xl md:text-3xl font-bold text-foreground mb-1.5">{slide.title}</h2>
-                  <p className="text-sm text-muted-foreground mb-4">{slide.subtitle}</p>
+                  <h2 className="relative z-10 text-xl md:text-3xl font-bold text-foreground mb-1.5">{slide.title}</h2>
+                  <p className="relative z-10 text-sm text-muted-foreground mb-4">{slide.subtitle}</p>
                   <Link
                     to={slide.link}
-                    className="self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-all hover:brightness-110"
+                    className="relative z-10 self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-all hover:brightness-110"
                   >
                     {slide.cta} <ArrowRight className="w-4 h-4" />
                   </Link>
