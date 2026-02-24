@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { Plus, Pencil, Trash2, Search, X } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, X, Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +34,7 @@ export default function AdminProducts() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState(emptyProduct);
   const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const fetchProducts = async () => {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -93,11 +93,21 @@ export default function AdminProducts() {
     if (error) toast.error(error.message); else { toast.success("Product deleted"); fetchProducts(); }
   };
 
-  const addImage = () => {
-    if (imageUrl.trim()) {
-      setForm({ ...form, images: [...form.images, imageUrl.trim()] });
-      setImageUrl("");
-    }
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file);
+    if (error) { toast.error("Upload failed: " + error.message); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+    setForm({ ...form, images: [...form.images, urlData.publicUrl] });
+    setUploading(false);
+    e.target.value = "";
   };
 
   const removeImage = (i: number) => {
@@ -207,11 +217,12 @@ export default function AdminProducts() {
               <label className="text-sm">In Stock</label>
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Images (URLs)</label>
-              <div className="flex gap-2 mt-1">
-                <Input placeholder="https://..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-                <Button type="button" variant="outline" onClick={addImage} size="sm">Add</Button>
-              </div>
+              <label className="text-xs font-medium text-muted-foreground">Images</label>
+              <label className="flex items-center gap-2 mt-1 px-4 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 text-muted-foreground" />}
+                <span className="text-sm text-muted-foreground">{uploading ? "Uploading..." : "Click to upload image"}</span>
+              </label>
               {form.images.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {form.images.map((url, i) => (
