@@ -216,6 +216,7 @@ export type Database = {
           category: string
           created_at: string
           created_by: string | null
+          currency: string
           description: string
           id: string
           images: string[] | null
@@ -231,6 +232,7 @@ export type Database = {
           category?: string
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string
           id?: string
           images?: string[] | null
@@ -246,6 +248,7 @@ export type Database = {
           category?: string
           created_at?: string
           created_by?: string | null
+          currency?: string
           description?: string
           id?: string
           images?: string[] | null

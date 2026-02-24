@@ -1,13 +1,25 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, Filter, Star, Server, Shield, Wifi, HardDrive, Zap, Monitor, Wrench } from "lucide-react";
-import { products, categories } from "@/data/mock";
+import { Search, Filter, Star, Loader2 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const categoryIcons: Record<string, any> = {
-  Servers: Server, Security: Shield, Networking: Wifi, Storage: HardDrive, Power: Zap, Software: Monitor, Services: Wrench,
-};
+const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+
+interface DbProduct {
+  id: string;
+  name: string;
+  description: string;
+  long_description: string | null;
+  price: number;
+  currency: string;
+  category: string;
+  images: string[] | null;
+  in_stock: boolean;
+  rating: number | null;
+  specs: Record<string, string> | null;
+}
 
 export default function ShopPage() {
   const [searchParams] = useSearchParams();
@@ -18,21 +30,37 @@ export default function ShopPage() {
   const [sortPrice, setSortPrice] = useState<"asc" | "desc" | null>(null);
   const { addToCart } = useApp();
   const { t } = useLanguage();
+  const [products, setProducts] = useState<DbProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+      setProducts((data as DbProduct[]) || []);
+      setLoading(false);
+    };
+    fetch();
+  }, []);
+
+  const categories = useMemo(() => {
+    const cats = new Set(products.map((p) => p.category));
+    return ["All", ...Array.from(cats)];
+  }, [products]);
 
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
       if (category !== "All" && p.category !== category) return false;
-      if (stockOnly && !p.inStock) return false;
+      if (stockOnly && !p.in_stock) return false;
       if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
     if (sortPrice) list = [...list].sort((a, b) => sortPrice === "asc" ? a.price - b.price : b.price - a.price);
     return list;
-  }, [search, category, stockOnly, sortPrice]);
+  }, [search, category, stockOnly, sortPrice, products]);
 
   return (
     <div>
-      {/* Header */}
       <div className="border-b border-border/50 px-4 py-10 md:px-8 hero-section">
         <div className="max-w-7xl mx-auto relative z-10">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">{t("shop.title")}</h1>
@@ -42,7 +70,6 @@ export default function ShopPage() {
 
       <div className="section-padding">
         <div className="max-w-7xl mx-auto">
-          {/* Search & Filters */}
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -55,23 +82,19 @@ export default function ShopPage() {
               />
             </div>
             <div className="flex gap-2 flex-wrap">
-              {categories.map((cat) => {
-                const Icon = categoryIcons[cat];
-                return (
-                  <button
-                    key={cat}
-                    onClick={() => setCategory(cat)}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      category === cat
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
-                    }`}
-                  >
-                    {Icon && <Icon className="w-3.5 h-3.5" />}
-                    {cat}
-                  </button>
-                );
-              })}
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setCategory(cat)}
+                  className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    category === cat
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-secondary border border-border text-muted-foreground hover:text-foreground hover:border-primary/30"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -87,47 +110,73 @@ export default function ShopPage() {
             <span className="ml-auto text-muted-foreground">{filtered.length} {filtered.length !== 1 ? t("shop.products") : t("shop.product")}</span>
           </div>
 
-          {/* Product Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {filtered.map((product) => (
-              <div key={product.id} className="tech-card overflow-hidden group flex flex-col">
-                <Link to={`/shop/${product.id}`}>
-                  <div className="aspect-[4/3] bg-secondary/30 flex items-center justify-center relative">
-                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <span className="gradient-text font-bold text-2xl">{product.name.charAt(0)}</span>
+          {loading ? (
+            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-muted-foreground" /></div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                {filtered.map((product) => {
+                  const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                  const img = product.images?.[0] || "/placeholder.svg";
+                  return (
+                    <div key={product.id} className="tech-card overflow-hidden group flex flex-col">
+                      <Link to={`/shop/${product.id}`}>
+                        <div className="aspect-[4/3] bg-secondary/30 flex items-center justify-center relative overflow-hidden">
+                          {img !== "/placeholder.svg" ? (
+                            <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                              <span className="gradient-text font-bold text-2xl">{product.name.charAt(0)}</span>
+                            </div>
+                          )}
+                          {!product.in_stock && (
+                            <span className="absolute top-2 right-2 badge-pill bg-destructive/20 text-destructive text-[10px]">{t("shop.outOfStock")}</span>
+                          )}
+                        </div>
+                      </Link>
+                      <div className="p-4 flex flex-col flex-1">
+                        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">{product.category}</span>
+                        <Link to={`/shop/${product.id}`}>
+                          <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors">{product.name}</h3>
+                        </Link>
+                        <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 flex-1">{product.description}</p>
+                        {product.rating != null && product.rating > 0 && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                            <span className="text-xs font-medium">{product.rating}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
+                          <span className="text-lg font-bold">{sym}{Number(product.price).toLocaleString()}</span>
+                          <button
+                            onClick={() => addToCart({
+                              id: product.id,
+                              name: product.name,
+                              description: product.description,
+                              longDescription: product.long_description || "",
+                              price: product.price,
+                              category: product.category,
+                              images: product.images || ["/placeholder.svg"],
+                              specs: (product.specs || {}) as Record<string, string>,
+                              inStock: product.in_stock,
+                              rating: product.rating || 0,
+                            })}
+                            disabled={!product.in_stock}
+                            className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {t("shop.addToCart")}
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    {!product.inStock && (
-                      <span className="absolute top-2 right-2 badge-pill bg-destructive/20 text-destructive text-[10px]">{t("shop.outOfStock")}</span>
-                    )}
-                  </div>
-                </Link>
-                <div className="p-4 flex flex-col flex-1">
-                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mb-1">{product.category}</span>
-                  <Link to={`/shop/${product.id}`}>
-                    <h3 className="font-semibold text-sm leading-snug group-hover:text-primary transition-colors">{product.name}</h3>
-                  </Link>
-                  <p className="text-xs text-muted-foreground mt-1.5 line-clamp-2 flex-1">{product.description}</p>
-                  <div className="flex items-center gap-1 mt-2">
-                    <Star className="w-3.5 h-3.5 text-primary fill-primary" />
-                    <span className="text-xs font-medium">{product.rating}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-                    <span className="text-lg font-bold">${product.price.toLocaleString()}{product.category === "Software" && <span className="text-[10px] font-normal text-muted-foreground">/mo</span>}</span>
-                    <button
-                      onClick={() => addToCart(product)}
-                      disabled={!product.inStock}
-                      className="px-3.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      {t("shop.addToCart")}
-                    </button>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
 
-          {filtered.length === 0 && (
-            <div className="text-center py-20 text-muted-foreground">{t("shop.noProducts")}</div>
+              {filtered.length === 0 && (
+                <div className="text-center py-20 text-muted-foreground">{t("shop.noProducts")}</div>
+              )}
+            </>
           )}
         </div>
       </div>

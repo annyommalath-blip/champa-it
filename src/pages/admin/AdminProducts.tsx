@@ -8,12 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
+const CURRENCIES = ["USD", "LAK", "THB"] as const;
+const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+
 interface Product {
   id: string;
   name: string;
   description: string;
   long_description: string | null;
   price: number;
+  currency: string;
   category: string;
   images: string[] | null;
   in_stock: boolean;
@@ -22,7 +26,7 @@ interface Product {
 }
 
 const emptyProduct = {
-  name: "", description: "", long_description: "", price: 0, category: "Uncategorized",
+  name: "", description: "", long_description: "", price: 0, currency: "USD", category: "Uncategorized",
   images: [] as string[], in_stock: true, rating: 0, specs: {} as Record<string, string>,
 };
 
@@ -53,7 +57,7 @@ export default function AdminProducts() {
     setEditing(p);
     setForm({
       name: p.name, description: p.description, long_description: p.long_description || "",
-      price: p.price, category: p.category, images: p.images || [],
+      price: p.price, currency: p.currency || "USD", category: p.category, images: p.images || [],
       in_stock: p.in_stock, rating: p.rating || 0, specs: (p.specs || {}) as Record<string, string>,
     });
     setDialogOpen(true);
@@ -67,6 +71,7 @@ export default function AdminProducts() {
       description: form.description,
       long_description: form.long_description,
       price: form.price,
+      currency: form.currency,
       category: form.category,
       images: form.images.length ? form.images : ["/placeholder.svg"],
       in_stock: form.in_stock,
@@ -153,7 +158,7 @@ export default function AdminProducts() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">{p.name}</p>
                 <p className="text-xs text-muted-foreground">{p.category}</p>
-                <p className="text-sm font-bold text-primary mt-0.5">${Number(p.price).toFixed(2)}</p>
+                <p className="text-sm font-bold text-primary mt-0.5">{CURRENCY_SYMBOLS[p.currency] || "$"}{Number(p.price).toLocaleString()}</p>
               </div>
               <span className={`text-xs px-2 py-1 rounded-full ${p.in_stock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                 {p.in_stock ? "In Stock" : "Out of Stock"}
@@ -202,10 +207,22 @@ export default function AdminProducts() {
                 onChange={(e) => setForm({ ...form, long_description: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-medium text-muted-foreground">Price ($)</label>
+                <label className="text-xs font-medium text-muted-foreground">Price</label>
                 <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: +e.target.value })} />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Currency</label>
+                <select
+                  value={form.currency}
+                  onChange={(e) => setForm({ ...form, currency: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c} value={c}>{CURRENCY_SYMBOLS[c]} {c}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Category</label>
