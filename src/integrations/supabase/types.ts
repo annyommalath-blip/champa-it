@@ -179,9 +179,12 @@ export type Database = {
         Row: {
           created_at: string
           customer_info: Json | null
+          delivery_fee: number
+          delivery_method: string
           id: string
           items: Json
           notes: string | null
+          payment_screenshot: string | null
           status: string
           total: number
           updated_at: string
@@ -190,9 +193,12 @@ export type Database = {
         Insert: {
           created_at?: string
           customer_info?: Json | null
+          delivery_fee?: number
+          delivery_method?: string
           id?: string
           items?: Json
           notes?: string | null
+          payment_screenshot?: string | null
           status?: string
           total?: number
           updated_at?: string
@@ -201,9 +207,12 @@ export type Database = {
         Update: {
           created_at?: string
           customer_info?: Json | null
+          delivery_fee?: number
+          delivery_method?: string
           id?: string
           items?: Json
           notes?: string | null
+          payment_screenshot?: string | null
           status?: string
           total?: number
           updated_at?: string
