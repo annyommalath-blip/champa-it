@@ -37,7 +37,6 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
 
   useEffect(() => {
     if (!conversationId) return;
-
     const fetchMessages = async () => {
       const { data } = await supabase
         .from("chat_messages")
@@ -78,31 +77,32 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="fixed bottom-24 right-5 z-[60] w-[calc(100%-2.5rem)] max-w-sm animate-fade-in md:right-8 md:bottom-8">
-      <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden flex flex-col" style={{ height: "420px" }}>
-        <div className="bg-primary px-4 py-3 flex items-center justify-between">
+    <div className="fixed bottom-24 right-4 z-[60] w-[calc(100%-2rem)] max-w-sm animate-fade-in md:right-8 md:bottom-8">
+      <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden flex flex-col" style={{ height: "420px" }}>
+        {/* Header — neutral, not yellow */}
+        <div className="bg-foreground px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center">
-              <Headphones className="w-4 h-4 text-primary-foreground" />
+            <div className="w-8 h-8 rounded-xl bg-background/15 flex items-center justify-center">
+              <Headphones className="w-4 h-4 text-background" />
             </div>
             <div>
-              <span className="text-sm font-semibold text-primary-foreground block leading-tight">Champa Support</span>
-              <span className="text-[10px] text-primary-foreground/70">Live Agent</span>
+              <span className="text-caption font-semibold text-background block leading-tight">Champa Support</span>
+              <span className="text-micro text-background/60">Live Agent</span>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-primary-foreground/10 transition-colors">
-            <X className="w-4 h-4 text-primary-foreground" />
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-background/10 transition-colors">
+            <X className="w-4 h-4 text-background" />
           </button>
         </div>
 
         {!started ? (
           <div className="flex-1 flex flex-col items-center justify-center p-6 gap-4">
-            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-              <Headphones className="w-7 h-7 text-primary" />
+            <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center">
+              <Headphones className="w-7 h-7 text-muted-foreground" />
             </div>
             <div className="text-center">
-              <h4 className="font-semibold text-foreground text-base">Start Live Chat</h4>
-              <p className="text-sm text-muted-foreground mt-1">Enter your name to connect with an agent</p>
+              <h4 className="text-body font-semibold text-foreground">Start Live Chat</h4>
+              <p className="text-caption text-muted-foreground mt-1">Enter your name to connect with an agent</p>
             </div>
             <input
               type="text"
@@ -110,9 +110,9 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && startChat()}
-              className="w-full px-4 py-2.5 rounded-xl bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+              className="input-field"
             />
-            <button onClick={startChat} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:brightness-110 transition-all">
+            <button onClick={startChat} className="btn-primary w-full">
               Start Chat
             </button>
           </div>
@@ -121,8 +121,10 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                    msg.sender_type === "guest" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted text-foreground rounded-bl-md"
+                  <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-caption leading-relaxed ${
+                    msg.sender_type === "guest"
+                      ? "bg-foreground text-background rounded-br-md"
+                      : "bg-secondary text-foreground rounded-bl-md"
                   }`}>
                     {msg.content}
                   </div>
@@ -136,9 +138,9 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="flex-1 px-3.5 py-2.5 rounded-xl bg-muted border-none text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                className="flex-1 px-3.5 py-2.5 rounded-xl bg-secondary border-none text-caption text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
-              <button onClick={sendMessage} disabled={!input.trim()} className="p-2.5 rounded-xl bg-primary text-primary-foreground disabled:opacity-40 hover:brightness-110 transition-all">
+              <button onClick={sendMessage} disabled={!input.trim()} className="p-2.5 rounded-xl bg-foreground text-background disabled:opacity-30 transition-all active:scale-90">
                 <Send className="w-4 h-4" />
               </button>
             </div>

@@ -3,7 +3,7 @@ import { Home, ShoppingBag, ShoppingCart, Wrench, Bell, User, Headphones, X, Mes
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import logo from "@/assets/logo.jpg";
 import ChatPopup from "@/components/ChatPopup";
 
@@ -21,7 +21,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
   const [supportOpen, setSupportOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [fabVisible, setFabVisible] = useState(true);
   const supportRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -33,23 +35,28 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Auto-hide FAB on scroll down
+  const handleScroll = useCallback(() => {
+    const y = window.scrollY;
+    setFabVisible(y < lastScrollY.current || y < 100);
+    lastScrollY.current = y;
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Announcement bar - desktop only */}
-      <div className="hidden md:block relative overflow-hidden bg-gradient-to-r from-primary/90 via-primary to-primary/90 text-primary-foreground text-xs text-center py-2 px-4 font-semibold tracking-wide">
-        <span className="relative z-10">
-          {t("banner.freeShipping")} <Link to="/shop" className="underline underline-offset-2 font-bold">{t("banner.shopNow")}</Link>
-        </span>
-      </div>
-
       {/* Desktop nav */}
-      <header className="hidden md:block sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
+      <header className="hidden md:block sticky top-0 z-50 border-b border-border glass-header">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-3">
           <Link to="/" className="flex items-center gap-3 group">
-            <img src={logo} alt="Champa Enterprise" className="h-10 w-10 rounded-lg object-cover ring-1 ring-border group-hover:ring-primary/50 transition-all" />
+            <img src={logo} alt="Champa Enterprise" className="h-9 w-9 rounded-xl object-cover ring-1 ring-border group-hover:ring-primary/50 transition-all" />
             <div className="leading-tight">
               <span className="font-bold text-lg tracking-tight">Champa</span>
-              <span className="block text-[10px] text-muted-foreground tracking-widest uppercase font-medium">Enterprise</span>
+              <span className="block text-micro text-muted-foreground tracking-widest uppercase font-medium">Enterprise</span>
             </div>
           </Link>
           <nav className="flex items-center gap-1">
@@ -59,10 +66,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     active
                       ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
                   {t(item.labelKey)}
@@ -70,16 +77,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               );
             })}
             <div className="w-px h-6 bg-border mx-2" />
-            <Link to="/cart" className="relative p-2.5 rounded-lg hover:bg-secondary/50 transition-all group">
+            <Link to="/cart" className="relative p-2.5 rounded-xl hover:bg-secondary transition-all group">
               <ShoppingCart className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold ring-2 ring-background">
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-micro flex items-center justify-center font-bold ring-2 ring-background">
                   {cartCount}
                 </span>
               )}
             </Link>
             {!user && (
-              <Link to="/auth" className="ml-2 px-4 py-2 rounded-lg text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-all">
+              <Link to="/auth" className="ml-2 btn-primary text-sm py-2 px-4">
                 {t("nav.signIn")}
               </Link>
             )}
@@ -87,26 +94,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Mobile app header */}
-      <header className="md:hidden px-5 pt-4 pb-3 bg-primary sticky top-0 z-50">
+      {/* Mobile header — clean white, no yellow */}
+      <header className="md:hidden px-5 pt-3 pb-2.5 glass-header sticky top-0 z-50 border-b border-border">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Champa" className="h-11 w-auto rounded-xl object-contain" />
-          </div>
-          <div className="flex items-center gap-1">
-            <Link to="/cart" className="relative p-2 rounded-xl">
-              <ShoppingCart className="w-5 h-5 text-primary-foreground/80" />
+          <Link to="/" className="flex items-center gap-2.5">
+            <img src={logo} alt="Champa" className="h-9 w-9 rounded-xl object-cover" />
+            <div className="leading-tight">
+              <span className="font-semibold text-[15px] text-foreground tracking-tight">Champa</span>
+              <span className="block text-[9px] text-muted-foreground tracking-widest uppercase font-medium">Enterprise</span>
+            </div>
+          </Link>
+          <div className="flex items-center gap-0.5">
+            <Link to="/cart" className="relative p-2 rounded-xl hover:bg-secondary transition-colors">
+              <ShoppingCart className="w-[22px] h-[22px] text-foreground/70" />
               {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-primary-foreground text-primary text-[9px] flex items-center justify-center font-bold">
+                <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1">
                   {cartCount}
                 </span>
               )}
             </Link>
-            <Link to="/notifications" className="relative p-2 rounded-xl">
-              <Bell className="w-5 h-5 text-primary-foreground/80" />
-            </Link>
-            <Link to="/profile" className="p-2 rounded-xl">
-              <User className="w-5 h-5 text-primary-foreground/80" />
+            <Link to="/notifications" className="relative p-2 rounded-xl hover:bg-secondary transition-colors">
+              <Bell className="w-[22px] h-[22px] text-foreground/70" />
             </Link>
           </div>
         </div>
@@ -117,46 +125,51 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Chat popup */}
       {chatOpen && <ChatPopup onClose={() => setChatOpen(false)} />}
 
-      {/* Floating support agent */}
+      {/* Floating support — auto hides on scroll */}
       {!chatOpen && (
-        <div ref={supportRef} className="md:hidden fixed bottom-24 right-5 z-50 flex flex-col items-end gap-2">
+        <div
+          ref={supportRef}
+          className={`md:hidden fixed bottom-24 right-4 z-50 flex flex-col items-end gap-2 transition-all duration-300 ${
+            fabVisible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
+          }`}
+        >
           {supportOpen && (
-            <div className="bg-card rounded-2xl border border-border shadow-xl p-2 w-52 animate-fade-in">
+            <div className="bg-card rounded-2xl border border-border shadow-lg p-1.5 w-52 animate-fade-in">
               <button
                 onClick={() => { setSupportOpen(false); setChatOpen(true); }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors"
+                className="w-full flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-secondary transition-colors"
               >
                 <MessageSquare className="w-5 h-5 text-primary" />
                 <div className="text-left">
                   <span className="text-sm font-semibold text-foreground block">{t("support.liveAgent")}</span>
-                  <span className="text-[10px] text-muted-foreground">{t("support.chatWithSupport")}</span>
+                  <span className="text-micro text-muted-foreground">{t("support.chatWithSupport")}</span>
                 </div>
               </button>
               <Link
                 to="/contact"
                 onClick={() => setSupportOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-muted transition-colors"
+                className="flex items-center gap-3 px-3.5 py-3 rounded-xl hover:bg-secondary transition-colors"
               >
                 <Phone className="w-5 h-5 text-primary" />
                 <div>
                   <span className="text-sm font-semibold text-foreground block">{t("support.contactSales")}</span>
-                  <span className="text-[10px] text-muted-foreground">{t("support.getAQuote")}</span>
+                  <span className="text-micro text-muted-foreground">{t("support.getAQuote")}</span>
                 </div>
               </Link>
             </div>
           )}
           <button
             onClick={() => setSupportOpen(!supportOpen)}
-            className="w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center transition-transform"
+            className="w-12 h-12 rounded-full bg-foreground text-background shadow-lg flex items-center justify-center transition-transform active:scale-90"
           >
-            {supportOpen ? <X className="w-6 h-6" /> : <Headphones className="w-6 h-6" />}
+            {supportOpen ? <X className="w-5 h-5" /> : <Headphones className="w-5 h-5" />}
           </button>
         </div>
       )}
 
       {/* Mobile bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-card backdrop-blur-xl border-t border-border safe-area-bottom">
-        <div className="flex items-center justify-around px-2 py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-border safe-area-bottom">
+        <div className="flex items-center justify-around px-2 py-1.5">
           {navKeys.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
@@ -164,12 +177,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors"
+                className="flex flex-col items-center gap-0.5 py-1 px-4 rounded-xl transition-all active:scale-90"
               >
-                <div className={`p-1.5 rounded-xl transition-colors ${active ? "bg-primary/15" : ""}`}>
-                  <Icon className={`w-5 h-5 transition-colors ${active ? "text-primary" : "text-muted-foreground"}`} />
-                </div>
-                <span className={`text-[10px] font-medium ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <Icon
+                  className={`w-[22px] h-[22px] transition-colors ${
+                    active ? "text-primary" : "text-muted-foreground"
+                  }`}
+                  strokeWidth={active ? 2.2 : 1.8}
+                />
+                <span className={`text-[10px] font-medium transition-colors ${
+                  active ? "text-primary" : "text-muted-foreground"
+                }`}>
                   {t(item.labelKey)}
                 </span>
               </Link>
@@ -179,14 +197,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </nav>
 
       {/* Footer - desktop only */}
-      <footer className="hidden md:block border-t border-border bg-card/50">
+      <footer className="hidden md:block border-t border-border bg-secondary/30">
         <div className="max-w-7xl mx-auto px-4 py-14 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <img src={logo} alt="Champa" className="w-10 h-10 rounded-lg object-cover" />
+              <img src={logo} alt="Champa" className="w-9 h-9 rounded-xl object-cover" />
               <div>
                 <span className="font-bold text-lg">Champa</span>
-                <span className="block text-[10px] text-muted-foreground tracking-widest uppercase">Enterprise</span>
+                <span className="block text-micro text-muted-foreground tracking-widest uppercase">Enterprise</span>
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">{t("footer.tagline")}</p>

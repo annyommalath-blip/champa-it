@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { User, Package, ChevronRight, Settings, Heart, MapPin, CreditCard, HelpCircle, ShoppingBag, LogOut, LogIn, Globe, ArrowLeft } from "lucide-react";
+import { User, Package, ChevronRight, Settings, Heart, MapPin, CreditCard, HelpCircle, ShoppingBag, LogOut, LogIn, Globe, ArrowLeft, FileText, Headphones, MessageCircle } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage, Language } from "@/context/LanguageContext";
@@ -15,24 +15,24 @@ export default function Profile() {
   // Language sub-page
   if (showLanguage) {
     return (
-      <div className="px-5 py-5 space-y-6 md:max-w-md md:mx-auto md:px-8 md:py-8">
-        <button onClick={() => setShowLanguage(false)} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+      <div className="px-5 py-5 space-y-5 md:max-w-md md:mx-auto md:px-8 md:py-8">
+        <button onClick={() => setShowLanguage(false)} className="flex items-center gap-2 text-caption font-medium text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" /> {t("profile.account")}
         </button>
-        <h1 className="text-xl font-bold text-foreground">{t("profile.language")}</h1>
-        <p className="text-sm text-muted-foreground">{t("profile.languageDesc")}</p>
+        <h1 className="text-section-title text-foreground">{t("profile.language")}</h1>
+        <p className="text-caption text-muted-foreground">{t("profile.languageDesc")}</p>
         <div className="flex flex-col gap-2">
           {([["en", "🇺🇸 English"], ["lo", "🇱🇦 ລາວ"]] as [Language, string][]).map(([code, label]) => (
             <button
               key={code}
               onClick={() => setLanguage(code)}
-              className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all ${
+              className={`w-full flex items-center justify-between p-4 rounded-xl border transition-all active:scale-[0.98] ${
                 language === code
-                  ? "border-primary bg-primary/10 text-primary font-semibold"
-                  : "border-border bg-card text-foreground hover:border-primary/30"
+                  ? "border-primary bg-primary/5 font-semibold"
+                  : "border-border bg-card hover:border-primary/20"
               }`}
             >
-              <span className="text-sm">{label}</span>
+              <span className="text-body text-foreground">{label}</span>
               {language === code && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
             </button>
           ))}
@@ -41,38 +41,37 @@ export default function Profile() {
     );
   }
 
-  // Not logged in — show sign in prompt
+  // Not logged in
   if (!user) {
     return (
       <div className="px-5 py-16 space-y-6 md:max-w-md md:mx-auto text-center">
-        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto">
+        <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center mx-auto">
           <User className="w-10 h-10 text-muted-foreground" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{t("profile.welcome")}</h1>
-          <p className="text-sm text-muted-foreground mt-2">{t("profile.signInDesc")}</p>
+          <h1 className="text-page-title text-foreground">{t("profile.welcome")}</h1>
+          <p className="text-caption text-muted-foreground mt-2">{t("profile.signInDesc")}</p>
         </div>
         <div className="flex flex-col gap-3">
           <Link to="/auth">
-            <Button className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
+            <Button className="w-full gap-2 rounded-xl h-11">
               <LogIn className="w-4 h-4" /> {t("profile.signIn")}
             </Button>
           </Link>
           <Link to="/auth">
-            <Button variant="outline" className="w-full">{t("profile.createAccount")}</Button>
+            <Button variant="outline" className="w-full rounded-xl h-11">{t("profile.createAccount")}</Button>
           </Link>
         </div>
-
-        {/* Language selector for guests */}
-        <div className="pt-4">
+        <div className="pt-2">
           <button
             onClick={() => setShowLanguage(true)}
-            className="app-card w-full flex items-center justify-between p-4">
+            className="app-card w-full flex items-center justify-between p-4 active:scale-[0.98] transition-transform"
+          >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
                 <Globe className="w-4 h-4 text-muted-foreground" />
               </div>
-              <span className="text-sm font-medium text-foreground">{t("profile.language")}</span>
+              <span className="text-body font-medium text-foreground">{t("profile.language")}</span>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </button>
@@ -83,119 +82,120 @@ export default function Profile() {
 
   const displayName = profile?.full_name || user.email?.split("@")[0] || "User";
 
-  const quickLinks = [
-    { icon: Package, label: t("profile.orders"), desc: t("profile.ordersDesc"), link: "#orders" },
-    { icon: Heart, label: t("profile.wishlist"), desc: t("profile.wishlistDesc"), link: "/shop" },
-    { icon: MapPin, label: t("profile.addresses"), desc: t("profile.addressesDesc"), link: "#" },
-    { icon: CreditCard, label: t("profile.payments"), desc: t("profile.paymentsDesc"), link: "#" },
-  ];
-
-  const accountItems = [
-    { icon: Settings, label: t("profile.accountSettings"), onClick: undefined },
-    { icon: HelpCircle, label: t("profile.helpSupport"), onClick: undefined },
-    { icon: ShoppingBag, label: t("profile.buyAgain"), onClick: undefined },
-    { icon: Globe, label: t("profile.language"), onClick: () => setShowLanguage(true) },
+  const sections = [
+    {
+      title: t("profile.orders") + " & " + "Quotes",
+      items: [
+        { icon: Package, label: t("profile.orders"), desc: t("profile.ordersDesc"), link: "#orders" },
+        { icon: FileText, label: "Quotes", desc: "View quote requests", link: "#" },
+        { icon: Headphones, label: "Service Requests", desc: "Track service status", link: "#" },
+      ],
+    },
+    {
+      title: t("profile.account"),
+      items: [
+        { icon: Settings, label: t("profile.accountSettings"), link: "#" },
+        { icon: Globe, label: t("profile.language"), onClick: () => setShowLanguage(true) },
+        { icon: HelpCircle, label: t("profile.helpSupport"), link: "#" },
+        { icon: MessageCircle, label: "FAQ", link: "#" },
+      ],
+    },
   ];
 
   return (
-    <div className="px-5 py-5 space-y-6 md:max-w-3xl md:mx-auto md:px-8 md:py-8">
-      {/* Greeting */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-            {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt="" className="w-14 h-14 rounded-full object-cover" />
-            ) : (
-              <User className="w-7 h-7 text-muted-foreground" />
-            )}
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">{t("profile.hello")}, {displayName}</h1>
-            <p className="text-sm text-muted-foreground">{profile?.email}</p>
-            {role && (
-              <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary capitalize">
-                {role.replace("_", " ")}
-              </span>
-            )}
-          </div>
+    <div className="px-5 py-5 space-y-5 md:max-w-3xl md:mx-auto md:px-8 md:py-8">
+      {/* Profile header */}
+      <div className="flex items-center gap-4">
+        <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt="" className="w-14 h-14 object-cover" />
+          ) : (
+            <User className="w-7 h-7 text-muted-foreground" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-section-title text-foreground truncate">{displayName}</h1>
+          <p className="text-caption text-muted-foreground truncate">{profile?.email}</p>
+          {role && (
+            <span className="badge-status bg-primary/10 text-primary mt-1 capitalize">
+              {role.replace("_", " ")}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Quick Links */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-5 px-5">
-        {quickLinks.map((item) => (
-          <Link
-            key={item.label}
-            to={item.link}
-            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full border border-border bg-card text-sm font-medium text-foreground hover:border-primary/30 transition-colors"
-          >
-            <item.icon className="w-4 h-4 text-primary" />
-            {item.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* Admin Portal link */}
+      {/* Admin Portal */}
       {(role === "approved_admin" || role === "super_admin") && (
-        <Link to="/admin" className="app-card flex items-center justify-between p-4 border-primary/20 hover:border-primary/40">
+        <Link to="/admin" className="app-card-interactive flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Settings className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <span className="text-sm font-semibold text-foreground block">{t("profile.adminPortal")}</span>
-              <span className="text-xs text-muted-foreground">{t("profile.adminPortalDesc")}</span>
+              <span className="text-body font-semibold text-foreground block">{t("profile.adminPortal")}</span>
+              <span className="text-micro text-muted-foreground">{t("profile.adminPortalDesc")}</span>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </Link>
       )}
 
       {/* Cart Summary */}
       {cart.length > 0 && (
-        <Link to="/cart" className="app-card flex items-center justify-between p-4">
+        <Link to="/cart" className="app-card-interactive flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <ShoppingBag className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <span className="text-sm font-semibold text-foreground block">
+              <span className="text-body font-semibold text-foreground block">
                 {cart.length} {cart.length > 1 ? t("profile.itemsInCart") : t("profile.itemInCart")}
               </span>
-              <span className="text-xs text-muted-foreground">{t("cart.total")}: ${cartTotal.toLocaleString()}</span>
+              <span className="text-micro text-muted-foreground">{t("cart.total")}: ${cartTotal.toLocaleString()}</span>
             </div>
           </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </Link>
       )}
 
-      {/* Account */}
-      <section>
-        <h2 className="text-lg font-bold text-foreground mb-3">{t("profile.account")}</h2>
-        <div className="space-y-2">
-          {accountItems.map((item) => (
-            <button key={item.label} onClick={item.onClick} className="app-card w-full flex items-center justify-between p-4">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
-                  <item.icon className="w-4 h-4 text-muted-foreground" />
+      {/* Sections */}
+      {sections.map((section) => (
+        <section key={section.title}>
+          <h2 className="text-caption font-semibold text-muted-foreground uppercase tracking-wider mb-2">{section.title}</h2>
+          <div className="app-card divide-y divide-border overflow-hidden">
+            {section.items.map((item) => {
+              const content = (
+                <div className="flex items-center justify-between p-4 hover:bg-secondary/50 transition-colors active:scale-[0.99]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
+                      <item.icon className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <span className="text-body font-medium text-foreground block">{item.label}</span>
+                      {"desc" in item && item.desc && <span className="text-micro text-muted-foreground">{item.desc}</span>}
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <span className="text-sm font-medium text-foreground">{item.label}</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
-          ))}
-        </div>
-      </section>
+              );
+
+              if ("onClick" in item && item.onClick) {
+                return <button key={item.label} onClick={item.onClick} className="w-full text-left">{content}</button>;
+              }
+              return <Link key={item.label} to={"link" in item ? (item.link || "#") : "#"} className="block">{content}</Link>;
+            })}
+          </div>
+        </section>
+      ))}
 
       {/* Sign Out */}
       <button
         onClick={signOut}
-        className="app-card w-full flex items-center gap-3 p-4 text-destructive hover:bg-destructive/5 transition-colors"
+        className="app-card w-full flex items-center gap-3 p-4 text-destructive hover:bg-destructive/5 transition-colors active:scale-[0.98]"
       >
         <LogOut className="w-5 h-5" />
-        <span className="text-sm font-medium">{t("profile.signOut")}</span>
+        <span className="text-body font-medium">{t("profile.signOut")}</span>
       </button>
     </div>
   );
 }
-

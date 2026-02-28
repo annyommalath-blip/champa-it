@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, ShoppingBag, Wrench, MessageCircle, LayoutDashboard, Zap, Tag, Star, Users, Clock, TrendingUp, CheckCircle, ChevronRight } from "lucide-react";
+import { ArrowRight, ShoppingBag, Wrench, MessageCircle, Tag, LayoutDashboard, Zap, Star, Users, Clock, TrendingUp, CheckCircle, ChevronRight, Package, FileText, Headphones } from "lucide-react";
 import { products, deals } from "@/data/mock";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/context/LanguageContext";
@@ -29,7 +29,6 @@ export default function AboutPage() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Fetch hero slides from settings
   useEffect(() => {
     async function loadSlides() {
       const { data } = await supabase.from("settings").select("value").eq("key", "hero_slides").single();
@@ -52,63 +51,86 @@ export default function AboutPage() {
     return () => { emblaApi.off("select", onSelect); };
   }, [emblaApi, onSelect]);
 
-  // Auto-play
   useEffect(() => {
     if (!emblaApi) return;
-    const interval = setInterval(() => emblaApi.scrollNext(), 4000);
+    const interval = setInterval(() => emblaApi.scrollNext(), 5000);
     return () => clearInterval(interval);
   }, [emblaApi]);
 
   const quickActions = [
-    { icon: ShoppingBag, label: t("nav.shop"), link: "/shop" },
-    { icon: Wrench, label: t("nav.services"), link: "/services" },
-    { icon: MessageCircle, label: t("home.getQuote"), link: "/contact" },
-    { icon: MessageCircle, label: t("home.liveChat"), link: "/contact" },
-    { icon: Tag, label: t("home.deals"), link: "/shop" },
-    { icon: LayoutDashboard, label: t("nav.profile"), link: "/profile" },
+    { icon: ShoppingBag, label: t("nav.shop"), sub: "Browse catalog", link: "/shop" },
+    { icon: Wrench, label: t("nav.services"), sub: "IT solutions", link: "/services" },
+    { icon: MessageCircle, label: t("home.getQuote"), sub: "Free estimate", link: "/contact" },
+    { icon: Tag, label: t("home.deals"), sub: "Save today", link: "/shop" },
+    { icon: Headphones, label: t("home.liveChat"), sub: "24/7 support", link: "/contact" },
+    { icon: LayoutDashboard, label: t("nav.profile"), sub: "My account", link: "/profile" },
+  ];
+
+  const statusStrip = [
+    { icon: Package, label: "Track Order", count: 0, link: "/profile" },
+    { icon: FileText, label: "My Quotes", count: 0, link: "/profile" },
+    { icon: Headphones, label: "Support", count: 0, link: "/contact" },
   ];
 
   const stats = [
-    { num: "500+", label: t("home.stats.clients"), icon: Users },
-    { num: "24/7", label: t("home.stats.support"), icon: Clock },
-    { num: "99.9%", label: t("home.stats.sla"), icon: TrendingUp },
-    { num: "50+", label: t("home.stats.partners"), icon: CheckCircle },
+    { num: "500+", label: t("home.stats.clients") },
+    { num: "24/7", label: t("home.stats.support") },
+    { num: "99.9%", label: t("home.stats.sla") },
+    { num: "50+", label: t("home.stats.partners") },
   ];
 
-  const featuredProducts = products.filter(p => p.category !== "Services").slice(0, 5);
+  const featuredProducts = products.filter(p => p.category !== "Services").slice(0, 6);
   const dealProducts = deals.map(d => ({ deal: d, product: products.find(p => p.id === d.productId)! })).filter(d => d.product);
 
   return (
-    <div className="px-5 py-4 space-y-7 md:max-w-7xl md:mx-auto md:px-8 md:py-8 md:space-y-12">
+    <div className="px-5 py-4 space-y-6 md:max-w-7xl md:mx-auto md:px-8 md:py-6 md:space-y-10">
+
+      {/* ── Status Strip ── */}
+      <section className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+        {statusStrip.map((item) => (
+          <Link
+            key={item.label}
+            to={item.link}
+            className="flex-shrink-0 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-secondary border border-border hover:border-primary/20 transition-all active:scale-95"
+          >
+            <item.icon className="w-4 h-4 text-muted-foreground" />
+            <span className="text-caption font-medium text-foreground whitespace-nowrap">{item.label}</span>
+            {item.count > 0 && (
+              <span className="min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1">
+                {item.count}
+              </span>
+            )}
+          </Link>
+        ))}
+      </section>
 
       {/* ── Hero Carousel ── */}
       <section>
         <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
           <div className="flex">
             {heroSlides.map((slide, i) => (
-              <div key={i} className="flex-[0_0_100%] min-w-0 px-1">
-                <div className="app-card relative overflow-hidden p-6 md:p-10 min-h-[160px] md:min-h-[240px] flex flex-col justify-end">
-                  {/* Background image */}
+              <div key={i} className="flex-[0_0_100%] min-w-0 px-0.5">
+                <div className="relative overflow-hidden rounded-2xl min-h-[140px] md:min-h-[220px] flex flex-col justify-end p-5 md:p-8 bg-secondary">
                   {slide.image && (
-                    <img
-                      src={slide.image}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
+                    <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
                   )}
-                  {/* Overlay for readability */}
                   {slide.image && (
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/60 to-background/30" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/40 to-transparent" />
                   )}
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-primary/60 to-transparent rounded-l-2xl z-10" />
-                  <div className="absolute top-4 right-4 w-24 h-24 rounded-full bg-primary/8 blur-[40px]" />
-                  <h2 className="relative z-10 text-xl md:text-3xl font-bold text-foreground mb-1.5">{slide.title}</h2>
-                  <p className="relative z-10 text-sm text-muted-foreground mb-4">{slide.subtitle}</p>
+                  {!slide.image && (
+                    <div className="absolute top-3 right-3 w-24 h-24 rounded-full bg-primary/8 blur-[40px]" />
+                  )}
+                  <h2 className={`relative z-10 text-section-title md:text-2xl font-bold mb-1 ${slide.image ? 'text-background' : 'text-foreground'}`}>
+                    {slide.title}
+                  </h2>
+                  <p className={`relative z-10 text-caption mb-3 ${slide.image ? 'text-background/70' : 'text-muted-foreground'}`}>
+                    {slide.subtitle}
+                  </p>
                   <Link
                     to={slide.link}
-                    className="relative z-10 self-start inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-all hover:brightness-110"
+                    className="relative z-10 self-start btn-primary py-2 px-4 text-caption"
                   >
-                    {slide.cta} <ArrowRight className="w-4 h-4" />
+                    {slide.cta} <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
@@ -121,7 +143,7 @@ export default function AboutPage() {
               key={i}
               onClick={() => emblaApi?.scrollTo(i)}
               className={`h-1.5 rounded-full transition-all ${
-                i === selectedIndex ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/30"
+                i === selectedIndex ? "w-5 bg-primary" : "w-1.5 bg-muted-foreground/25"
               }`}
             />
           ))}
@@ -130,53 +152,61 @@ export default function AboutPage() {
 
       {/* ── Quick Actions ── */}
       <section>
-        <h3 className="text-base font-semibold text-foreground mb-3">{t("home.quickActions")}</h3>
-        <div className="grid grid-cols-3 gap-3">
+        <h3 className="text-section-title text-foreground mb-3">{t("home.quickActions")}</h3>
+        <div className="grid grid-cols-3 gap-2.5 md:grid-cols-6">
           {quickActions.map((action) => (
             <Link
               key={action.label}
               to={action.link}
-              className="app-card flex flex-col items-center gap-2 py-4 px-2 active:scale-95 transition-transform"
+              className="app-card-interactive flex flex-col items-center gap-1.5 py-4 px-2 text-center"
             >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <action.icon className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+                <action.icon className="w-5 h-5 text-foreground/70" />
               </div>
-              <span className="text-xs font-medium text-foreground">{action.label}</span>
+              <span className="text-caption font-medium text-foreground leading-tight">{action.label}</span>
+              <span className="text-micro text-muted-foreground hidden md:block">{action.sub}</span>
             </Link>
           ))}
         </div>
       </section>
 
-      {/* ── Featured Products ── */}
+      {/* ── Featured Products — 2-col grid on mobile ── */}
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-foreground">{t("home.featuredProducts")}</h3>
-          <Link to="/shop" className="text-xs font-medium text-primary flex items-center gap-0.5">
+          <h3 className="text-section-title text-foreground">{t("home.featuredProducts")}</h3>
+          <Link to="/shop" className="text-caption font-medium text-primary flex items-center gap-0.5">
             {t("home.more")} <ChevronRight className="w-3.5 h-3.5" />
           </Link>
         </div>
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 scrollbar-hide">
-          {featuredProducts.map((product) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {featuredProducts.slice(0, 4).map((product) => (
             <Link
               key={product.id}
               to={`/shop/${product.id}`}
-              className="app-card flex-shrink-0 w-40 md:w-48 snap-start overflow-hidden"
+              className="app-card-interactive overflow-hidden"
             >
-              <div className="h-28 bg-secondary/30 flex items-center justify-center">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <span className="gradient-text font-bold text-2xl">{product.name.charAt(0)}</span>
+              <div className="aspect-square bg-secondary flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <span className="text-xl font-bold text-primary">{product.name.charAt(0)}</span>
                 </div>
               </div>
               <div className="p-3">
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{product.category}</p>
-                <h4 className="text-sm font-semibold text-foreground mt-0.5 line-clamp-1">{product.name}</h4>
+                <p className="text-micro text-muted-foreground font-medium uppercase tracking-wider">{product.category}</p>
+                <h4 className="text-caption font-semibold text-foreground mt-0.5 line-clamp-2 leading-snug">{product.name}</h4>
                 <div className="flex items-center justify-between mt-2">
-                  <span className="text-sm font-bold text-foreground">${product.price.toLocaleString()}</span>
-                  <div className="flex items-center gap-0.5">
-                    <Star className="w-3 h-3 text-primary fill-primary" />
-                    <span className="text-[11px] text-muted-foreground">{product.rating}</span>
-                  </div>
+                  <span className="text-body font-bold text-foreground">${product.price.toLocaleString()}</span>
+                  {product.rating > 0 && (
+                    <div className="flex items-center gap-0.5">
+                      <Star className="w-3 h-3 text-primary fill-primary" />
+                      <span className="text-micro text-muted-foreground">{product.rating}</span>
+                    </div>
+                  )}
                 </div>
+                {product.inStock ? (
+                  <span className="badge-status bg-success/10 text-success mt-2">In Stock</span>
+                ) : (
+                  <span className="badge-status bg-destructive/10 text-destructive mt-2">Out of Stock</span>
+                )}
               </div>
             </Link>
           ))}
@@ -185,73 +215,74 @@ export default function AboutPage() {
 
       {/* ── Services Card ── */}
       <section>
-        <Link to="/services" className="app-card block p-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/6 rounded-full blur-[50px]" />
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-primary/15 text-primary mb-3">
+        <Link to="/services" className="app-card-interactive block p-5 md:p-6 relative overflow-hidden">
+          <span className="chip chip-active text-micro mb-3">
             <Zap className="w-3 h-3" /> {t("home.6services")}
           </span>
-          <h3 className="text-lg font-bold text-foreground mb-1">{t("home.services")}</h3>
-          <p className="text-sm text-muted-foreground mb-4">{t("home.servicesDesc")}</p>
-          <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-            {t("home.learnMore")} <ArrowRight className="w-4 h-4" />
+          <h3 className="text-section-title text-foreground mb-1">{t("home.services")}</h3>
+          <p className="text-caption text-muted-foreground mb-4">{t("home.servicesDesc")}</p>
+          <span className="inline-flex items-center gap-1.5 text-caption font-semibold text-primary">
+            {t("home.learnMore")} <ArrowRight className="w-3.5 h-3.5" />
           </span>
         </Link>
       </section>
 
       {/* ── Today's Deals ── */}
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-foreground">{t("home.todaysDeals")}</h3>
-          <Link to="/shop" className="text-xs font-medium text-primary flex items-center gap-0.5">
-            {t("home.more")} <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-        <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 scrollbar-hide">
-          {dealProducts.map(({ deal, product }) => (
-            <Link
-              key={deal.id}
-              to={`/shop/${product.id}`}
-              className="app-card flex-shrink-0 w-44 md:w-52 snap-start overflow-hidden"
-            >
-              <div className="relative h-28 bg-secondary/30 flex items-center justify-center">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
-                  <span className="gradient-text font-bold text-2xl">{product.name.charAt(0)}</span>
-                </div>
-                {deal.discount > 0 && (
-                  <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
-                    {deal.discount}% OFF
-                  </span>
-                )}
-                {!deal.discount && (
-                  <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                    {deal.badge}
-                  </span>
-                )}
-              </div>
-              <div className="p-3">
-                <h4 className="text-sm font-semibold text-foreground line-clamp-1">{product.name}</h4>
-                <div className="flex items-baseline gap-1.5 mt-1.5">
-                  <span className="text-sm font-bold text-foreground">
-                    ${deal.discount > 0 ? Math.round(product.price * (1 - deal.discount / 100)).toLocaleString() : product.price.toLocaleString()}
-                  </span>
+      {dealProducts.length > 0 && (
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-section-title text-foreground">{t("home.todaysDeals")}</h3>
+            <Link to="/shop" className="text-caption font-medium text-primary flex items-center gap-0.5">
+              {t("home.more")} <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2 -mx-5 px-5 scrollbar-hide">
+            {dealProducts.map(({ deal, product }) => (
+              <Link
+                key={deal.id}
+                to={`/shop/${product.id}`}
+                className="app-card-interactive flex-shrink-0 w-40 md:w-48 snap-start overflow-hidden"
+              >
+                <div className="relative aspect-square bg-secondary flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                    <span className="text-xl font-bold text-primary">{product.name.charAt(0)}</span>
+                  </div>
                   {deal.discount > 0 && (
-                    <span className="text-[11px] text-muted-foreground line-through">${product.price.toLocaleString()}</span>
+                    <span className="absolute top-2 left-2 badge-pill bg-primary text-primary-foreground">
+                      {deal.discount}% OFF
+                    </span>
+                  )}
+                  {!deal.discount && deal.badge && (
+                    <span className="absolute top-2 left-2 badge-pill bg-foreground text-background">
+                      {deal.badge}
+                    </span>
                   )}
                 </div>
-                {deal.endsIn && <p className="text-[10px] text-destructive font-semibold mt-1.5">⏰ {deal.endsIn}</p>}
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+                <div className="p-3">
+                  <h4 className="text-caption font-semibold text-foreground line-clamp-1">{product.name}</h4>
+                  <div className="flex items-baseline gap-1.5 mt-1.5">
+                    <span className="text-body font-bold text-foreground">
+                      ${deal.discount > 0 ? Math.round(product.price * (1 - deal.discount / 100)).toLocaleString() : product.price.toLocaleString()}
+                    </span>
+                    {deal.discount > 0 && (
+                      <span className="text-micro text-muted-foreground line-through">${product.price.toLocaleString()}</span>
+                    )}
+                  </div>
+                  {deal.endsIn && <p className="text-micro text-destructive font-semibold mt-1.5">⏰ {deal.endsIn}</p>}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Stats ── */}
       <section>
         <div className="grid grid-cols-4 gap-2">
           {stats.map((s) => (
             <div key={s.label} className="app-card py-4 px-2 text-center">
-              <div className="text-lg md:text-2xl font-extrabold gradient-text">{s.num}</div>
-              <div className="text-[10px] text-muted-foreground font-medium mt-0.5">{s.label}</div>
+              <div className="text-section-title md:text-2xl font-extrabold text-foreground">{s.num}</div>
+              <div className="text-micro text-muted-foreground font-medium mt-0.5">{s.label}</div>
             </div>
           ))}
         </div>
@@ -259,12 +290,12 @@ export default function AboutPage() {
 
       {/* ── Partners ── */}
       <section className="pb-4">
-        <h3 className="text-base font-semibold text-foreground mb-3">{t("home.trustedPartners")}</h3>
+        <h3 className="text-section-title text-foreground mb-3">{t("home.trustedPartners")}</h3>
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
           {partners.map((name) => (
             <span
               key={name}
-              className="flex-shrink-0 px-4 py-2 rounded-xl bg-secondary/50 border border-border/50 text-xs font-semibold text-muted-foreground whitespace-nowrap"
+              className="chip whitespace-nowrap"
             >
               {name}
             </span>

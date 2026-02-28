@@ -1,71 +1,78 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Server, Cloud, Shield, HeadphonesIcon, BarChart3, Wrench } from "lucide-react";
+import { ArrowRight, Server, Cloud, Shield, HeadphonesIcon, BarChart3, Wrench, Clock, Zap, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useLanguage } from "@/context/LanguageContext";
 
 const services = [
-  { icon: BarChart3, titleKey: "IT Infrastructure Assessment", descKey: "Comprehensive audit of your servers, network, security, and cloud readiness with actionable recommendations.", price: "From $2,500" },
-  { icon: Cloud, titleKey: "Cloud Migration & Consulting", descKey: "Expert-led migration planning and execution for AWS, Azure, or GCP with minimal downtime.", price: "From $5,000" },
-  { icon: HeadphonesIcon, titleKey: "Managed IT Support", descKey: "24/7 proactive monitoring, maintenance, patching, and helpdesk for your entire IT stack.", price: "$1,500/mo" },
-  { icon: Shield, titleKey: "Cybersecurity Services", descKey: "Penetration testing, vulnerability assessments, incident response planning, and security training.", price: "Custom" },
-  { icon: Server, titleKey: "Data Center Design", descKey: "End-to-end data center planning, build-out, and optimization for on-prem and hybrid environments.", price: "Custom" },
-  { icon: Wrench, titleKey: "Hardware Maintenance", descKey: "Extended warranties, break-fix support, and spare parts management for all enterprise hardware.", price: "From $200/mo" },
+  { icon: BarChart3, titleKey: "IT Infrastructure Assessment", descKey: "Comprehensive audit of your servers, network, security, and cloud readiness.", price: "From $2,500", time: "1-2 weeks", tags: ["Popular"] },
+  { icon: Cloud, titleKey: "Cloud Migration & Consulting", descKey: "Expert-led migration planning and execution for AWS, Azure, or GCP.", price: "From $5,000", time: "2-8 weeks", tags: ["Recommended"] },
+  { icon: HeadphonesIcon, titleKey: "Managed IT Support", descKey: "24/7 proactive monitoring, maintenance, patching, and helpdesk.", price: "$1,500/mo", time: "Ongoing", tags: [] },
+  { icon: Shield, titleKey: "Cybersecurity Services", descKey: "Penetration testing, vulnerability assessments, and incident response.", price: "Custom", time: "1-4 weeks", tags: [] },
+  { icon: Server, titleKey: "Data Center Design", descKey: "End-to-end data center planning, build-out, and optimization.", price: "Custom", time: "4-12 weeks", tags: [] },
+  { icon: Wrench, titleKey: "Hardware Maintenance", descKey: "Extended warranties, break-fix support, and spare parts management.", price: "From $200/mo", time: "Ongoing", tags: ["Popular"] },
 ];
 
 export default function ServicesPage() {
   const { t } = useLanguage();
 
   return (
-    <div>
-      <section className="hero-section border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 py-16 md:py-20 md:px-8 text-center relative z-10">
-          <span className="badge-pill bg-primary/15 text-primary border border-primary/20 mb-6">{t("services.badge")}</span>
-          <h1 className="text-3xl md:text-5xl font-bold mb-4">{t("services.title")}</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-            {t("services.subtitle")}
-          </p>
-          <a href="#quote" className="btn-primary">
-            {t("services.requestQuote")} <ArrowRight className="w-4 h-4" />
+    <div className="md:max-w-7xl md:mx-auto">
+      {/* Compact header — no yellow hero */}
+      <div className="px-5 pt-5 pb-4 md:px-8 md:pt-8 md:pb-6">
+        <span className="chip chip-active text-micro mb-3 inline-flex">
+          <Zap className="w-3 h-3" /> {t("services.badge")}
+        </span>
+        <h1 className="text-page-title text-foreground mb-1.5">{t("services.title")}</h1>
+        <p className="text-body text-muted-foreground max-w-xl mb-5">
+          {t("services.subtitle")}
+        </p>
+        <div className="flex gap-3">
+          <a href="#quote" className="btn-primary py-2.5 px-5 text-caption">
+            {t("services.requestQuote")} <ArrowRight className="w-3.5 h-3.5" />
           </a>
+          <Link to="/contact" className="btn-outline py-2.5 px-5 text-caption">
+            {t("services.chatWithSales")}
+          </Link>
         </div>
-      </section>
+      </div>
 
-      <section className="section-padding">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold">{t("services.whatWeOffer")}</h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((s) => (
-              <div key={s.titleKey} className="tech-card p-6">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <s.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-bold text-lg mb-2">{s.titleKey}</h3>
-                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{s.descKey}</p>
-                <span className="text-sm font-bold gradient-text">{s.price}</span>
+      {/* Service catalog */}
+      <div className="px-5 md:px-8 pb-8">
+        <h2 className="text-section-title text-foreground mb-4">{t("services.whatWeOffer")}</h2>
+        <div className="space-y-3">
+          {services.map((s) => (
+            <div key={s.titleKey} className="app-card p-4 md:p-5 flex gap-4 items-start">
+              <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                <s.icon className="w-5 h-5 text-foreground/70" />
               </div>
-            ))}
-          </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="text-body font-semibold text-foreground">{s.titleKey}</h3>
+                  {s.tags.map(tag => (
+                    <span key={tag} className="badge-status bg-primary/10 text-primary">{tag}</span>
+                  ))}
+                </div>
+                <p className="text-caption text-muted-foreground leading-relaxed">{s.descKey}</p>
+                <div className="flex items-center gap-4 mt-2">
+                  <span className="text-caption font-bold text-foreground">{s.price}</span>
+                  <span className="flex items-center gap-1 text-micro text-muted-foreground">
+                    <Clock className="w-3 h-3" /> {s.time}
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
 
-      <section id="quote" className="section-padding border-t border-border/50">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-2">{t("services.quoteTitle")}</h2>
-            <p className="text-muted-foreground">{t("services.quoteSubtitle")}</p>
-          </div>
+      {/* Quote form */}
+      <section id="quote" className="px-5 md:px-8 pb-10">
+        <div className="app-card p-5 md:p-8">
+          <h2 className="text-section-title text-foreground mb-1">{t("services.quoteTitle")}</h2>
+          <p className="text-caption text-muted-foreground mb-5">{t("services.quoteSubtitle")}</p>
           <QuoteForm />
-        </div>
-      </section>
-
-      <section className="section-padding border-t border-border/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">{t("services.notSure")}</h2>
-          <p className="text-muted-foreground mb-6">{t("services.notSureDesc")}</p>
-          <Link to="/contact" className="btn-primary">{t("services.chatWithSales")} <ArrowRight className="w-4 h-4" /></Link>
         </div>
       </section>
     </div>
@@ -87,8 +94,8 @@ function QuoteForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="tech-card p-6 md:p-8 space-y-5">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
           { key: "name", label: t("services.name"), type: "text", required: true },
           { key: "email", label: t("services.email"), type: "email", required: true },
@@ -96,21 +103,21 @@ function QuoteForm() {
           { key: "company", label: t("services.company"), type: "text" },
         ].map((f) => (
           <div key={f.key}>
-            <label className="text-sm text-muted-foreground mb-1.5 block">{f.label} {f.required && "*"}</label>
+            <label className="text-caption text-muted-foreground mb-1.5 block">{f.label} {f.required && "*"}</label>
             <input type={f.type} value={form[f.key as keyof typeof form]} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })} className="input-field" />
           </div>
         ))}
       </div>
       <div>
-        <label className="text-sm text-muted-foreground mb-1.5 block">{t("services.serviceType")} *</label>
+        <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.serviceType")} *</label>
         <select value={form.serviceType} onChange={(e) => setForm({ ...form, serviceType: e.target.value })} className="input-field">
           <option value="">{t("services.selectService")}</option>
           {services.map(s => <option key={s.titleKey} value={s.titleKey}>{s.titleKey}</option>)}
         </select>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="text-sm text-muted-foreground mb-1.5 block">{t("services.budget")}</label>
+          <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.budget")}</label>
           <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="input-field">
             <option value="">{t("services.select")}</option>
             <option value="<5k">Under $5,000</option>
@@ -120,7 +127,7 @@ function QuoteForm() {
           </select>
         </div>
         <div>
-          <label className="text-sm text-muted-foreground mb-1.5 block">{t("services.timeline")}</label>
+          <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.timeline")}</label>
           <select value={form.timeline} onChange={(e) => setForm({ ...form, timeline: e.target.value })} className="input-field">
             <option value="">{t("services.select")}</option>
             <option value="asap">ASAP</option>
@@ -131,10 +138,10 @@ function QuoteForm() {
         </div>
       </div>
       <div>
-        <label className="text-sm text-muted-foreground mb-1.5 block">{t("services.projectDetails")} *</label>
+        <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.projectDetails")} *</label>
         <textarea value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} rows={4} placeholder={t("services.projectPlaceholder")} className="input-field resize-none" />
       </div>
-      <button type="submit" className="btn-primary w-full justify-center">{t("services.submitQuote")}</button>
+      <button type="submit" className="btn-primary w-full">{t("services.submitQuote")}</button>
     </form>
   );
 }
