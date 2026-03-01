@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Search, ChevronRight, Star, FileText, Package, Headphones, MessageCircle, Wrench, ShoppingBag, Tag, Zap } from "lucide-react";
+import { ArrowRight, Search, ChevronRight, Star, FileText, Package, Headphones, ShoppingCart, Zap, Wrench, ShoppingBag, Tag } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
@@ -87,14 +87,17 @@ export default function AboutPage() {
     return "Good evening";
   })();
 
+  const isAdmin = role === "approved_admin" || role === "super_admin";
+
   return (
     <div className="md:max-w-7xl md:mx-auto">
-      {/* Greeting + Search */}
+      {/* ── 1. Greeting ── */}
       <div className="px-5 pt-5 pb-2 md:px-8">
         <p className="text-caption text-muted-foreground font-medium">{greeting} 👋</p>
         <h1 className="text-page-title text-foreground mt-0.5">Discover</h1>
       </div>
 
+      {/* ── 2. Search Bar ── */}
       <div className="px-5 pb-4 md:px-8 sticky top-[52px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
         <Link to="/shop" className="block">
           <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-card text-muted-foreground active:scale-[0.99] transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
@@ -104,10 +107,10 @@ export default function AboutPage() {
         </Link>
       </div>
 
-      <div className="px-5 space-y-8 pb-12 md:px-8 md:space-y-10">
+      <div className="px-5 space-y-7 pb-12 md:px-8 md:space-y-9">
 
-        {/* ── Bento Status Cards (Admin only) ── */}
-        {(role === "approved_admin" || role === "super_admin") && (
+        {/* ── 3. Admin Status Cards (admin only) ── */}
+        {isAdmin && (
           <section className="flex gap-2.5 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
             {[
               { icon: FileText, label: "Quotes", count: 0, color: "hsl(44 92% 53% / 0.12)", iconColor: "text-primary", link: "/admin" },
@@ -131,7 +134,7 @@ export default function AboutPage() {
           </section>
         )}
 
-        {/* ── Hero Carousel ── */}
+        {/* ── 4. Hero Carousel ── */}
         <section>
           <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
             <div className="flex">
@@ -172,30 +175,19 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Quick Actions ── */}
+        {/* ── 5. Top Brands / Partners ── */}
         <section>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-            {[
-              { icon: Zap, label: "Get Quote", link: "/contact" },
-              { icon: Package, label: "Track Order", link: "/profile" },
-              { icon: ShoppingBag, label: "Browse Shop", link: "/shop" },
-              { icon: Wrench, label: "Book Service", link: "/services" },
-              { icon: Tag, label: "Deals", link: "/shop" },
-            ].map((a) => (
-              <Link
-                key={a.label}
-                to={a.link}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-card font-semibold text-[12px] text-foreground/80 whitespace-nowrap active:scale-95 transition-transform tracking-tight"
-                style={{ boxShadow: "var(--shadow-xs)" }}
-              >
-                <a.icon className="w-3.5 h-3.5" strokeWidth={2} />
-                {a.label}
-              </Link>
+          <h3 className="text-section-title text-foreground mb-4">{t("home.trustedPartners")}</h3>
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+            {["Cisco", "AWS", "VMware", "Fortinet", "Microsoft", "Dell"].map((name) => (
+              <div key={name} className="flex-shrink-0 w-[72px] h-[72px] rounded-full bg-card flex items-center justify-center active:scale-95 transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
+                <span className="text-[11px] font-bold text-muted-foreground tracking-tight text-center leading-tight">{name}</span>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* ── Featured Products ── */}
+        {/* ── 6. Featured Products ── */}
         <section>
           <div className="flex items-center justify-between mb-5">
             <h3 className="text-section-title text-foreground">{t("home.featuredProducts")}</h3>
@@ -241,19 +233,28 @@ export default function AboutPage() {
                       ) : (
                         <span className="absolute top-2.5 left-2.5 badge-status bg-foreground/70 text-background text-[9px] backdrop-blur-sm">Sold Out</span>
                       )}
+                      {/* Cart button */}
+                      <button className="absolute bottom-2.5 right-2.5 w-8 h-8 rounded-xl bg-primary flex items-center justify-center active:scale-90 transition-transform shadow-lg"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                      >
+                        <ShoppingCart className="w-3.5 h-3.5 text-primary-foreground" strokeWidth={2} />
+                      </button>
                     </div>
                     <div className="p-4">
-                      <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-[0.1em]">{product.category}</p>
-                      <h4 className="text-[14px] font-semibold text-foreground mt-1 line-clamp-2 leading-[1.3] tracking-tight">{product.name}</h4>
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="text-[16px] font-extrabold text-foreground tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
+                      <h4 className="text-[14px] font-semibold text-foreground line-clamp-2 leading-[1.3] tracking-tight">{product.name}</h4>
+                      <div className="flex items-center gap-1 mt-1.5">
                         {product.rating != null && product.rating > 0 && (
-                          <div className="flex items-center gap-0.5">
-                            <Star className="w-3 h-3 text-primary fill-primary" />
-                            <span className="text-[11px] text-muted-foreground font-medium">{product.rating}</span>
-                          </div>
+                          <>
+                            <div className="flex items-center gap-px">
+                              {Array.from({ length: 5 }).map((_, si) => (
+                                <Star key={si} className={`w-2.5 h-2.5 ${si < Math.round(product.rating!) ? "text-primary fill-primary" : "text-muted-foreground/20"}`} />
+                              ))}
+                            </div>
+                            <span className="text-[10px] text-muted-foreground/60">({product.rating})</span>
+                          </>
                         )}
                       </div>
+                      <span className="text-[16px] font-extrabold text-foreground tracking-tight mt-2 block">{sym}{Number(product.price).toLocaleString()}</span>
                     </div>
                   </Link>
                 );
@@ -262,7 +263,33 @@ export default function AboutPage() {
           )}
         </section>
 
-        {/* ── Recently Viewed ── */}
+        {/* ── 7. Quick Actions (Top Offers style) ── */}
+        <section>
+          <h3 className="text-section-title text-foreground mb-4">Quick Actions</h3>
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+            {[
+              { icon: Zap, label: "Get Quote", link: "/contact", gradient: "linear-gradient(135deg, hsl(44 90% 55%), hsl(32 85% 50%))" },
+              { icon: Package, label: "Track Order", link: "/profile", gradient: "linear-gradient(135deg, hsl(199 80% 45%), hsl(210 70% 50%))" },
+              { icon: ShoppingBag, label: "Browse Shop", link: "/shop", gradient: "linear-gradient(135deg, hsl(152 55% 40%), hsl(160 60% 45%))" },
+              { icon: Wrench, label: "Book Service", link: "/services", gradient: "linear-gradient(135deg, hsl(270 50% 50%), hsl(280 55% 55%))" },
+              { icon: Tag, label: "Deals", link: "/shop", gradient: "linear-gradient(135deg, hsl(350 70% 50%), hsl(10 80% 55%))" },
+            ].map((a) => (
+              <Link
+                key={a.label}
+                to={a.link}
+                className="flex-shrink-0 w-[100px] flex flex-col items-center gap-2.5 py-4 px-3 rounded-2xl bg-card active:scale-95 transition-transform"
+                style={{ boxShadow: "var(--shadow-card)" }}
+              >
+                <div className="w-11 h-11 rounded-2xl flex items-center justify-center" style={{ background: a.gradient }}>
+                  <a.icon className="w-5 h-5 text-white" strokeWidth={1.8} />
+                </div>
+                <span className="text-[11px] font-semibold text-foreground/80 text-center leading-tight">{a.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ── 8. Recently Viewed ── */}
         {products.length > 0 && (
           <section>
             <h3 className="text-section-title text-foreground mb-4">Recently Viewed</h3>
@@ -293,16 +320,6 @@ export default function AboutPage() {
             </div>
           </section>
         )}
-
-        {/* ── Partners ── */}
-        <section className="pb-2">
-          <h3 className="text-section-title text-foreground mb-4">{t("home.trustedPartners")}</h3>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-            {["Cisco", "AWS", "VMware", "Fortinet", "Microsoft", "Dell"].map((name) => (
-              <span key={name} className="px-5 py-2.5 rounded-xl bg-card text-[12px] font-bold text-muted-foreground tracking-tight whitespace-nowrap" style={{ boxShadow: "var(--shadow-xs)" }}>{name}</span>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );
