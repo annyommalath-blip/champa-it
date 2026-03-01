@@ -42,27 +42,27 @@ export default function ServicesPage() {
     setSubmitted(true);
   };
 
-  // Submitted success view
   if (selectedService && submitted) {
     return (
       <div className="px-5 py-16 md:max-w-lg md:mx-auto text-center animate-fade-in">
-        <div className="w-16 h-16 rounded-2xl bg-success/10 flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-3xl bg-success/10 flex items-center justify-center mx-auto mb-5">
           <Check className="w-8 h-8 text-success" />
         </div>
         <h2 className="text-page-title text-foreground mb-2">Request Submitted</h2>
-        <p className="text-body text-muted-foreground mb-6">
-          We've received your request for <strong>{selectedService}</strong>. Our team will contact you within 24 hours.
+        <p className="text-body text-muted-foreground mb-8">
+          We've received your request for <strong className="text-foreground">{selectedService}</strong>. Our team will contact you within 24 hours.
         </p>
-        <div className="app-card p-5 mb-6 text-left">
-          <h3 className="text-micro font-semibold text-muted-foreground uppercase tracking-wider mb-3">Status Tracker</h3>
+        <div className="bento-card p-5 mb-8 text-left">
+          <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-4">Status Tracker</p>
           {["Submitted", "Under Review", "Quote Sent", "Scheduled"].map((step, i) => (
-            <div key={step} className="flex items-center gap-3 py-2.5">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-micro font-bold ${
-                i === 0 ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+            <div key={step} className="flex items-center gap-3.5 py-3">
+              <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-[12px] font-bold transition-colors ${
+                i === 0 ? "bg-foreground text-background" : "bg-secondary text-muted-foreground/50"
               }`}>
                 {i === 0 ? <Check className="w-3.5 h-3.5" /> : i + 1}
               </div>
-              <span className={`text-body ${i === 0 ? "font-semibold text-foreground" : "text-muted-foreground"}`}>{step}</span>
+              <span className={`text-[15px] ${i === 0 ? "font-bold text-foreground" : "text-muted-foreground/50"}`}>{step}</span>
+              {i === 0 && <span className="ml-auto badge-status bg-success/10 text-success text-[9px]">Complete</span>}
             </div>
           ))}
         </div>
@@ -73,31 +73,30 @@ export default function ServicesPage() {
     );
   }
 
-  // Wizard view
   if (selectedService) {
     const stepLabels = ["Contact", "Needs", "Schedule", "Attach", "Review"];
 
     return (
       <div className="px-5 py-4 md:max-w-lg md:mx-auto animate-fade-in">
         <button onClick={() => { if (wizardStep === 0) { setSelectedService(null); } else { setWizardStep((wizardStep - 1) as WizardStep); } }}
-          className="flex items-center gap-1.5 text-caption text-muted-foreground mb-5 active:scale-95 transition-transform">
-          <ArrowLeft className="w-4 h-4" /> {wizardStep === 0 ? "Services" : "Back"}
+          className="flex items-center gap-1.5 text-[13px] text-muted-foreground mb-6 active:scale-95 transition-transform font-medium">
+          <ArrowLeft className="w-4 h-4" strokeWidth={2} /> {wizardStep === 0 ? "Services" : "Back"}
         </button>
 
         <h1 className="text-section-title text-foreground mb-1">{selectedService}</h1>
 
-        {/* Progress bar */}
-        <div className="flex items-center gap-1 mb-2 mt-4">
+        {/* Progress */}
+        <div className="flex items-center gap-1 mb-1.5 mt-5">
           {stepLabels.map((_, i) => (
             <div key={i} className="flex-1">
-              <div className={`h-1 rounded-full transition-colors ${i <= wizardStep ? "bg-primary" : "bg-border"}`} />
+              <div className={`h-[3px] rounded-full transition-all duration-500 ${i <= wizardStep ? "bg-foreground" : "bg-border"}`} />
             </div>
           ))}
         </div>
-        <p className="text-micro text-muted-foreground mb-6">Step {wizardStep + 1} of 5 — {stepLabels[wizardStep]}</p>
+        <p className="text-[11px] text-muted-foreground/50 mb-7 font-bold tracking-wide uppercase">Step {wizardStep + 1}/5 · {stepLabels[wizardStep]}</p>
 
         {wizardStep === 0 && (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { key: "name", label: "Full Name", type: "text" },
               { key: "email", label: "Email", type: "email" },
@@ -105,31 +104,31 @@ export default function ServicesPage() {
               { key: "company", label: "Company", type: "text" },
             ].map(f => (
               <div key={f.key}>
-                <label className="text-caption text-muted-foreground mb-1.5 block">{f.label}</label>
+                <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">{f.label}</label>
                 <input type={f.type} value={wizardData[f.key as keyof typeof wizardData] as string} onChange={(e) => setWizardData({...wizardData, [f.key]: e.target.value})} className="input-field" />
               </div>
             ))}
-            <button onClick={() => setWizardStep(1)} className="btn-primary w-full mt-4">Continue</button>
+            <button onClick={() => setWizardStep(1)} className="btn-primary w-full mt-2">Continue</button>
           </div>
         )}
 
         {wizardStep === 1 && (
-          <div className="space-y-2">
-            <p className="text-body text-foreground font-semibold mb-3">What do you need help with?</p>
+          <div className="space-y-2.5">
+            <p className="text-[16px] font-bold text-foreground mb-4 tracking-tight">What do you need help with?</p>
             {needOptions.map(n => (
               <button
                 key={n}
                 onClick={() => toggleNeed(n)}
-                className={`w-full p-3.5 rounded-[14px] border text-left flex items-center gap-3 transition-all active:scale-[0.98] ${
-                  wizardData.needs.includes(n) ? "border-primary bg-primary/5" : "border-border bg-card"
+                className={`w-full p-4 rounded-2xl border-2 text-left flex items-center gap-3.5 transition-all active:scale-[0.98] ${
+                  wizardData.needs.includes(n) ? "border-foreground bg-foreground/[0.03]" : "border-border bg-card"
                 }`}
               >
-                <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
-                  wizardData.needs.includes(n) ? "bg-primary border-primary" : "border-border"
+                <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-colors ${
+                  wizardData.needs.includes(n) ? "bg-foreground border-foreground" : "border-border"
                 }`}>
-                  {wizardData.needs.includes(n) && <Check className="w-3 h-3 text-primary-foreground" />}
+                  {wizardData.needs.includes(n) && <Check className="w-3 h-3 text-background" />}
                 </div>
-                <span className="text-body text-foreground">{n}</span>
+                <span className="text-[15px] font-medium text-foreground">{n}</span>
               </button>
             ))}
             <button onClick={() => setWizardStep(2)} className="btn-primary w-full mt-4">Continue</button>
@@ -137,23 +136,23 @@ export default function ServicesPage() {
         )}
 
         {wizardStep === 2 && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
-              <p className="text-body font-semibold text-foreground mb-3">How urgent is this?</p>
+              <p className="text-[16px] font-bold text-foreground mb-4 tracking-tight">How urgent is this?</p>
               {["Today", "This week", "Flexible"].map(u => (
                 <button
                   key={u}
                   onClick={() => setWizardData({...wizardData, urgency: u})}
-                  className={`w-full p-3.5 rounded-[14px] border text-left mb-2 transition-all active:scale-[0.98] ${
-                    wizardData.urgency === u ? "border-primary bg-primary/5" : "border-border bg-card"
+                  className={`w-full p-4 rounded-2xl border-2 text-left mb-2.5 transition-all active:scale-[0.98] ${
+                    wizardData.urgency === u ? "border-foreground bg-foreground/[0.03]" : "border-border bg-card"
                   }`}
                 >
-                  <span className="text-body text-foreground">{u}</span>
+                  <span className="text-[15px] font-medium text-foreground">{u}</span>
                 </button>
               ))}
             </div>
             <div>
-              <label className="text-caption text-muted-foreground mb-1.5 block">Preferred schedule</label>
+              <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">Preferred Schedule</label>
               <input type="text" placeholder="e.g., Weekday mornings" value={wizardData.schedule} onChange={(e) => setWizardData({...wizardData, schedule: e.target.value})} className="input-field" />
             </div>
             <button onClick={() => setWizardStep(3)} className="btn-primary w-full">Continue</button>
@@ -161,22 +160,24 @@ export default function ServicesPage() {
         )}
 
         {wizardStep === 3 && (
-          <div className="space-y-4">
-            <p className="text-body font-semibold text-foreground mb-1">Attach files or photos (optional)</p>
-            <p className="text-caption text-muted-foreground">Network diagrams, photos, or any relevant documents.</p>
-            <label className="flex flex-col items-center gap-2 p-10 rounded-2xl border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
-              <Upload className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
-              <span className="text-caption font-medium text-foreground">Tap to upload</span>
-              <span className="text-micro text-muted-foreground">PNG, JPG, PDF up to 10MB</span>
+          <div className="space-y-5">
+            <p className="text-[16px] font-bold text-foreground tracking-tight">Attach files (optional)</p>
+            <p className="text-caption text-muted-foreground -mt-3">Network diagrams, photos, or relevant docs.</p>
+            <label className="flex flex-col items-center gap-3 p-10 rounded-3xl border-2 border-dashed border-border hover:border-foreground/20 cursor-pointer transition-colors active:scale-[0.98]">
+              <div className="w-12 h-12 rounded-2xl bg-secondary/60 flex items-center justify-center">
+                <Upload className="w-5 h-5 text-muted-foreground/40" strokeWidth={2} />
+              </div>
+              <span className="text-[14px] font-semibold text-foreground">Tap to upload</span>
+              <span className="text-[11px] text-muted-foreground/50">PNG, JPG, PDF up to 10MB</span>
               <input type="file" multiple className="hidden" onChange={(e) => {
                 if (e.target.files) setWizardData({...wizardData, files: [...wizardData.files, ...Array.from(e.target.files)]});
               }} />
             </label>
             {wizardData.files.length > 0 && (
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {wizardData.files.map((f, i) => (
-                  <div key={i} className="text-caption text-muted-foreground flex items-center gap-2">
-                    <Check className="w-3 h-3 text-success" /> {f.name}
+                  <div key={i} className="text-[13px] text-muted-foreground flex items-center gap-2.5 p-3 bg-card rounded-xl" style={{ boxShadow: "var(--shadow-xs)" }}>
+                    <Check className="w-3.5 h-3.5 text-success" /> {f.name}
                   </div>
                 ))}
               </div>
@@ -186,9 +187,9 @@ export default function ServicesPage() {
         )}
 
         {wizardStep === 4 && (
-          <div className="space-y-4">
-            <p className="text-body font-semibold text-foreground mb-2">Review your request</p>
-            <div className="app-card divide-y divide-border/60 overflow-hidden">
+          <div className="space-y-5">
+            <p className="text-[16px] font-bold text-foreground tracking-tight">Review your request</p>
+            <div className="bento-card divide-y divide-border/40 overflow-hidden">
               {[
                 { label: "Service", value: selectedService },
                 { label: "Name", value: wizardData.name },
@@ -198,9 +199,9 @@ export default function ServicesPage() {
                 { label: "Urgency", value: wizardData.urgency || "—" },
                 { label: "Files", value: wizardData.files.length > 0 ? `${wizardData.files.length} file(s)` : "None" },
               ].map(r => (
-                <div key={r.label} className="flex justify-between px-4 py-3">
-                  <span className="text-caption text-muted-foreground">{r.label}</span>
-                  <span className="text-caption font-medium text-foreground text-right max-w-[60%] truncate">{r.value}</span>
+                <div key={r.label} className="flex justify-between px-5 py-3.5">
+                  <span className="text-[13px] text-muted-foreground/60 font-medium">{r.label}</span>
+                  <span className="text-[13px] font-semibold text-foreground text-right max-w-[60%] truncate">{r.value}</span>
                 </div>
               ))}
             </div>
@@ -211,58 +212,59 @@ export default function ServicesPage() {
     );
   }
 
-  // Service catalog
   return (
     <div className="md:max-w-7xl md:mx-auto">
-      <div className="px-5 pt-6 pb-5 md:px-8">
+      <div className="px-5 pt-5 pb-6 md:px-8">
         <h1 className="text-page-title text-foreground mb-1">{t("services.title")}</h1>
-        <p className="text-body text-muted-foreground max-w-xl mb-5">{t("services.subtitle")}</p>
+        <p className="text-body text-muted-foreground max-w-xl mb-6">{t("services.subtitle")}</p>
         <div className="flex gap-2.5">
-          <a href="#quote" className="btn-primary py-2.5 px-5 text-caption">
+          <a href="#quote" className="btn-primary py-3 px-6 text-[14px]">
             {t("services.requestQuote")} <ArrowRight className="w-3.5 h-3.5" />
           </a>
-          <Link to="/contact" className="btn-outline py-2.5 px-5 text-caption">
+          <Link to="/contact" className="btn-outline py-3 px-6 text-[14px]">
             Book Consultation
           </Link>
         </div>
       </div>
 
       <div className="px-5 md:px-8 pb-10">
-        <h2 className="text-section-title text-foreground mb-4">{t("services.whatWeOffer")}</h2>
+        <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] mb-4">Our Services</p>
         <div className="space-y-2.5">
-          {services.map((s) => (
+          {services.map((s, idx) => (
             <button
               key={s.title}
               onClick={() => { setSelectedService(s.title); setWizardStep(0); setSubmitted(false); setWizardData({ name: "", email: "", phone: "", company: "", needs: [], urgency: "", schedule: "", files: [] }); }}
-              className="app-card-interactive w-full p-4 text-left flex items-center gap-4"
+              className="bento-card w-full p-5 text-left flex items-start gap-4 active:scale-[0.98] transition-transform animate-fade-in"
+              style={{ animationDelay: `${idx * 60}ms` }}
             >
-              <s.icon className="w-5 h-5 text-muted-foreground shrink-0" strokeWidth={1.5} />
+              <div className="w-10 h-10 rounded-xl bg-secondary/60 flex items-center justify-center shrink-0 mt-0.5">
+                <s.icon className="w-[18px] h-[18px] text-muted-foreground/60" strokeWidth={1.8} />
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                  <h3 className="text-body font-semibold text-foreground">{s.title}</h3>
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h3 className="text-[15px] font-bold text-foreground tracking-tight">{s.title}</h3>
                   {s.tags.map(tag => (
-                    <span key={tag} className="badge-status bg-primary/10 text-primary">{tag}</span>
+                    <span key={tag} className="badge-status bg-primary/10 text-primary text-[9px]">{tag}</span>
                   ))}
                 </div>
-                <p className="text-caption text-muted-foreground">{s.desc}</p>
-                <div className="flex items-center gap-4 mt-1.5">
-                  <span className="text-caption font-bold text-foreground">{s.price}</span>
-                  <span className="flex items-center gap-1 text-micro text-muted-foreground">
-                    <Clock className="w-3 h-3" strokeWidth={1.8} /> {s.time}
+                <p className="text-[13px] text-muted-foreground/70">{s.desc}</p>
+                <div className="flex items-center gap-4 mt-2.5">
+                  <span className="text-[14px] font-extrabold text-foreground tracking-tight">{s.price}</span>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground/50 font-medium">
+                    <Clock className="w-3 h-3" strokeWidth={2} /> {s.time}
                   </span>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/50 shrink-0" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground/20 shrink-0 mt-1" />
             </button>
           ))}
         </div>
       </div>
 
-      {/* Quote form */}
-      <section id="quote" className="px-5 md:px-8 pb-10">
-        <div className="app-card p-5 md:p-8">
+      <section id="quote" className="px-5 md:px-8 pb-12">
+        <div className="bento-card p-6 md:p-8">
           <h2 className="text-section-title text-foreground mb-1">{t("services.quoteTitle")}</h2>
-          <p className="text-caption text-muted-foreground mb-5">{t("services.quoteSubtitle")}</p>
+          <p className="text-caption text-muted-foreground mb-6">{t("services.quoteSubtitle")}</p>
           <QuoteForm />
         </div>
       </section>
@@ -294,13 +296,13 @@ function QuoteForm() {
           { key: "company", label: t("services.company"), type: "text" },
         ].map((f) => (
           <div key={f.key}>
-            <label className="text-caption text-muted-foreground mb-1.5 block">{f.label} {f.required && "*"}</label>
+            <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">{f.label} {f.required && "*"}</label>
             <input type={f.type} value={form[f.key as keyof typeof form]} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })} className="input-field" />
           </div>
         ))}
       </div>
       <div>
-        <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.serviceType")} *</label>
+        <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">{t("services.serviceType")} *</label>
         <select value={form.serviceType} onChange={(e) => setForm({ ...form, serviceType: e.target.value })} className="input-field">
           <option value="">{t("services.selectService")}</option>
           {services.map(s => <option key={s.title} value={s.title}>{s.title}</option>)}
@@ -308,7 +310,7 @@ function QuoteForm() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.budget")}</label>
+          <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">{t("services.budget")}</label>
           <select value={form.budget} onChange={(e) => setForm({ ...form, budget: e.target.value })} className="input-field">
             <option value="">{t("services.select")}</option>
             <option value="<5k">Under $5,000</option>
@@ -318,7 +320,7 @@ function QuoteForm() {
           </select>
         </div>
         <div>
-          <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.timeline")}</label>
+          <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">{t("services.timeline")}</label>
           <select value={form.timeline} onChange={(e) => setForm({ ...form, timeline: e.target.value })} className="input-field">
             <option value="">{t("services.select")}</option>
             <option value="asap">ASAP</option>
@@ -329,7 +331,7 @@ function QuoteForm() {
         </div>
       </div>
       <div>
-        <label className="text-caption text-muted-foreground mb-1.5 block">{t("services.projectDetails")} *</label>
+        <label className="text-[12px] text-muted-foreground/60 font-bold uppercase tracking-wider mb-2 block">{t("services.projectDetails")} *</label>
         <textarea value={form.details} onChange={(e) => setForm({ ...form, details: e.target.value })} rows={4} placeholder={t("services.projectPlaceholder")} className="input-field resize-none" />
       </div>
       <button type="submit" className="btn-primary w-full">{t("services.submitQuote")}</button>

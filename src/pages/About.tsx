@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Search, ChevronRight, Star, FileText, Package, Headphones, MessageCircle, Wrench, ShoppingBag, Tag } from "lucide-react";
+import { ArrowRight, Search, ChevronRight, Star, FileText, Package, Headphones, MessageCircle, Wrench, ShoppingBag, Tag, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/context/LanguageContext";
 import useEmblaCarousel from "embla-carousel-react";
@@ -14,8 +14,8 @@ interface HeroSlide {
 }
 
 const defaultHeroSlides: HeroSlide[] = [
-  { title: "New Arrivals", subtitle: "Latest enterprise hardware & tools", cta: "Shop Now", link: "/shop" },
-  { title: "Request a Quote", subtitle: "Fast estimate from our sales team", cta: "Get Quote", link: "/contact" },
+  { title: "Enterprise Hardware", subtitle: "Servers, networking & security solutions", cta: "Shop Now", link: "/shop" },
+  { title: "Get a Custom Quote", subtitle: "Tailored solutions for your business", cta: "Request Quote", link: "/contact" },
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
 ];
 
@@ -78,62 +78,76 @@ export default function AboutPage() {
     return () => clearInterval(interval);
   }, [emblaApi]);
 
+  const greeting = (() => {
+    const h = new Date().getHours();
+    if (h < 12) return "Good morning";
+    if (h < 17) return "Good afternoon";
+    return "Good evening";
+  })();
+
   return (
     <div className="md:max-w-7xl md:mx-auto">
-      {/* Sticky Search */}
-      <div className="px-5 py-3 md:px-8 sticky top-[52px] md:top-14 z-30 bg-background">
+      {/* Greeting + Search */}
+      <div className="px-5 pt-5 pb-2 md:px-8">
+        <p className="text-caption text-muted-foreground font-medium">{greeting} 👋</p>
+        <h1 className="text-page-title text-foreground mt-0.5">Discover</h1>
+      </div>
+
+      <div className="px-5 pb-4 md:px-8 sticky top-[52px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
         <Link to="/shop" className="block">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-[14px] bg-card border border-border/50 text-muted-foreground active:scale-[0.99] transition-transform">
-            <Search className="w-4 h-4" strokeWidth={1.8} />
-            <span className="text-body">Search products & services</span>
+          <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-card text-muted-foreground active:scale-[0.99] transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
+            <Search className="w-[18px] h-[18px] text-muted-foreground/50" strokeWidth={2} />
+            <span className="text-[15px]">Search products & services</span>
           </div>
         </Link>
       </div>
 
-      <div className="px-5 space-y-7 pb-10 md:px-8 md:space-y-10">
+      <div className="px-5 space-y-8 pb-12 md:px-8 md:space-y-10">
 
-        {/* ── A) Status Cards Row ── */}
-        <section className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+        {/* ── Bento Status Cards ── */}
+        <section className="grid grid-cols-3 gap-2.5">
           {[
-            { icon: FileText, label: "Quotes", count: 0, link: "/profile" },
-            { icon: Package, label: "Orders", count: 0, link: "/profile" },
-            { icon: Headphones, label: "Support", count: 0, link: "/chat" },
+            { icon: FileText, label: "Quotes", count: 0, color: "hsl(44 92% 53% / 0.12)", iconColor: "text-primary", link: "/profile" },
+            { icon: Package, label: "Orders", count: 0, color: "hsl(199 89% 48% / 0.1)", iconColor: "text-cyan", link: "/profile" },
+            { icon: Headphones, label: "Support", count: 0, color: "hsl(152 60% 38% / 0.1)", iconColor: "text-success", link: "/chat" },
           ].map((item) => (
             <Link
               key={item.label}
               to={item.link}
-              className="app-card-interactive flex-shrink-0 flex items-center gap-3.5 px-5 py-4 min-w-[150px]"
+              className="bento-card p-4 flex flex-col gap-3 active:scale-[0.97] transition-transform"
             >
-              <item.icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.6} />
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: item.color }}>
+                <item.icon className={`w-[18px] h-[18px] ${item.iconColor}`} strokeWidth={1.8} />
+              </div>
               <div>
-                <p className="text-section-title text-foreground leading-none">{item.count}</p>
-                <p className="text-micro text-muted-foreground mt-0.5">{item.label}</p>
+                <p className="text-[22px] font-extrabold text-foreground leading-none tracking-tight">{item.count}</p>
+                <p className="text-micro text-muted-foreground mt-1 font-medium">{item.label}</p>
               </div>
             </Link>
           ))}
         </section>
 
-        {/* ── B) Hero Carousel ── */}
+        {/* ── Hero Carousel ── */}
         <section>
-          <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+          <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
             <div className="flex">
               {heroSlides.map((slide, i) => (
-                <div key={i} className="flex-[0_0_100%] min-w-0 pr-3">
-                  <div className="relative overflow-hidden rounded-2xl flex flex-col justify-end" style={{ height: "175px" }}>
+                <div key={i} className="flex-[0_0_100%] min-w-0">
+                  <div className="relative overflow-hidden rounded-3xl flex flex-col justify-end mx-1" style={{ height: "185px" }}>
                     {slide.image ? (
                       <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
                     ) : (
-                      <div className="absolute inset-0 bg-gradient-to-br from-foreground/90 to-foreground/70" />
+                      <div className="absolute inset-0" style={{ background: i === 0 ? "linear-gradient(135deg, hsl(230 25% 12%), hsl(230 20% 22%))" : i === 1 ? "linear-gradient(135deg, hsl(44 80% 50%), hsl(32 90% 45%))" : "linear-gradient(135deg, hsl(199 70% 35%), hsl(199 80% 45%))" }} />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
-                    <div className="relative z-10 p-5">
-                      <h2 className="text-section-title text-background mb-0.5">{slide.title}</h2>
-                      <p className="text-caption text-background/70 mb-3">{slide.subtitle}</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-transparent to-transparent" />
+                    <div className="relative z-10 p-6">
+                      <h2 className="text-[20px] font-extrabold text-background tracking-tight leading-tight">{slide.title}</h2>
+                      <p className="text-[13px] text-background/60 mt-1 mb-3.5 font-medium">{slide.subtitle}</p>
                       <Link
                         to={slide.link}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground text-caption font-semibold active:scale-95 transition-transform"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-background/20 backdrop-blur-md text-background text-[12px] font-bold active:scale-95 transition-transform border border-background/10"
                       >
-                        {slide.cta} <ArrowRight className="w-3.5 h-3.5" />
+                        {slide.cta} <ArrowRight className="w-3 h-3" />
                       </Link>
                     </div>
                   </div>
@@ -141,97 +155,99 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-          <div className="flex justify-center gap-1.5 mt-3">
+          <div className="flex justify-center gap-1.5 mt-3.5">
             {heroSlides.map((_, i) => (
               <button
                 key={i}
                 onClick={() => emblaApi?.scrollTo(i)}
-                className={`h-1 rounded-full transition-all ${
-                  i === selectedIndex ? "w-5 bg-foreground" : "w-1.5 bg-foreground/15"
+                className={`rounded-full transition-all duration-300 ${
+                  i === selectedIndex ? "w-6 h-1.5 bg-foreground" : "w-1.5 h-1.5 bg-foreground/12"
                 }`}
               />
             ))}
           </div>
         </section>
 
-        {/* ── C) Quick Actions — pill row ── */}
+        {/* ── Quick Actions ── */}
         <section>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
             {[
-              { icon: MessageCircle, label: t("home.getQuote"), link: "/contact" },
+              { icon: Zap, label: "Get Quote", link: "/contact" },
               { icon: Package, label: "Track Order", link: "/profile" },
               { icon: ShoppingBag, label: "Browse Shop", link: "/shop" },
               { icon: Wrench, label: "Book Service", link: "/services" },
-              { icon: Tag, label: t("home.deals"), link: "/shop" },
+              { icon: Tag, label: "Deals", link: "/shop" },
             ].map((a) => (
               <Link
                 key={a.label}
                 to={a.link}
-                className="chip whitespace-nowrap active:scale-95 transition-transform"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-card font-semibold text-[12px] text-foreground/80 whitespace-nowrap active:scale-95 transition-transform tracking-tight"
+                style={{ boxShadow: "var(--shadow-xs)" }}
               >
-                <a.icon className="w-3.5 h-3.5" strokeWidth={1.8} />
+                <a.icon className="w-3.5 h-3.5" strokeWidth={2} />
                 {a.label}
               </Link>
             ))}
           </div>
         </section>
 
-        {/* ── D) Featured Products ── */}
+        {/* ── Featured Products ── */}
         <section>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-5">
             <h3 className="text-section-title text-foreground">{t("home.featuredProducts")}</h3>
-            <Link to="/shop" className="text-caption font-medium text-muted-foreground flex items-center gap-0.5 hover:text-foreground transition-colors">
-              See all <ChevronRight className="w-3.5 h-3.5" />
+            <Link to="/shop" className="text-[12px] font-bold text-muted-foreground flex items-center gap-0.5 hover:text-foreground transition-colors uppercase tracking-widest">
+              All <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="app-card overflow-hidden">
-                  <div className="aspect-square skeleton-shimmer" />
-                  <div className="p-3.5 space-y-2">
-                    <div className="h-2.5 w-14 skeleton-shimmer rounded" />
-                    <div className="h-3.5 w-full skeleton-shimmer rounded" />
-                    <div className="h-3.5 w-20 skeleton-shimmer rounded" />
+                <div key={i} className="bento-card overflow-hidden">
+                  <div className="aspect-[4/3] skeleton-shimmer" />
+                  <div className="p-4 space-y-2.5">
+                    <div className="h-2 w-12 skeleton-shimmer rounded-full" />
+                    <div className="h-3 w-full skeleton-shimmer rounded" />
+                    <div className="h-3.5 w-16 skeleton-shimmer rounded" />
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {products.slice(0, 4).map((product) => {
+              {products.slice(0, 4).map((product, idx) => {
                 const sym = CURRENCY_SYMBOLS[product.currency] || "$";
                 const img = product.images?.[0] || null;
                 return (
                   <Link
                     key={product.id}
                     to={`/shop/${product.id}`}
-                    className="app-card-interactive overflow-hidden group"
+                    className="bento-card overflow-hidden group active:scale-[0.97] transition-transform"
+                    style={{ animationDelay: `${idx * 80}ms` }}
                   >
-                    <div className="aspect-square bg-secondary flex items-center justify-center overflow-hidden">
+                    <div className="aspect-[4/3] bg-secondary/60 flex items-center justify-center overflow-hidden relative">
                       {img && img !== "/placeholder.svg" ? (
-                        <img src={img} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={img} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                       ) : (
-                        <span className="text-3xl font-bold text-muted-foreground/20">{product.name.charAt(0)}</span>
+                        <div className="flex items-center justify-center w-full h-full" style={{ background: "var(--gradient-mesh)" }}>
+                          <span className="text-3xl font-black text-foreground/8">{product.name.charAt(0)}</span>
+                        </div>
+                      )}
+                      {product.in_stock ? (
+                        <span className="absolute top-2.5 left-2.5 badge-status bg-success/90 text-success-foreground text-[9px] backdrop-blur-sm">In Stock</span>
+                      ) : (
+                        <span className="absolute top-2.5 left-2.5 badge-status bg-foreground/70 text-background text-[9px] backdrop-blur-sm">Sold Out</span>
                       )}
                     </div>
-                    <div className="p-3.5">
-                      <p className="text-micro text-muted-foreground font-medium uppercase tracking-wider">{product.category}</p>
-                      <h4 className="text-caption font-semibold text-foreground mt-0.5 line-clamp-2 leading-snug">{product.name}</h4>
-                      <div className="flex items-center justify-between mt-2.5">
-                        <span className="text-body font-bold text-foreground">{sym}{Number(product.price).toLocaleString()}</span>
+                    <div className="p-4">
+                      <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-[0.1em]">{product.category}</p>
+                      <h4 className="text-[14px] font-semibold text-foreground mt-1 line-clamp-2 leading-[1.3] tracking-tight">{product.name}</h4>
+                      <div className="flex items-center justify-between mt-3">
+                        <span className="text-[16px] font-extrabold text-foreground tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
                         {product.rating != null && product.rating > 0 && (
                           <div className="flex items-center gap-0.5">
                             <Star className="w-3 h-3 text-primary fill-primary" />
-                            <span className="text-micro text-muted-foreground">{product.rating}</span>
+                            <span className="text-[11px] text-muted-foreground font-medium">{product.rating}</span>
                           </div>
-                        )}
-                      </div>
-                      <div className="mt-2">
-                        {product.in_stock ? (
-                          <span className="badge-status bg-success/10 text-success">In Stock</span>
-                        ) : (
-                          <span className="badge-status bg-destructive/10 text-destructive">Out of Stock</span>
                         )}
                       </div>
                     </div>
@@ -242,31 +258,31 @@ export default function AboutPage() {
           )}
         </section>
 
-        {/* ── E) Recently Viewed ── */}
+        {/* ── Recently Viewed ── */}
         {products.length > 0 && (
           <section>
             <h3 className="text-section-title text-foreground mb-4">Recently Viewed</h3>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-              {products.slice(0, 4).map((product) => {
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+              {products.slice(0, 5).map((product) => {
                 const sym = CURRENCY_SYMBOLS[product.currency] || "$";
                 const img = product.images?.[0] || null;
                 return (
                   <Link
                     key={product.id}
                     to={`/shop/${product.id}`}
-                    className="app-card-interactive flex-shrink-0 w-[140px] overflow-hidden"
+                    className="flex-shrink-0 w-[130px] active:scale-[0.97] transition-transform"
                   >
-                    <div className="aspect-square bg-secondary flex items-center justify-center overflow-hidden">
+                    <div className="aspect-square bg-secondary/60 rounded-2xl flex items-center justify-center overflow-hidden mb-2.5" style={{ boxShadow: "var(--shadow-card)" }}>
                       {img && img !== "/placeholder.svg" ? (
                         <img src={img} alt={product.name} className="w-full h-full object-cover" />
                       ) : (
-                        <span className="text-xl font-bold text-muted-foreground/20">{product.name.charAt(0)}</span>
+                        <div className="w-full h-full flex items-center justify-center mesh-gradient">
+                          <span className="text-xl font-black text-foreground/8">{product.name.charAt(0)}</span>
+                        </div>
                       )}
                     </div>
-                    <div className="p-2.5">
-                      <h4 className="text-micro font-semibold text-foreground line-clamp-1">{product.name}</h4>
-                      <span className="text-caption font-bold text-foreground mt-0.5 block">{sym}{Number(product.price).toLocaleString()}</span>
-                    </div>
+                    <h4 className="text-[12px] font-semibold text-foreground line-clamp-1 tracking-tight">{product.name}</h4>
+                    <span className="text-[13px] font-extrabold text-foreground mt-0.5 block tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
                   </Link>
                 );
               })}
@@ -276,10 +292,10 @@ export default function AboutPage() {
 
         {/* ── Partners ── */}
         <section className="pb-2">
-          <h3 className="text-section-title text-foreground mb-3">{t("home.trustedPartners")}</h3>
+          <h3 className="text-section-title text-foreground mb-4">{t("home.trustedPartners")}</h3>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
             {["Cisco", "AWS", "VMware", "Fortinet", "Microsoft", "Dell"].map((name) => (
-              <span key={name} className="chip">{name}</span>
+              <span key={name} className="px-5 py-2.5 rounded-xl bg-card text-[12px] font-bold text-muted-foreground tracking-tight whitespace-nowrap" style={{ boxShadow: "var(--shadow-xs)" }}>{name}</span>
             ))}
           </div>
         </section>
