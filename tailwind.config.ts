@@ -48,8 +48,8 @@ export default {
         "3xl": "calc(var(--radius) + 12px)",
       },
       fontSize: {
-        "page-title": ["2.125rem", { lineHeight: "2.5rem", fontWeight: "800", letterSpacing: "-0.035em" }],
-        "section-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "700", letterSpacing: "-0.025em" }],
+        "page-title": ["2rem", { lineHeight: "2.25rem", fontWeight: "800", letterSpacing: "-0.035em" }],
+        "section-title": ["1.125rem", { lineHeight: "1.5rem", fontWeight: "700", letterSpacing: "-0.02em" }],
         "body-lg": ["1rem", { lineHeight: "1.5rem" }],
         "body": ["0.9375rem", { lineHeight: "1.375rem" }],
         "caption": ["0.8125rem", { lineHeight: "1.125rem" }],
