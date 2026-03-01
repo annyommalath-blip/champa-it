@@ -237,7 +237,7 @@ export default function ProductDetail() {
   const hasSpecs = Object.keys(specs).length > 0;
 
   return (
-    <div className="animate-fade-in pb-[90px]">
+    <div className="animate-fade-in pb-8">
       {/* ── Sticky Top Bar ── */}
       <div className="sticky top-[48px] md:top-[56px] z-40 glass-header border-b border-border/20 px-4 h-[44px] flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="p-1.5 rounded-xl active:scale-90 transition-transform">
@@ -315,6 +315,50 @@ export default function ProductDetail() {
           </div>
         </div>
 
+        {/* ── Purchase Section ── */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-1 bg-secondary/60 rounded-xl p-1">
+            <button
+              onClick={() => setQty(Math.max(1, qty - 1))}
+              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-90 transition-transform text-foreground/60"
+            >
+              <Minus className="w-3.5 h-3.5" strokeWidth={2.5} />
+            </button>
+            <span className="w-7 text-center text-[14px] font-bold text-foreground tabular-nums">{inCart ? cartItem!.quantity : qty}</span>
+            <button
+              onClick={() => {
+                if (inCart) {
+                  updateQuantity(id!, cartItem!.quantity + 1);
+                } else {
+                  setQty(qty + 1);
+                }
+              }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-90 transition-transform text-foreground/60"
+            >
+              <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
+            </button>
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={!product.in_stock}
+            className={`flex-1 py-3 rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
+              inCart
+                ? "bg-success text-success-foreground"
+                : "bg-foreground text-background"
+            }`}
+          >
+            {inCart ? (
+              <>
+                <Check className="w-4 h-4" /> Added · {sym}{Number(product.price * cartItem!.quantity).toLocaleString()}
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-4 h-4" strokeWidth={2} /> Add to Cart · {sym}{Number(product.price * qty).toLocaleString()}
+              </>
+            )}
+          </button>
+        </div>
+
         {/* ── Expandable Sections ── */}
         {product.long_description && (
           <ExpandableSection title="Description" defaultOpen>
@@ -375,54 +419,6 @@ export default function ProductDetail() {
         )}
       </div>
 
-      {/* ── Sticky Purchase Bar ── */}
-      <div className="fixed bottom-[64px] md:bottom-0 left-0 right-0 z-40 glass-header border-t border-border/20 safe-area-bottom">
-        <div className="flex items-center gap-3 px-5 py-3 md:max-w-3xl md:mx-auto">
-          {/* Quantity */}
-          <div className="flex items-center gap-1 bg-secondary/60 rounded-xl p-1">
-            <button
-              onClick={() => setQty(Math.max(1, qty - 1))}
-              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-90 transition-transform text-foreground/60"
-            >
-              <Minus className="w-3.5 h-3.5" strokeWidth={2.5} />
-            </button>
-            <span className="w-7 text-center text-[14px] font-bold text-foreground tabular-nums">{inCart ? cartItem!.quantity : qty}</span>
-            <button
-              onClick={() => {
-                if (inCart) {
-                  updateQuantity(id!, cartItem!.quantity + 1);
-                } else {
-                  setQty(qty + 1);
-                }
-              }}
-              className="w-8 h-8 rounded-lg flex items-center justify-center active:scale-90 transition-transform text-foreground/60"
-            >
-              <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
-            </button>
-          </div>
-
-          {/* Add / Added button */}
-          <button
-            onClick={handleAddToCart}
-            disabled={!product.in_stock}
-            className={`flex-1 py-3 rounded-xl font-semibold text-[14px] flex items-center justify-center gap-2 active:scale-[0.97] transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
-              inCart
-                ? "bg-success text-success-foreground"
-                : "bg-foreground text-background"
-            }`}
-          >
-            {inCart ? (
-              <>
-                <Check className="w-4 h-4" /> Added · {sym}{Number(product.price * cartItem!.quantity).toLocaleString()}
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="w-4 h-4" strokeWidth={2} /> Add to Cart · {sym}{Number(product.price * qty).toLocaleString()}
-              </>
-            )}
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
