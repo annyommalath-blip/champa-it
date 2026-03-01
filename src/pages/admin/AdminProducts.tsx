@@ -22,13 +22,14 @@ interface Product {
   category: string;
   images: string[] | null;
   in_stock: boolean;
+  stock_quantity: number;
   rating: number | null;
   specs: Record<string, string> | null;
 }
 
 const emptyProduct = {
   name: "", description: "", long_description: "", price: 0, currency: "USD", category: "Uncategorized",
-  images: [] as string[], in_stock: true, rating: 0, specs: {} as Record<string, string>,
+  images: [] as string[], in_stock: true, stock_quantity: 0, rating: 0, specs: {} as Record<string, string>,
 };
 
 export default function AdminProducts() {
@@ -62,7 +63,7 @@ export default function AdminProducts() {
     setForm({
       name: p.name, description: p.description, long_description: p.long_description || "",
       price: p.price, currency: p.currency || "USD", category: p.category, images: p.images || [],
-      in_stock: p.in_stock, rating: p.rating || 0, specs: (p.specs || {}) as Record<string, string>,
+      in_stock: p.in_stock, stock_quantity: p.stock_quantity || 0, rating: p.rating || 0, specs: (p.specs || {}) as Record<string, string>,
     });
     setDialogOpen(true);
   };
@@ -79,6 +80,7 @@ export default function AdminProducts() {
       category: form.category,
       images: form.images.length ? form.images : ["/placeholder.svg"],
       in_stock: form.in_stock,
+      stock_quantity: form.stock_quantity,
       rating: form.rating,
       specs: form.specs,
       created_by: user?.id,
@@ -248,9 +250,15 @@ export default function AdminProducts() {
                 <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" checked={form.in_stock} onChange={(e) => setForm({ ...form, in_stock: e.target.checked })} className="rounded" />
-              <label className="text-sm">In Stock</label>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <input type="checkbox" checked={form.in_stock} onChange={(e) => setForm({ ...form, in_stock: e.target.checked })} className="rounded" />
+                <label className="text-sm">In Stock</label>
+              </div>
+              <div className="flex-1">
+                <label className="text-xs font-medium text-muted-foreground">Stock Qty</label>
+                <Input type="number" min={0} value={form.stock_quantity} onChange={(e) => setForm({ ...form, stock_quantity: +e.target.value })} />
+              </div>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Images</label>
