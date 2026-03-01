@@ -110,9 +110,9 @@ function RecommendedCard({ product }: { product: DbProduct }) {
   return (
     <Link
       to={`/shop/${product.id}`}
-      className="flex-shrink-0 w-[140px] active:scale-[0.97] transition-transform"
+      className="active:scale-[0.97] transition-transform"
     >
-      <div className="aspect-[4/3] bg-secondary/30 rounded-2xl overflow-hidden mb-2" style={{ boxShadow: "var(--shadow-card)" }}>
+      <div className="aspect-square bg-secondary/30 rounded-2xl overflow-hidden mb-2" style={{ boxShadow: "var(--shadow-card)" }}>
         {img && img !== "/placeholder.svg" ? (
           <img src={img} alt={product.name} className="w-full h-full object-cover" />
         ) : (
@@ -121,7 +121,7 @@ function RecommendedCard({ product }: { product: DbProduct }) {
           </div>
         )}
       </div>
-      <h4 className="text-[11px] font-semibold text-foreground line-clamp-2 tracking-tight leading-[1.3]">{product.name}</h4>
+      <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 tracking-tight leading-[1.3]">{product.name}</h4>
       <span className="text-[13px] font-bold text-foreground mt-0.5 block tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
     </Link>
   );
@@ -358,7 +358,7 @@ export default function ProductDetail() {
                 All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {moreFromCategory.map((p) => <RecommendedCard key={p.id} product={p} />)}
             </div>
           </section>
@@ -368,7 +368,7 @@ export default function ProductDetail() {
         {related.length > 0 && (
           <section className="mt-8">
             <h3 className="text-section-title text-foreground mb-3">You may also like</h3>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               {related.map((p) => <RecommendedCard key={p.id} product={p} />)}
             </div>
           </section>
