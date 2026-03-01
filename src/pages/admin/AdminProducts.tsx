@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import ImageCropper from "@/components/ImageCropper";
 
 const CURRENCIES = ["USD", "LAK", "THB"] as const;
 const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
@@ -39,6 +40,9 @@ export default function AdminProducts() {
   const [form, setForm] = useState(emptyProduct);
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [rawImageSrc, setRawImageSrc] = useState<string | null>(null);
+  const [rawImageFile, setRawImageFile] = useState<File | null>(null);
 
   const fetchProducts = async () => {
     const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
@@ -104,15 +108,30 @@ export default function AdminProducts() {
     if (!file.type.startsWith("image/")) { toast.error("Please select an image file"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
 
+    // Read file and open cropper
+    const reader = new FileReader();
+    reader.onload = () => {
+      setRawImageSrc(reader.result as string);
+      setRawImageFile(file);
+      setCropperOpen(true);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    setCropperOpen(false);
+    setRawImageSrc(null);
     setUploading(true);
-    const ext = file.name.split(".").pop();
+
+    const ext = rawImageFile?.name.split(".").pop() || "jpg";
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("product-images").upload(path, file);
+    const { error } = await supabase.storage.from("product-images").upload(path, croppedBlob, { contentType: "image/jpeg" });
     if (error) { toast.error("Upload failed: " + error.message); setUploading(false); return; }
     const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
     setForm({ ...form, images: [...form.images, urlData.publicUrl] });
     setUploading(false);
-    e.target.value = "";
+    setRawImageFile(null);
   };
 
   const removeImage = (i: number) => {
@@ -259,6 +278,15 @@ export default function AdminProducts() {
           </div>
         </DialogContent>
       </Dialog>
+      {rawImageSrc && (
+        <ImageCropper
+          open={cropperOpen}
+          imageSrc={rawImageSrc}
+          onClose={() => { setCropperOpen(false); setRawImageSrc(null); setRawImageFile(null); }}
+          onCropComplete={handleCropComplete}
+          aspectRatio={1}
+        />
+      )}
     </div>
   );
 }
