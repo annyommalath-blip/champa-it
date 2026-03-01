@@ -13,24 +13,24 @@ export default function Profile() {
 
   if (showLanguage) {
     return (
-      <div className="px-5 py-6 space-y-6 md:max-w-md md:mx-auto md:px-8 animate-fade-in">
+      <div className="px-5 py-5 space-y-5 md:max-w-md md:mx-auto md:px-8 animate-fade-in">
         <button onClick={() => setShowLanguage(false)} className="flex items-center gap-1.5 text-[13px] text-muted-foreground active:scale-95 transition-transform font-medium">
           <ArrowLeft className="w-4 h-4" strokeWidth={2} /> Back
         </button>
         <h1 className="text-section-title text-foreground">{t("profile.language")}</h1>
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col gap-2">
           {([["en", "🇺🇸 English"], ["lo", "🇱🇦 ລາວ"]] as [Language, string][]).map(([code, label]) => (
             <button
               key={code}
               onClick={() => setLanguage(code)}
-              className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all active:scale-[0.98] ${
+              className={`w-full flex items-center justify-between p-4 rounded-2xl border-[1.5px] transition-all active:scale-[0.98] ${
                 language === code
-                  ? "border-foreground bg-foreground/[0.03]"
+                  ? "border-foreground bg-foreground/[0.02]"
                   : "border-border bg-card"
               }`}
             >
-              <span className="text-[15px] font-semibold text-foreground">{label}</span>
-              {language === code && <div className="w-2.5 h-2.5 rounded-full bg-foreground" />}
+              <span className="text-[14px] font-semibold text-foreground">{label}</span>
+              {language === code && <div className="w-2 h-2 rounded-full bg-foreground" />}
             </button>
           ))}
         </div>
@@ -40,13 +40,13 @@ export default function Profile() {
 
   if (!user) {
     return (
-      <div className="px-5 py-20 space-y-8 md:max-w-sm md:mx-auto text-center animate-fade-in">
-        <div className="w-20 h-20 rounded-3xl bg-secondary/60 flex items-center justify-center mx-auto mesh-gradient">
-          <User className="w-10 h-10 text-muted-foreground/20" strokeWidth={1.4} />
+      <div className="px-5 py-16 space-y-7 md:max-w-sm md:mx-auto text-center animate-fade-in">
+        <div className="w-16 h-16 rounded-2xl bg-secondary/50 flex items-center justify-center mx-auto mesh-gradient">
+          <User className="w-8 h-8 text-muted-foreground/15" strokeWidth={1.4} />
         </div>
         <div>
           <h1 className="text-page-title text-foreground">{t("profile.welcome")}</h1>
-          <p className="text-caption text-muted-foreground mt-2">{t("profile.signInDesc")}</p>
+          <p className="text-caption text-muted-foreground/60 mt-2">{t("profile.signInDesc")}</p>
         </div>
         <div className="flex flex-col gap-2.5">
           <Link to="/auth">
@@ -58,12 +58,12 @@ export default function Profile() {
             <button className="btn-outline w-full">{t("profile.createAccount")}</button>
           </Link>
         </div>
-        <button onClick={() => setShowLanguage(true)} className="bento-card w-full flex items-center justify-between p-5 active:scale-[0.98] transition-transform">
+        <button onClick={() => setShowLanguage(true)} className="bento-card w-full flex items-center justify-between p-4 active:scale-[0.98] transition-transform">
           <div className="flex items-center gap-3">
-            <Globe className="w-5 h-5 text-muted-foreground/50" strokeWidth={1.8} />
-            <span className="text-[15px] font-semibold text-foreground">{t("profile.language")}</span>
+            <Globe className="w-[18px] h-[18px] text-muted-foreground/40" strokeWidth={1.8} />
+            <span className="text-[14px] font-semibold text-foreground">{t("profile.language")}</span>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/30" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/20" />
         </button>
       </div>
     );
@@ -99,21 +99,21 @@ export default function Profile() {
   ];
 
   return (
-    <div className="px-5 py-6 space-y-7 md:max-w-3xl md:mx-auto md:px-8 md:py-8 animate-fade-in">
+    <div className="px-5 py-5 space-y-6 md:max-w-3xl md:mx-auto md:px-8 md:py-8 animate-fade-in">
       {/* Profile header */}
-      <div className="flex items-center gap-4">
-        <div className="w-16 h-16 rounded-3xl bg-foreground flex items-center justify-center overflow-hidden">
+      <div className="flex items-center gap-3.5">
+        <div className="w-14 h-14 rounded-2xl bg-foreground flex items-center justify-center overflow-hidden">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt="" className="w-16 h-16 object-cover" />
+            <img src={profile.avatar_url} alt="" className="w-14 h-14 object-cover" />
           ) : (
-            <span className="text-xl font-black text-background">{displayName.charAt(0).toUpperCase()}</span>
+            <span className="text-lg font-black text-background">{displayName.charAt(0).toUpperCase()}</span>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-[20px] font-extrabold text-foreground truncate tracking-tight">{displayName}</h1>
-          <p className="text-caption text-muted-foreground/60 truncate">{profile?.email}</p>
+          <h1 className="text-[18px] font-bold text-foreground truncate tracking-tight">{displayName}</h1>
+          <p className="text-caption text-muted-foreground/50 truncate">{profile?.email}</p>
           {role && (
-            <span className="badge-status bg-primary/10 text-primary mt-1.5 capitalize text-[9px]">
+            <span className="badge-status bg-primary/10 text-primary mt-1 capitalize text-[9px]">
               {role.replace("_", " ")}
             </span>
           )}
@@ -122,54 +122,50 @@ export default function Profile() {
 
       {/* Admin link */}
       {(role === "approved_admin" || role === "super_admin") && (
-        <Link to="/admin" className="bento-card flex items-center justify-between p-5 active:scale-[0.98] transition-transform">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              <Settings className="w-[18px] h-[18px] text-primary" strokeWidth={1.8} />
-            </div>
+        <Link to="/admin" className="bento-card flex items-center justify-between p-4 active:scale-[0.98] transition-transform">
+          <div className="flex items-center gap-3">
+            <Settings className="w-[18px] h-[18px] text-primary" strokeWidth={1.8} />
             <div>
-              <span className="text-[15px] font-bold text-foreground block tracking-tight">{t("profile.adminPortal")}</span>
-              <span className="text-[11px] text-muted-foreground/50">{t("profile.adminPortalDesc")}</span>
+              <span className="text-[14px] font-bold text-foreground block tracking-tight">{t("profile.adminPortal")}</span>
+              <span className="text-[11px] text-muted-foreground/40">{t("profile.adminPortalDesc")}</span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/20" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/15" />
         </Link>
       )}
 
       {/* Cart summary */}
       {cart.length > 0 && (
-        <Link to="/cart" className="bento-card flex items-center justify-between p-5 active:scale-[0.98] transition-transform">
-          <div className="flex items-center gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-cyan/10 flex items-center justify-center">
-              <Package className="w-[18px] h-[18px] text-cyan" strokeWidth={1.8} />
-            </div>
+        <Link to="/cart" className="bento-card flex items-center justify-between p-4 active:scale-[0.98] transition-transform">
+          <div className="flex items-center gap-3">
+            <Package className="w-[18px] h-[18px] text-cyan" strokeWidth={1.8} />
             <div>
-              <span className="text-[15px] font-bold text-foreground block tracking-tight">
+              <span className="text-[14px] font-bold text-foreground block tracking-tight">
                 {cart.length} {cart.length > 1 ? t("profile.itemsInCart") : t("profile.itemInCart")}
               </span>
-              <span className="text-[11px] text-muted-foreground/50">{t("cart.total")}: ${cartTotal.toLocaleString()}</span>
+              <span className="text-[11px] text-muted-foreground/40">{t("cart.total")}: ${cartTotal.toLocaleString()}</span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-muted-foreground/20" />
+          <ChevronRight className="w-4 h-4 text-muted-foreground/15" />
         </Link>
       )}
 
       {/* Sections */}
       {sections.map((section) => (
         <section key={section.title}>
-          <p className="text-[10px] font-bold text-muted-foreground/40 uppercase tracking-[0.15em] mb-3 px-1">{section.title}</p>
-          <div className="bento-card divide-y divide-border/30 overflow-hidden">
+          <p className="text-[10px] font-bold text-muted-foreground/30 uppercase tracking-[0.15em] mb-2 px-1">{section.title}</p>
+          <div className="bento-card divide-y divide-border/20 overflow-hidden">
             {section.items.map((item) => {
               const inner = (
-                <div className="flex items-center justify-between p-4 hover:bg-secondary/20 transition-colors active:bg-secondary/40">
-                  <div className="flex items-center gap-3.5">
-                    <item.icon className="w-[18px] h-[18px] text-muted-foreground/40" strokeWidth={1.8} />
+                <div className="flex items-center justify-between p-3.5 hover:bg-secondary/20 transition-colors active:bg-secondary/30">
+                  <div className="flex items-center gap-3">
+                    <item.icon className="w-[17px] h-[17px] text-muted-foreground/35" strokeWidth={1.8} />
                     <div>
-                      <span className="text-[15px] font-medium text-foreground block tracking-tight">{item.label}</span>
-                      {"desc" in item && item.desc && <span className="text-[11px] text-muted-foreground/40">{item.desc}</span>}
+                      <span className="text-[14px] font-medium text-foreground block tracking-tight">{item.label}</span>
+                      {"desc" in item && item.desc && <span className="text-[10px] text-muted-foreground/35">{item.desc}</span>}
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/15" />
+                  <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/12" />
                 </div>
               );
 
@@ -185,10 +181,10 @@ export default function Profile() {
       {/* Sign Out */}
       <button
         onClick={signOut}
-        className="w-full flex items-center gap-3 p-4 rounded-2xl text-destructive/70 hover:bg-destructive/5 transition-colors active:scale-[0.98]"
+        className="w-full flex items-center gap-3 p-3.5 rounded-2xl text-destructive/60 hover:bg-destructive/5 transition-colors active:scale-[0.98]"
       >
-        <LogOut className="w-[18px] h-[18px]" strokeWidth={1.8} />
-        <span className="text-[15px] font-semibold">{t("profile.signOut")}</span>
+        <LogOut className="w-[17px] h-[17px]" strokeWidth={1.8} />
+        <span className="text-[14px] font-semibold">{t("profile.signOut")}</span>
       </button>
     </div>
   );

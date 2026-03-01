@@ -73,7 +73,8 @@ export default function ShopPage() {
       inStock: product.in_stock,
       rating: product.rating || 0,
     });
-    toast.success(`${product.name} added to cart`, {
+    toast.success(`Added to cart`, {
+      description: product.name,
       action: { label: "Undo", onClick: () => {} },
     });
   };
@@ -81,36 +82,36 @@ export default function ShopPage() {
   return (
     <div className="md:max-w-7xl md:mx-auto">
       {/* Header */}
-      <div className="px-5 pt-5 pb-1 md:px-8">
+      <div className="px-5 pt-4 pb-1 md:px-8">
         <h1 className="text-page-title text-foreground">Shop</h1>
       </div>
 
       {/* Sticky search */}
-      <div className="px-5 py-3 md:px-8 sticky top-[52px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
+      <div className="px-5 py-2.5 md:px-8 sticky top-[48px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-muted-foreground/50" strokeWidth={2} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[17px] h-[17px] text-muted-foreground/40" strokeWidth={2} />
           <input
             type="text"
             placeholder={t("shop.search")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-field pl-12 bg-card"
+            className="input-field pl-11 bg-card text-[14px]"
             style={{ boxShadow: "var(--shadow-card)" }}
           />
         </div>
       </div>
 
       {/* Category chips */}
-      <div className="px-5 md:px-8 pb-3">
+      <div className="px-5 md:px-8 pb-2.5 pt-1">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`px-4 py-2 rounded-full text-[12px] font-bold whitespace-nowrap transition-all active:scale-95 tracking-tight ${
+              className={`px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95 tracking-tight ${
                 category === cat 
                   ? "bg-foreground text-background" 
-                  : "bg-card text-muted-foreground hover:text-foreground"
+                  : "bg-card text-muted-foreground/70"
               }`}
               style={{ boxShadow: category === cat ? "none" : "var(--shadow-xs)" }}
             >
@@ -121,16 +122,16 @@ export default function ShopPage() {
       </div>
 
       {/* Filters row */}
-      <div className="flex items-center gap-3 px-5 md:px-8 pb-5">
+      <div className="flex items-center gap-2 px-5 md:px-8 pb-4">
         <button
           onClick={() => setStockOnly(!stockOnly)}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-full text-[11px] font-bold tracking-tight transition-all active:scale-95 ${
-            stockOnly ? "bg-foreground text-background" : "bg-card text-muted-foreground"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-tight transition-all active:scale-95 ${
+            stockOnly ? "bg-foreground text-background" : "bg-card text-muted-foreground/60"
           }`}
           style={{ boxShadow: stockOnly ? "none" : "var(--shadow-xs)" }}
         >
-          <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-colors ${
-            stockOnly ? "border-background bg-background" : "border-muted-foreground/30"
+          <div className={`w-3 h-3 rounded-full border-[1.5px] flex items-center justify-center transition-colors ${
+            stockOnly ? "border-background bg-background" : "border-muted-foreground/25"
           }`}>
             {stockOnly && <div className="w-1.5 h-1.5 rounded-full bg-foreground" />}
           </div>
@@ -138,41 +139,41 @@ export default function ShopPage() {
         </button>
         <button
           onClick={() => setSortPrice(sortPrice === "asc" ? "desc" : sortPrice === "desc" ? null : "asc")}
-          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-[11px] font-bold tracking-tight transition-all active:scale-95 ${
-            sortPrice ? "bg-foreground text-background" : "bg-card text-muted-foreground"
+          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-semibold tracking-tight transition-all active:scale-95 ${
+            sortPrice ? "bg-foreground text-background" : "bg-card text-muted-foreground/60"
           }`}
           style={{ boxShadow: sortPrice ? "none" : "var(--shadow-xs)" }}
         >
           <SlidersHorizontal className="w-3 h-3" strokeWidth={2} />
           Price {sortPrice === "asc" ? "↑" : sortPrice === "desc" ? "↓" : ""}
         </button>
-        <span className="ml-auto text-[11px] text-muted-foreground/50 font-bold tabular-nums">
-          {filtered.length}
+        <span className="ml-auto text-[11px] text-muted-foreground/40 font-semibold tabular-nums">
+          {filtered.length} items
         </span>
       </div>
 
       {/* Product grid */}
-      <div className="px-5 md:px-8 pb-12">
+      <div className="px-5 md:px-8 pb-10">
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="bento-card overflow-hidden">
                 <div className="aspect-[4/3] skeleton-shimmer" />
-                <div className="p-4 space-y-2.5">
-                  <div className="h-2 w-12 skeleton-shimmer rounded-full" />
+                <div className="p-3.5 space-y-2">
+                  <div className="h-2 w-10 skeleton-shimmer rounded-full" />
                   <div className="h-3 w-full skeleton-shimmer rounded" />
-                  <div className="h-3.5 w-16 skeleton-shimmer rounded" />
+                  <div className="h-3 w-14 skeleton-shimmer rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-24 animate-fade-in">
-            <div className="w-16 h-16 rounded-3xl bg-secondary/60 flex items-center justify-center mx-auto mb-5 mesh-gradient">
-              <ShoppingBag className="w-7 h-7 text-muted-foreground/30" strokeWidth={1.5} />
+          <div className="text-center py-20 animate-fade-in">
+            <div className="w-14 h-14 rounded-2xl bg-secondary/50 flex items-center justify-center mx-auto mb-4 mesh-gradient">
+              <ShoppingBag className="w-6 h-6 text-muted-foreground/20" strokeWidth={1.5} />
             </div>
-            <p className="text-[16px] font-bold text-foreground mb-1 tracking-tight">No products found</p>
-            <p className="text-caption text-muted-foreground">{t("shop.noProducts")}</p>
+            <p className="text-[15px] font-bold text-foreground mb-1 tracking-tight">No products found</p>
+            <p className="text-caption text-muted-foreground/60">{t("shop.noProducts")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -180,40 +181,40 @@ export default function ShopPage() {
               const sym = CURRENCY_SYMBOLS[product.currency] || "$";
               const img = product.images?.[0] || null;
               return (
-                <div key={product.id} className="bento-card overflow-hidden group flex flex-col animate-fade-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                <div key={product.id} className="bento-card overflow-hidden group flex flex-col animate-fade-in" style={{ animationDelay: `${idx * 40}ms` }}>
                   <Link to={`/shop/${product.id}`}>
-                    <div className="aspect-[4/3] bg-secondary/40 flex items-center justify-center relative overflow-hidden">
+                    <div className="aspect-[4/3] bg-secondary/30 flex items-center justify-center relative overflow-hidden">
                       {img && img !== "/placeholder.svg" ? (
-                        <img src={img} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <img src={img} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center mesh-gradient">
-                          <span className="text-3xl font-black text-foreground/6">{product.name.charAt(0)}</span>
+                          <span className="text-2xl font-black text-foreground/5">{product.name.charAt(0)}</span>
                         </div>
                       )}
                       {!product.in_stock && (
-                        <span className="absolute top-2.5 right-2.5 badge-status bg-foreground/80 text-background text-[9px] backdrop-blur-sm">Sold Out</span>
+                        <span className="absolute top-2 right-2 badge-status bg-foreground/80 text-background text-[9px] backdrop-blur-sm">Sold Out</span>
                       )}
                     </div>
                   </Link>
-                  <div className="p-4 flex flex-col flex-1">
-                    <span className="text-[10px] text-muted-foreground/50 font-bold uppercase tracking-[0.1em]">{product.category}</span>
+                  <div className="p-3.5 flex flex-col flex-1">
+                    <span className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-[0.1em]">{product.category}</span>
                     <Link to={`/shop/${product.id}`}>
-                      <h3 className="text-[14px] font-semibold text-foreground leading-[1.3] mt-1 line-clamp-2 tracking-tight">{product.name}</h3>
+                      <h3 className="text-[13px] font-semibold text-foreground leading-[1.3] mt-0.5 line-clamp-2 tracking-tight">{product.name}</h3>
                     </Link>
                     {product.rating != null && product.rating > 0 && (
-                      <div className="flex items-center gap-1 mt-2">
-                        <Star className="w-3 h-3 text-primary fill-primary" />
-                        <span className="text-[11px] text-muted-foreground font-medium">{product.rating}</span>
+                      <div className="flex items-center gap-1 mt-1.5">
+                        <Star className="w-2.5 h-2.5 text-primary fill-primary" />
+                        <span className="text-[10px] text-muted-foreground/50">{product.rating}</span>
                       </div>
                     )}
-                    <div className="flex items-center justify-between mt-auto pt-3">
-                      <span className="text-[16px] font-extrabold text-foreground tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
+                    <div className="flex items-center justify-between mt-auto pt-2.5">
+                      <span className="text-[15px] font-extrabold text-foreground tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
                       <button
                         onClick={(e) => { e.preventDefault(); handleAddToCart(product); }}
                         disabled={!product.in_stock}
-                        className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-15 disabled:cursor-not-allowed active:scale-90 transition-transform"
+                        className="w-7 h-7 rounded-xl bg-foreground text-background flex items-center justify-center disabled:opacity-15 disabled:cursor-not-allowed active:scale-90 transition-transform"
                       >
-                        <Plus className="w-4 h-4" strokeWidth={2.5} />
+                        <Plus className="w-3.5 h-3.5" strokeWidth={2.5} />
                       </button>
                     </div>
                   </div>
