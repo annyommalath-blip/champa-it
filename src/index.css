@@ -6,7 +6,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 99%;
+    --background: 240 5% 97%;
     --foreground: 220 20% 10%;
 
     --card: 0 0% 100%;
@@ -18,49 +18,50 @@
     --primary: 46 92% 55%;
     --primary-foreground: 220 20% 10%;
 
-    --secondary: 220 14% 96%;
+    --secondary: 240 5% 93%;
     --secondary-foreground: 220 10% 40%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 8% 52%;
+    --muted: 240 5% 94%;
+    --muted-foreground: 220 8% 50%;
 
-    --accent: 220 14% 96%;
+    --accent: 240 5% 93%;
     --accent-foreground: 220 20% 10%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --success: 142 72% 42%;
+    --success: 152 60% 40%;
     --success-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
     --ring: 46 92% 55%;
 
-    --radius: 1rem;
+    --radius: 1.125rem;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 20% 10%;
     --sidebar-primary: 46 92% 55%;
     --sidebar-primary-foreground: 220 20% 10%;
-    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent: 240 5% 94%;
     --sidebar-accent-foreground: 220 20% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-border: 240 6% 90%;
     --sidebar-ring: 46 92% 55%;
 
-    /* Custom tokens */
+    /* Semantic tokens */
     --navy: 220 20% 10%;
     --navy-light: 220 14% 92%;
-    --navy-lighter: 220 14% 96%;
+    --navy-lighter: 240 5% 94%;
     --gold: 46 92% 55%;
     --cyan: 199 89% 48%;
 
-    /* Shadows */
-    --shadow-xs: 0 1px 2px hsl(220 20% 10% / 0.04);
-    --shadow-sm: 0 1px 3px hsl(220 20% 10% / 0.06), 0 1px 2px hsl(220 20% 10% / 0.04);
-    --shadow-md: 0 4px 6px -1px hsl(220 20% 10% / 0.06), 0 2px 4px -2px hsl(220 20% 10% / 0.04);
-    --shadow-card: 0 1px 3px hsl(220 20% 10% / 0.04);
-    --shadow-card-hover: 0 4px 12px hsl(220 20% 10% / 0.08);
+    /* Shadow scale */
+    --shadow-xs: 0 1px 2px hsl(220 20% 10% / 0.03);
+    --shadow-sm: 0 1px 3px hsl(220 20% 10% / 0.04), 0 1px 2px hsl(220 20% 10% / 0.03);
+    --shadow-md: 0 4px 12px hsl(220 20% 10% / 0.06);
+    --shadow-lg: 0 8px 24px hsl(220 20% 10% / 0.08);
+    --shadow-card: 0 1px 2px hsl(220 20% 10% / 0.04);
+    --shadow-card-hover: 0 4px 16px hsl(220 20% 10% / 0.08);
   }
 }
 
@@ -79,23 +80,19 @@
 }
 
 @layer components {
-  /* ── Card System ── */
+  /* ── Card ── */
   .app-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.6);
+    border-radius: var(--radius);
     box-shadow: var(--shadow-card);
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
-  }
-
-  .app-card:hover {
-    box-shadow: var(--shadow-card-hover);
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
   }
 
   .app-card-interactive {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.6);
+    border-radius: var(--radius);
     box-shadow: var(--shadow-card);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -107,52 +104,42 @@
   }
 
   .app-card-interactive:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
+    transition-duration: 0.1s;
   }
 
-  /* ── Input System ── */
-  .input-field {
-    @apply w-full px-4 py-3 rounded-xl text-sm transition-all;
-    background: hsl(var(--secondary));
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
-  }
-
-  .input-field:focus {
-    outline: none;
-    border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
-  }
-
-  .input-field::placeholder {
-    color: hsl(var(--muted-foreground));
-  }
-
-  /* ── Button System ── */
+  /* ── Buttons ── */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all;
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 15px;
     background: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
     box-shadow: var(--shadow-sm);
   }
 
   .btn-primary:hover {
-    filter: brightness(1.05);
+    filter: brightness(1.04);
     box-shadow: var(--shadow-md);
   }
 
   .btn-primary:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
+    transition-duration: 0.1s;
   }
 
   .btn-primary:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: not-allowed;
     transform: none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all;
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 15px;
     background: hsl(var(--secondary));
     color: hsl(var(--foreground));
   }
@@ -162,69 +149,116 @@
   }
 
   .btn-secondary:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
+    transition-duration: 0.1s;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all;
-    border: 1px solid hsl(var(--border));
+    @apply inline-flex items-center justify-center gap-2 font-semibold transition-all;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 15px;
+    border: 1.5px solid hsl(var(--border));
     color: hsl(var(--foreground));
     background: transparent;
   }
 
   .btn-outline:hover {
     background: hsl(var(--secondary));
-    border-color: hsl(var(--muted-foreground) / 0.3);
   }
 
-  /* ── Chip / Badge ── */
-  .chip {
-    @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all;
-    background: hsl(var(--secondary));
-    color: hsl(var(--muted-foreground));
-    border: 1px solid transparent;
+  .btn-outline:active {
+    transform: scale(0.97);
   }
 
-  .chip-active {
-    background: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
-  }
-
-  .chip:hover:not(.chip-active) {
-    background: hsl(var(--muted));
+  /* ── Input ── */
+  .input-field {
+    @apply w-full transition-all;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 15px;
+    background: hsl(var(--card));
+    border: 1.5px solid hsl(var(--border));
     color: hsl(var(--foreground));
   }
 
-  .badge-status {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold;
+  .input-field:focus {
+    outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.08);
   }
 
-  /* ── Section padding ── */
+  .input-field::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* ── Chip (pill) ── */
+  .chip {
+    @apply inline-flex items-center gap-1.5 font-medium transition-all whitespace-nowrap;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    background: hsl(var(--card));
+    color: hsl(var(--muted-foreground));
+    border: 1.5px solid hsl(var(--border));
+  }
+
+  .chip:active {
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+  }
+
+  .chip-active {
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
+    border-color: hsl(var(--foreground));
+  }
+
+  .chip:hover:not(.chip-active) {
+    border-color: hsl(var(--muted-foreground) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  /* ── Badge ── */
+  .badge-status {
+    @apply inline-flex items-center gap-1 font-semibold;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+
+  .badge-pill {
+    @apply inline-flex items-center gap-1 font-semibold;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+  }
+
+  /* ── Layout ── */
   .section-padding {
     @apply px-5 py-6 md:px-8 lg:px-16 lg:py-10;
   }
 
+  .glass-header {
+    background: hsl(var(--background) / 0.82);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+
   /* ── Gradient text ── */
   .gradient-text {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(40 85% 45%));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(38 80% 45%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* ── Glass surfaces ── */
-  .glass-header {
-    background: hsl(var(--background) / 0.85);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-  }
-
-  /* ── Skeleton loading ── */
+  /* ── Skeleton shimmer ── */
   .skeleton-shimmer {
-    @apply rounded-xl;
+    border-radius: var(--radius);
     background: linear-gradient(90deg, 
       hsl(var(--muted)) 0%, 
-      hsl(var(--secondary)) 50%, 
+      hsl(var(--card)) 50%, 
       hsl(var(--muted)) 100%
     );
     background-size: 200% 100%;
@@ -240,45 +274,31 @@
     display: none;
   }
 
-  /* ── Safe areas ── */
   .safe-area-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  /* ── Tech card (legacy compat) ── */
+  /* ── Legacy compat ── */
   .tech-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.6);
+    border-radius: var(--radius);
     box-shadow: var(--shadow-card);
     transition: all 0.2s ease;
   }
 
-  .tech-card:hover {
-    box-shadow: var(--shadow-card-hover);
-  }
-
-  /* ── Hero section (reduced yellow) ── */
   .hero-section {
     background: hsl(var(--background));
     position: relative;
   }
 
-  /* ── Badge pill ── */
-  .badge-pill {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold;
-  }
-
-  /* ── Glass card (legacy compat) ── */
   .glass-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-radius: 1rem;
+    border: 1px solid hsl(var(--border) / 0.6);
+    border-radius: var(--radius);
     box-shadow: var(--shadow-card);
-    transition: all 0.2s ease;
   }
 
-  /* ── Grid pattern (legacy compat) ── */
   .grid-pattern {
     background-image:
       linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
@@ -289,30 +309,25 @@
 
 @layer utilities {
   .animate-fade-in {
-    animation: fade-in 0.3s ease-out forwards;
+    animation: fade-in 0.25s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slide-up 0.4s ease-out forwards;
+    animation: slide-up 0.35s ease-out forwards;
   }
 
   @keyframes fade-in {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
-  }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
   }
 }

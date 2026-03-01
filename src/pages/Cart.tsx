@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const DELIVERY_FEE = 20000;
-
 type Step = "cart" | "info" | "delivery" | "payment";
 
 export default function CartPage() {
@@ -30,8 +29,8 @@ export default function CartPage() {
   if (cart.length === 0 && step === "cart") {
     return (
       <div className="px-5 py-20 text-center min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
-          <ShoppingBag className="w-7 h-7 text-muted-foreground" />
+        <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
+          <ShoppingBag className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
         </div>
         <h2 className="text-section-title text-foreground mb-1">{t("cart.empty")}</h2>
         <p className="text-caption text-muted-foreground mb-6">{t("cart.emptyDesc")}</p>
@@ -53,7 +52,6 @@ export default function CartPage() {
     if (!file) return;
     if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
-
     setUploading(true);
     const path = `${Date.now()}-${file.name}`;
     const { error } = await supabase.storage.from("payment-screenshots").upload(path, file);
@@ -66,86 +64,61 @@ export default function CartPage() {
   const handleSubmitOrder = async () => {
     if (!user) { toast.error(t("cart.loginRequired")); navigate("/auth"); return; }
     if (!screenshotUrl) { toast.error(t("cart.screenshotRequired")); return; }
-
     setSubmitting(true);
     const orderItems = cart.map((item) => ({
-      product_id: item.product.id,
-      name: item.product.name,
-      price: item.product.price,
-      quantity: item.quantity,
+      product_id: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity,
     }));
-
     const { error } = await supabase.from("orders").insert({
-      user_id: user.id,
-      items: orderItems,
-      total: grandTotal,
-      delivery_method: deliveryMethod,
-      delivery_fee: deliveryFee,
-      payment_screenshot: screenshotUrl,
+      user_id: user.id, items: orderItems, total: grandTotal,
+      delivery_method: deliveryMethod, delivery_fee: deliveryFee, payment_screenshot: screenshotUrl,
       customer_info: { name: form.name, phone: form.phone, email: form.email, address: form.address },
       notes: form.notes || null,
     });
-
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     toast.success(t("cart.orderSuccess"));
-    clearCart();
-    setStep("cart");
-    navigate("/profile");
+    clearCart(); setStep("cart"); navigate("/profile");
   };
 
   return (
     <div className="px-5 py-4 md:px-8 md:py-6 md:max-w-3xl md:mx-auto">
-      {/* Stepper */}
-      <div className="flex items-center gap-1.5 mb-6 overflow-x-auto scrollbar-hide">
+      {/* Stepper — progress bar style */}
+      <div className="flex items-center gap-1 mb-6">
         {steps.map((s, i) => (
-          <div key={s.key} className="flex items-center gap-1.5">
-            <button
-              onClick={() => i < stepIndex && setStep(s.key)}
-              disabled={i > stepIndex}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-micro font-semibold transition-all ${
-                i === stepIndex
-                  ? "bg-primary text-primary-foreground"
-                  : i < stepIndex
-                  ? "bg-primary/15 text-primary cursor-pointer"
-                  : "bg-secondary text-muted-foreground"
-              }`}
-            >
-              <span className="w-5 h-5 rounded-full bg-background/20 flex items-center justify-center text-[10px] font-bold">
-                {i < stepIndex ? "✓" : i + 1}
-              </span>
-              <span className="hidden sm:inline">{s.label}</span>
-            </button>
-            {i < steps.length - 1 && <div className="w-4 h-px bg-border" />}
+          <div key={s.key} className="flex items-center gap-1 flex-1">
+            <div className={`h-1 rounded-full flex-1 transition-colors ${i <= stepIndex ? "bg-primary" : "bg-border"}`} />
           </div>
         ))}
       </div>
+      <p className="text-micro text-muted-foreground mb-4">
+        Step {stepIndex + 1} of {steps.length} — {steps[stepIndex].label}
+      </p>
 
       {/* Step: Cart */}
       {step === "cart" && (
         <div className="animate-fade-in">
-          <Link to="/shop" className="inline-flex items-center gap-2 text-caption text-muted-foreground hover:text-foreground transition-colors mb-4">
+          <Link to="/shop" className="inline-flex items-center gap-1.5 text-caption text-muted-foreground mb-4 active:scale-95 transition-transform">
             <ArrowLeft className="w-4 h-4" /> {t("cart.continueShopping")}
           </Link>
           <h1 className="text-page-title text-foreground mb-4">
-            {t("cart.title")} <span className="text-muted-foreground font-normal text-body">({cart.reduce((s, i) => s + i.quantity, 0)} {t("cart.items")})</span>
+            {t("cart.title")} <span className="text-muted-foreground font-normal text-body">({cart.reduce((s, i) => s + i.quantity, 0)})</span>
           </h1>
           <div className="space-y-2 mb-4">
             {cart.map((item) => (
               <div key={item.product.id} className="app-card p-4 flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0">
-                  <span className="text-lg font-bold text-primary">{item.product.name.charAt(0)}</span>
+                  <span className="text-lg font-bold text-muted-foreground/30">{item.product.name.charAt(0)}</span>
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-body font-semibold text-foreground truncate">{item.product.name}</h3>
                   <p className="text-micro text-muted-foreground">${item.product.price.toLocaleString()} {t("cart.each")}</p>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-7 h-7 rounded-lg border border-border flex items-center justify-center hover:bg-secondary active:scale-90 transition-all">
+                  <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-7 h-7 rounded-lg border border-border flex items-center justify-center active:scale-90 transition-transform">
                     <Minus className="w-3 h-3" />
                   </button>
                   <span className="w-7 text-center text-caption font-semibold">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-7 h-7 rounded-lg border border-border flex items-center justify-center hover:bg-secondary active:scale-90 transition-all">
+                  <button onClick={() => updateQuantity(item.product.id, item.quantity + 1)} className="w-7 h-7 rounded-lg border border-border flex items-center justify-center active:scale-90 transition-transform">
                     <Plus className="w-3 h-3" />
                   </button>
                 </div>
@@ -157,16 +130,14 @@ export default function CartPage() {
             ))}
           </div>
           <div className="app-card p-4 flex items-center justify-between mb-4">
-            <span className="text-body font-bold text-foreground">{t("cart.total")}</span>
+            <span className="text-body font-semibold text-foreground">{t("cart.total")}</span>
             <span className="text-section-title font-bold text-foreground">${cartTotal.toLocaleString()}</span>
           </div>
-          <button onClick={() => setStep("info")} className="btn-primary w-full">
-            {t("cart.checkout")}
-          </button>
+          <button onClick={() => setStep("info")} className="btn-primary w-full">{t("cart.checkout")}</button>
         </div>
       )}
 
-      {/* Step: Customer Info */}
+      {/* Step: Info */}
       {step === "info" && (
         <div className="app-card p-5 animate-fade-in">
           <h2 className="text-section-title text-foreground mb-4">{t("cart.step.info")}</h2>
@@ -179,97 +150,55 @@ export default function CartPage() {
             ].map((field) => (
               <div key={field.key}>
                 <label className="text-caption text-muted-foreground mb-1 block">{field.label} *</label>
-                <input
-                  type={field.type}
-                  value={form[field.key as keyof typeof form]}
-                  onChange={(e) => setForm({ ...form, [field.key]: e.target.value })}
-                  className="input-field"
-                />
+                <input type={field.type} value={form[field.key as keyof typeof form]} onChange={(e) => setForm({ ...form, [field.key]: e.target.value })} className="input-field" />
               </div>
             ))}
             <div>
               <label className="text-caption text-muted-foreground mb-1 block">{t("cart.notes")}</label>
-              <textarea
-                value={form.notes}
-                onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                rows={3}
-                className="input-field resize-none"
-              />
+              <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} className="input-field resize-none" />
             </div>
           </div>
-          <div className="flex gap-3 mt-5">
+          <div className="flex gap-2.5 mt-5">
             <button onClick={() => setStep("cart")} className="btn-secondary flex-1">{t("cart.back")}</button>
-            <button
-              onClick={() => {
-                if (!form.name || !form.phone || !form.email || !form.address) {
-                  toast.error(t("contact.fillRequired"));
-                  return;
-                }
-                setStep("delivery");
-              }}
-              className="btn-primary flex-1"
-            >
-              {t("cart.next")}
-            </button>
+            <button onClick={() => {
+              if (!form.name || !form.phone || !form.email || !form.address) { toast.error(t("contact.fillRequired")); return; }
+              setStep("delivery");
+            }} className="btn-primary flex-1">{t("cart.next")}</button>
           </div>
         </div>
       )}
 
-      {/* Step: Delivery Method */}
+      {/* Step: Delivery */}
       {step === "delivery" && (
         <div className="app-card p-5 animate-fade-in">
           <h2 className="text-section-title text-foreground mb-4">{t("cart.deliveryMethod")}</h2>
           <div className="space-y-2">
-            <button
-              onClick={() => setDeliveryMethod("pickup")}
-              className={`w-full p-4 rounded-xl border-2 text-left flex items-center gap-4 transition-all active:scale-[0.98] ${
-                deliveryMethod === "pickup" ? "border-primary bg-primary/5" : "border-border hover:border-primary/20"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryMethod === "pickup" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-                <MapPin className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <p className="text-body font-semibold text-foreground">{t("cart.pickup")}</p>
-                <p className="text-micro text-muted-foreground">{t("cart.pickupDesc")}</p>
-              </div>
-              <span className="text-caption font-bold text-success">{t("cart.free")}</span>
-            </button>
-
-            <button
-              onClick={() => setDeliveryMethod("delivery")}
-              className={`w-full p-4 rounded-xl border-2 text-left flex items-center gap-4 transition-all active:scale-[0.98] ${
-                deliveryMethod === "delivery" ? "border-primary bg-primary/5" : "border-border hover:border-primary/20"
-              }`}
-            >
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${deliveryMethod === "delivery" ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
-                <Truck className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <p className="text-body font-semibold text-foreground">{t("cart.delivery")}</p>
-                <p className="text-micro text-muted-foreground">{t("cart.deliveryDesc")}</p>
-              </div>
-              <span className="text-caption font-bold text-foreground">₭20,000</span>
-            </button>
+            {([
+              { key: "pickup" as const, icon: MapPin, label: t("cart.pickup"), desc: t("cart.pickupDesc"), price: t("cart.free"), priceColor: "text-success" },
+              { key: "delivery" as const, icon: Truck, label: t("cart.delivery"), desc: t("cart.deliveryDesc"), price: "₭20,000", priceColor: "text-foreground" },
+            ]).map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setDeliveryMethod(opt.key)}
+                className={`w-full p-4 rounded-[14px] border-2 text-left flex items-center gap-3 transition-all active:scale-[0.98] ${
+                  deliveryMethod === opt.key ? "border-primary bg-primary/5" : "border-border"
+                }`}
+              >
+                <opt.icon className={`w-5 h-5 ${deliveryMethod === opt.key ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.6} />
+                <div className="flex-1">
+                  <p className="text-body font-semibold text-foreground">{opt.label}</p>
+                  <p className="text-micro text-muted-foreground">{opt.desc}</p>
+                </div>
+                <span className={`text-caption font-bold ${opt.priceColor}`}>{opt.price}</span>
+              </button>
+            ))}
           </div>
-
-          {/* Summary */}
           <div className="mt-5 space-y-2 text-caption border-t border-border pt-4">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t("cart.subtotal")}</span>
-              <span className="text-foreground">${cartTotal.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t("cart.deliveryFee")}</span>
-              <span className="text-foreground">{deliveryFee > 0 ? `₭${deliveryFee.toLocaleString()}` : t("cart.free")}</span>
-            </div>
-            <div className="flex justify-between font-bold text-body pt-2 border-t border-border">
-              <span className="text-foreground">{t("cart.grandTotal")}</span>
-              <span className="text-foreground">${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span>
-            </div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>{deliveryFee > 0 ? `₭${deliveryFee.toLocaleString()}` : t("cart.free")}</span></div>
+            <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span></div>
           </div>
-
-          <div className="flex gap-3 mt-5">
+          <div className="flex gap-2.5 mt-5">
             <button onClick={() => setStep("info")} className="btn-secondary flex-1">{t("cart.back")}</button>
             <button onClick={() => setStep("payment")} className="btn-primary flex-1">{t("cart.next")}</button>
           </div>
@@ -281,63 +210,40 @@ export default function CartPage() {
         <div className="app-card p-5 animate-fade-in">
           <h2 className="text-section-title text-foreground mb-1">{t("cart.paymentTitle")}</h2>
           <p className="text-caption text-muted-foreground mb-5">{t("cart.paymentDesc")}</p>
-
-          <div className="w-full max-w-xs mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
+          <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
             <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
           </div>
-
-          {/* Amount */}
           <div className="space-y-2 text-caption mb-5 app-card p-4">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{t("cart.subtotal")}</span>
-              <span className="text-foreground">${cartTotal.toLocaleString()}</span>
-            </div>
-            {deliveryFee > 0 && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t("cart.deliveryFee")}</span>
-                <span className="text-foreground">₭{deliveryFee.toLocaleString()}</span>
-              </div>
-            )}
-            <div className="flex justify-between font-bold text-body pt-2 border-t border-border">
-              <span className="text-foreground">{t("cart.grandTotal")}</span>
-              <span className="text-foreground">${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span>
-            </div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
+            {deliveryFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>₭{deliveryFee.toLocaleString()}</span></div>}
+            <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span></div>
           </div>
-
-          {/* Screenshot upload */}
           <div className="mb-5">
             {screenshotUrl ? (
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-success/30 bg-success/5">
+              <div className="flex items-center gap-3 p-3 rounded-[14px] border border-success/30 bg-success/5">
                 <CheckCircle className="w-5 h-5 text-success shrink-0" />
                 <img src={screenshotUrl} alt="Payment" className="w-14 h-14 object-cover rounded-xl" />
-                <span className="text-caption font-medium text-foreground flex-1">{t("cart.uploadedScreenshot")}</span>
-                <label className="text-micro text-primary cursor-pointer hover:underline font-medium">
+                <span className="text-caption font-medium flex-1">{t("cart.uploadedScreenshot")}</span>
+                <label className="text-micro text-primary cursor-pointer font-medium">
                   {t("cart.changeScreenshot")}
                   <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" />
                 </label>
               </div>
             ) : (
-              <label className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
-                {uploading ? (
-                  <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" />
-                ) : (
+              <label className="flex flex-col items-center gap-2 p-8 rounded-[14px] border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
+                {uploading ? <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" /> : (
                   <>
                     <Upload className="w-7 h-7 text-muted-foreground" />
-                    <span className="text-caption font-medium text-foreground">{t("cart.uploadScreenshot")}</span>
+                    <span className="text-caption font-medium">{t("cart.uploadScreenshot")}</span>
                   </>
                 )}
                 <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" disabled={uploading} />
               </label>
             )}
           </div>
-
-          <div className="flex gap-3">
+          <div className="flex gap-2.5">
             <button onClick={() => setStep("delivery")} className="btn-secondary flex-1">{t("cart.back")}</button>
-            <button
-              onClick={handleSubmitOrder}
-              disabled={submitting || uploading}
-              className="btn-primary flex-1 disabled:opacity-50"
-            >
+            <button onClick={handleSubmitOrder} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
               {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
             </button>
           </div>
