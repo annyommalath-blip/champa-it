@@ -6,6 +6,100 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Save, Plus, Trash2, GripVertical, Upload, X, Image, Move } from "lucide-react";
 
+function DraggableImageCrop({
+  src,
+  position,
+  onPositionChange,
+}: {
+  src: string;
+  position: string;
+  onPositionChange: (pos: string) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const dragging = useRef(false);
+  const startY = useRef(0);
+  const startX = useRef(0);
+  const [posX, setPosX] = useState(50);
+  const [posY, setPosY] = useState(50);
+
+  // Parse initial position from string like "30% 70%"
+  useEffect(() => {
+    if (position) {
+      const match = position.match(/([\d.]+)%\s+([\d.]+)%/);
+      if (match) {
+        setPosX(parseFloat(match[1]));
+        setPosY(parseFloat(match[2]));
+      } else {
+        // Handle named positions
+        const map: Record<string, [number, number]> = {
+          "top left": [0, 0], "top center": [50, 0], "top right": [100, 0],
+          "center left": [0, 50], "center": [50, 50], "center right": [100, 50],
+          "bottom left": [0, 100], "bottom center": [50, 100], "bottom right": [100, 100],
+          "top": [50, 0], "bottom": [50, 100], "left": [0, 50], "right": [100, 50],
+        };
+        const mapped = map[position];
+        if (mapped) { setPosX(mapped[0]); setPosY(mapped[1]); }
+      }
+    }
+  }, []);
+
+  const handleStart = (clientX: number, clientY: number) => {
+    dragging.current = true;
+    startX.current = clientX;
+    startY.current = clientY;
+  };
+
+  const handleMove = (clientX: number, clientY: number) => {
+    if (!dragging.current || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const dx = ((clientX - startX.current) / rect.width) * -100;
+    const dy = ((clientY - startY.current) / rect.height) * -100;
+    startX.current = clientX;
+    startY.current = clientY;
+    setPosX((prev) => Math.min(100, Math.max(0, prev + dx)));
+    setPosY((prev) => Math.min(100, Math.max(0, prev + dy)));
+  };
+
+  const handleEnd = () => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    onPositionChange(`${posX.toFixed(1)}% ${posY.toFixed(1)}%`);
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <div
+        ref={containerRef}
+        className="relative rounded-lg overflow-hidden border border-border cursor-grab active:cursor-grabbing select-none touch-none"
+        style={{ height: "160px" }}
+        onMouseDown={(e) => { e.preventDefault(); handleStart(e.clientX, e.clientY); }}
+        onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleEnd}
+        onTouchStart={(e) => { const t = e.touches[0]; handleStart(t.clientX, t.clientY); }}
+        onTouchMove={(e) => { const t = e.touches[0]; handleMove(t.clientX, t.clientY); }}
+        onTouchEnd={handleEnd}
+      >
+        <img
+          ref={imgRef}
+          src={src}
+          alt="Crop preview"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+          style={{ objectPosition: `${posX}% ${posY}%` }}
+          draggable={false}
+        />
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="bg-background/70 backdrop-blur-sm rounded-full px-2.5 py-1 flex items-center gap-1.5 shadow-sm">
+            <Move className="w-3 h-3 text-muted-foreground" />
+            <span className="text-[10px] font-medium text-muted-foreground">Drag to reposition</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface HeroSlide {
   title: string;
   subtitle: string;
@@ -160,61 +254,26 @@ export default function AdminSettings() {
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Background Image</label>
                 {slide.image ? (
                   <div className="space-y-2">
-                    <div className="relative rounded-lg overflow-hidden border border-border group">
-                      <img
-                        src={slide.image}
-                        alt={`Slide ${i + 1} background`}
-                        className="w-full h-36 object-cover"
-                        style={{ objectPosition: slide.imagePosition || "center" }}
+                    <DraggableImageCrop
+                      src={slide.image}
+                      position={slide.imagePosition || "50% 50%"}
+                      onPositionChange={(pos) => updateSlide(i, "imagePosition", pos)}
+                    />
+                    <div className="flex items-center gap-2">
+                      <SlideImageUploadButton
+                        index={i}
+                        uploading={uploadingIndex === i}
+                        onUpload={handleImageUpload}
+                        label="Replace"
                       />
-                      <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                        <SlideImageUploadButton
-                          index={i}
-                          uploading={uploadingIndex === i}
-                          onUpload={handleImageUpload}
-                          label="Replace"
-                        />
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="gap-1.5"
-                          onClick={() => removeImage(i)}
-                        >
-                          <X className="w-3.5 h-3.5" /> Remove
-                        </Button>
-                      </div>
-                    </div>
-                    {/* Crop / Position Control */}
-                    <div>
-                      <label className="text-[11px] font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
-                        <Move className="w-3 h-3" /> Image Position
-                      </label>
-                      <div className="grid grid-cols-3 gap-1 w-fit">
-                        {[
-                          { label: "↖", value: "top left" },
-                          { label: "↑", value: "top center" },
-                          { label: "↗", value: "top right" },
-                          { label: "←", value: "center left" },
-                          { label: "•", value: "center" },
-                          { label: "→", value: "center right" },
-                          { label: "↙", value: "bottom left" },
-                          { label: "↓", value: "bottom center" },
-                          { label: "↘", value: "bottom right" },
-                        ].map((pos) => (
-                          <button
-                            key={pos.value}
-                            type="button"
-                            onClick={() => updateSlide(i, "imagePosition", pos.value)}
-                            className={`w-8 h-8 rounded text-xs font-bold transition-all ${
-                              (slide.imagePosition || "center") === pos.value
-                                ? "bg-primary text-primary-foreground shadow-sm"
-                                : "bg-muted/50 text-muted-foreground hover:bg-muted"
-                            }`}
-                          >
-                            {pos.label}
-                          </button>
-                        ))}
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="gap-1.5 text-muted-foreground hover:text-destructive"
+                        onClick={() => removeImage(i)}
+                      >
+                        <X className="w-3.5 h-3.5" /> Remove
+                      </Button>
                     </div>
                   </div>
                 ) : (
