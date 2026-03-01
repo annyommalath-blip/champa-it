@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, GripVertical, Upload, X, Image } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, Upload, X, Image, Move } from "lucide-react";
 
 interface HeroSlide {
   title: string;
@@ -12,6 +12,7 @@ interface HeroSlide {
   cta: string;
   link: string;
   image?: string;
+  imagePosition?: string;
 }
 
 const defaultSlides: HeroSlide[] = [
@@ -158,27 +159,62 @@ export default function AdminSettings() {
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Background Image</label>
                 {slide.image ? (
-                  <div className="relative rounded-lg overflow-hidden border border-border group">
-                    <img
-                      src={slide.image}
-                      alt={`Slide ${i + 1} background`}
-                      className="w-full h-36 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <SlideImageUploadButton
-                        index={i}
-                        uploading={uploadingIndex === i}
-                        onUpload={handleImageUpload}
-                        label="Replace"
+                  <div className="space-y-2">
+                    <div className="relative rounded-lg overflow-hidden border border-border group">
+                      <img
+                        src={slide.image}
+                        alt={`Slide ${i + 1} background`}
+                        className="w-full h-36 object-cover"
+                        style={{ objectPosition: slide.imagePosition || "center" }}
                       />
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="gap-1.5"
-                        onClick={() => removeImage(i)}
-                      >
-                        <X className="w-3.5 h-3.5" /> Remove
-                      </Button>
+                      <div className="absolute inset-0 bg-background/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <SlideImageUploadButton
+                          index={i}
+                          uploading={uploadingIndex === i}
+                          onUpload={handleImageUpload}
+                          label="Replace"
+                        />
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="gap-1.5"
+                          onClick={() => removeImage(i)}
+                        >
+                          <X className="w-3.5 h-3.5" /> Remove
+                        </Button>
+                      </div>
+                    </div>
+                    {/* Crop / Position Control */}
+                    <div>
+                      <label className="text-[11px] font-medium text-muted-foreground mb-1.5 flex items-center gap-1">
+                        <Move className="w-3 h-3" /> Image Position
+                      </label>
+                      <div className="grid grid-cols-3 gap-1 w-fit">
+                        {[
+                          { label: "↖", value: "top left" },
+                          { label: "↑", value: "top center" },
+                          { label: "↗", value: "top right" },
+                          { label: "←", value: "center left" },
+                          { label: "•", value: "center" },
+                          { label: "→", value: "center right" },
+                          { label: "↙", value: "bottom left" },
+                          { label: "↓", value: "bottom center" },
+                          { label: "↘", value: "bottom right" },
+                        ].map((pos) => (
+                          <button
+                            key={pos.value}
+                            type="button"
+                            onClick={() => updateSlide(i, "imagePosition", pos.value)}
+                            className={`w-8 h-8 rounded text-xs font-bold transition-all ${
+                              (slide.imagePosition || "center") === pos.value
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {pos.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ) : (
