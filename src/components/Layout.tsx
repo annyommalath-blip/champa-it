@@ -22,7 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {/* Desktop nav */}
-      <header className="hidden md:block sticky top-0 z-50 border-b border-border/60 glass-header">
+      <header className="hidden md:block sticky top-0 z-50 border-b border-border/50 glass-header">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-8 h-14">
           <Link to="/" className="flex items-center gap-2.5 group">
             <img src={logo} alt="Champa Enterprise" className="h-8 w-8 rounded-xl object-cover" />
@@ -36,9 +36,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   key={item.to}
                   to={item.to}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    active
-                      ? "bg-foreground/5 text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                    active ? "bg-foreground/[0.05] text-foreground" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   {t(item.labelKey)}
@@ -46,8 +44,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               );
             })}
             <div className="w-px h-5 bg-border mx-2" />
-            <Link to="/cart" className="relative p-2 rounded-xl hover:bg-foreground/5 transition-all">
-              <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+            <Link to="/cart" className="relative p-2 rounded-xl hover:bg-foreground/[0.04] transition-all">
+              <ShoppingCart className="w-5 h-5 text-muted-foreground" strokeWidth={1.7} />
               {cartCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-bold px-1 ring-2 ring-background">
                   {cartCount}
@@ -63,32 +61,32 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Mobile top bar — compact */}
-      <header className="md:hidden px-5 h-12 glass-header sticky top-0 z-50 border-b border-border/40 flex items-center justify-between">
+      {/* Mobile top bar */}
+      <header className="md:hidden px-5 h-[52px] glass-header sticky top-0 z-50 border-b border-border/40 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Champa" className="h-7 w-7 rounded-lg object-cover" />
+          <img src={logo} alt="Champa" className="h-7 w-7 rounded-[10px] object-cover" />
           <span className="font-semibold text-[15px] text-foreground tracking-tight">Champa</span>
         </Link>
         <div className="flex items-center gap-0.5">
-          <Link to="/cart" className="relative p-2 rounded-xl">
-            <ShoppingCart className="w-[21px] h-[21px] text-foreground/60" strokeWidth={1.8} />
+          <Link to="/cart" className="relative p-2.5 rounded-xl active:scale-90 transition-transform">
+            <ShoppingCart className="w-[20px] h-[20px] text-foreground/70" strokeWidth={1.7} />
             {cartCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[15px] h-[15px] rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold px-0.5">
+              <span className="absolute top-1 right-1 min-w-[16px] h-[16px] rounded-full bg-primary text-primary-foreground text-[9px] flex items-center justify-center font-bold px-0.5">
                 {cartCount}
               </span>
             )}
           </Link>
-          <Link to="/notifications" className="p-2 rounded-xl">
-            <Bell className="w-[21px] h-[21px] text-foreground/60" strokeWidth={1.8} />
+          <Link to="/notifications" className="p-2.5 rounded-xl active:scale-90 transition-transform">
+            <Bell className="w-[20px] h-[20px] text-foreground/70" strokeWidth={1.7} />
           </Link>
         </div>
       </header>
 
-      <main className="flex-1 md:pb-0 pb-[68px]">{children}</main>
+      <main className="flex-1 md:pb-0 pb-[72px]">{children}</main>
 
-      {/* Mobile bottom tab bar — 5 tabs */}
+      {/* Mobile bottom tabs */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-border/40 safe-area-bottom">
-        <div className="flex items-center justify-around h-[60px] px-1">
+        <div className="flex items-center justify-around h-[64px] px-1">
           {navKeys.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
@@ -96,14 +94,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className="flex flex-col items-center justify-center gap-0.5 py-1 min-w-[56px] transition-all active:scale-90"
+                className="flex flex-col items-center justify-center gap-[3px] py-1.5 min-w-[56px] transition-all active:scale-90"
               >
-                <Icon
-                  className={`w-[22px] h-[22px] transition-colors ${
-                    active ? "text-primary" : "text-muted-foreground"
-                  }`}
-                  strokeWidth={active ? 2.2 : 1.6}
-                />
+                <div className={`relative ${active ? "" : ""}`}>
+                  <Icon
+                    className={`w-[22px] h-[22px] transition-colors ${
+                      active ? "text-primary" : "text-muted-foreground"
+                    }`}
+                    strokeWidth={active ? 2 : 1.6}
+                  />
+                  {active && (
+                    <div className="absolute -bottom-[3px] left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                  )}
+                </div>
                 <span className={`text-[10px] font-medium leading-none ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}>
@@ -115,8 +118,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      {/* Footer - desktop only */}
-      <footer className="hidden md:block border-t border-border/60 bg-card">
+      {/* Desktop footer */}
+      <footer className="hidden md:block border-t border-border/50 bg-card">
         <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-4 gap-10">
           <div>
             <div className="flex items-center gap-2 mb-4">
@@ -127,7 +130,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <h4 className="text-micro font-semibold uppercase tracking-widest text-muted-foreground mb-4">{t("footer.products")}</h4>
-            <div className="flex flex-col gap-2 text-caption">
+            <div className="flex flex-col gap-2.5 text-caption">
               <Link to="/shop" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.serversHardware")}</Link>
               <Link to="/shop" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.networking")}</Link>
               <Link to="/shop" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.security")}</Link>
@@ -136,7 +139,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <h4 className="text-micro font-semibold uppercase tracking-widest text-muted-foreground mb-4">{t("footer.services")}</h4>
-            <div className="flex flex-col gap-2 text-caption">
+            <div className="flex flex-col gap-2.5 text-caption">
               <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.itConsulting")}</Link>
               <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.cloudMigration")}</Link>
               <Link to="/services" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.managedIT")}</Link>
@@ -144,13 +147,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
           <div>
             <h4 className="text-micro font-semibold uppercase tracking-widest text-muted-foreground mb-4">{t("footer.company")}</h4>
-            <div className="flex flex-col gap-2 text-caption">
+            <div className="flex flex-col gap-2.5 text-caption">
               <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.aboutUs")}</Link>
               <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">{t("footer.contactSales")}</Link>
             </div>
           </div>
         </div>
-        <div className="border-t border-border/60 px-8 py-4 text-center text-micro text-muted-foreground">
+        <div className="border-t border-border/50 px-8 py-4 text-center text-micro text-muted-foreground">
           © {new Date().getFullYear()} Champa Private Enterprise. {t("footer.rights")}
         </div>
       </footer>

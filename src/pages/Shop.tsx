@@ -1,10 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, Star, Loader2, Plus, ShoppingCart } from "lucide-react";
+import { Search, SlidersHorizontal, Star, Plus } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
 
@@ -35,13 +34,13 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchProducts = async () => {
       setLoading(true);
       const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
       setProducts((data as DbProduct[]) || []);
       setLoading(false);
     };
-    fetch();
+    fetchProducts();
   }, []);
 
   const categories = useMemo(() => {
@@ -78,9 +77,9 @@ export default function ShopPage() {
   return (
     <div className="md:max-w-7xl md:mx-auto">
       {/* Sticky search */}
-      <div className="px-5 py-3 md:px-8 sticky top-12 md:top-14 z-30 bg-background">
+      <div className="px-5 py-3 md:px-8 sticky top-[52px] md:top-14 z-30 bg-background">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" strokeWidth={1.8} />
           <input
             type="text"
             placeholder={t("shop.search")}
@@ -120,7 +119,7 @@ export default function ShopPage() {
           onClick={() => setSortPrice(sortPrice === "asc" ? "desc" : sortPrice === "desc" ? null : "asc")}
           className={`chip py-1.5 px-3 ${sortPrice ? 'chip-active' : ''}`}
         >
-          <SlidersHorizontal className="w-3.5 h-3.5" />
+          <SlidersHorizontal className="w-3.5 h-3.5" strokeWidth={1.8} />
           Sort {sortPrice === "asc" ? "↑" : sortPrice === "desc" ? "↓" : ""}
         </button>
         <span className="ml-auto text-micro text-muted-foreground">
@@ -129,14 +128,14 @@ export default function ShopPage() {
       </div>
 
       {/* Product grid */}
-      <div className="px-5 md:px-8 pb-8">
+      <div className="px-5 md:px-8 pb-10">
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="app-card overflow-hidden">
-                <div className="aspect-[4/3] skeleton-shimmer" />
-                <div className="p-3 space-y-2">
-                  <div className="h-2.5 w-12 skeleton-shimmer rounded" />
+                <div className="aspect-square skeleton-shimmer" />
+                <div className="p-3.5 space-y-2">
+                  <div className="h-2.5 w-14 skeleton-shimmer rounded" />
                   <div className="h-3.5 w-full skeleton-shimmer rounded" />
                   <div className="h-3.5 w-2/3 skeleton-shimmer rounded" />
                   <div className="h-3.5 w-16 skeleton-shimmer rounded" />
@@ -146,8 +145,8 @@ export default function ShopPage() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Search className="w-7 h-7 text-muted-foreground" />
+            <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
+              <Search className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
             </div>
             <p className="text-body font-semibold text-foreground mb-1">No products found</p>
             <p className="text-caption text-muted-foreground">{t("shop.noProducts")}</p>
@@ -160,7 +159,7 @@ export default function ShopPage() {
               return (
                 <div key={product.id} className="app-card overflow-hidden group flex flex-col">
                   <Link to={`/shop/${product.id}`}>
-                    <div className="aspect-[4/3] bg-secondary flex items-center justify-center relative overflow-hidden">
+                    <div className="aspect-square bg-secondary flex items-center justify-center relative overflow-hidden">
                       {img && img !== "/placeholder.svg" ? (
                         <img src={img} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
@@ -171,7 +170,7 @@ export default function ShopPage() {
                       )}
                     </div>
                   </Link>
-                  <div className="p-3 flex flex-col flex-1">
+                  <div className="p-3.5 flex flex-col flex-1">
                     <span className="text-micro text-muted-foreground font-medium uppercase tracking-wider">{product.category}</span>
                     <Link to={`/shop/${product.id}`}>
                       <h3 className="text-caption font-semibold text-foreground leading-snug mt-0.5 line-clamp-2 group-hover:text-primary transition-colors">{product.name}</h3>
@@ -187,7 +186,7 @@ export default function ShopPage() {
                       <button
                         onClick={() => handleAddToCart(product)}
                         disabled={!product.in_stock}
-                        className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-25 disabled:cursor-not-allowed active:scale-90 transition-transform"
+                        className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-20 disabled:cursor-not-allowed active:scale-90 transition-transform"
                       >
                         <Plus className="w-4 h-4" />
                       </button>

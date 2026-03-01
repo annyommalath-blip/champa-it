@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, Headphones, Plus } from "lucide-react";
+import { Send, Headphones, Plus, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -30,7 +30,6 @@ export default function ChatPage() {
   const [showNewChat, setShowNewChat] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Load conversations
   useEffect(() => {
     const load = async () => {
       if (user) {
@@ -45,7 +44,6 @@ export default function ChatPage() {
     load();
   }, [user]);
 
-  // Load messages for active conv
   useEffect(() => {
     if (!activeConvId) return;
     const load = async () => {
@@ -103,14 +101,13 @@ export default function ChatPage() {
     });
   };
 
-  // Chat thread view
+  // Thread view
   if (activeConvId) {
     return (
-      <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-80px)] md:max-w-3xl md:mx-auto">
-        {/* Thread header */}
-        <div className="px-5 py-3 border-b border-border flex items-center gap-3">
-          <button onClick={() => { setActiveConvId(null); setMessages([]); }} className="text-caption font-medium text-primary">
-            ← Back
+      <div className="flex flex-col h-[calc(100vh-136px)] md:h-[calc(100vh-80px)] md:max-w-3xl md:mx-auto">
+        <div className="px-5 py-3.5 border-b border-border/50 flex items-center gap-3">
+          <button onClick={() => { setActiveConvId(null); setMessages([]); }} className="p-1 active:scale-90 transition-transform">
+            <ArrowLeft className="w-5 h-5 text-muted-foreground" strokeWidth={1.7} />
           </button>
           <div className="flex-1">
             <p className="text-body font-semibold text-foreground">Support Chat</p>
@@ -119,14 +116,13 @@ export default function ChatPage() {
           <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
         </div>
 
-        {/* Messages */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] px-4 py-2.5 text-body leading-relaxed ${
                 msg.sender_type === "guest"
-                  ? "bg-foreground text-background rounded-[18px] rounded-br-md"
-                  : "bg-card border border-border rounded-[18px] rounded-bl-md text-foreground"
+                  ? "bg-foreground text-background rounded-2xl rounded-br-md"
+                  : "bg-card border border-border/50 rounded-2xl rounded-bl-md text-foreground"
               }`}>
                 {msg.content}
               </div>
@@ -134,20 +130,19 @@ export default function ChatPage() {
           ))}
         </div>
 
-        {/* Input */}
-        <div className="border-t border-border px-4 py-3 flex items-center gap-2">
+        <div className="border-t border-border/50 px-4 py-3 flex items-center gap-2.5">
           <input
             type="text"
             placeholder="Type a message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            className="flex-1 px-4 py-2.5 rounded-full bg-card border border-border text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary"
+            className="flex-1 px-4 py-2.5 rounded-full bg-card border border-border/50 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
           />
           <button
             onClick={sendMessage}
             disabled={!input.trim()}
-            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 transition-all active:scale-90"
+            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-25 transition-all active:scale-90"
           >
             <Send className="w-4 h-4" />
           </button>
@@ -156,10 +151,10 @@ export default function ChatPage() {
     );
   }
 
-  // Chat list view
+  // List view
   return (
     <div className="md:max-w-3xl md:mx-auto">
-      <div className="px-5 pt-5 pb-4 flex items-center justify-between">
+      <div className="px-5 pt-6 pb-4 flex items-center justify-between">
         <div>
           <h1 className="text-page-title text-foreground">Chat</h1>
           <p className="text-caption text-muted-foreground mt-0.5">Talk to our sales & support team</p>
@@ -172,7 +167,6 @@ export default function ChatPage() {
         </button>
       </div>
 
-      {/* New chat prompt */}
       {showNewChat && (
         <div className="px-5 pb-4 animate-fade-in">
           <div className="app-card p-5 space-y-3">
@@ -185,7 +179,7 @@ export default function ChatPage() {
               onKeyDown={(e) => e.key === "Enter" && startNewChat()}
               className="input-field"
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2.5">
               <button onClick={() => setShowNewChat(false)} className="btn-secondary flex-1 py-2.5 text-caption">Cancel</button>
               <button onClick={startNewChat} className="btn-primary flex-1 py-2.5 text-caption">Start Chat</button>
             </div>
@@ -193,12 +187,11 @@ export default function ChatPage() {
         </div>
       )}
 
-      {/* Conversation list */}
-      <div className="px-5 pb-8">
+      <div className="px-5 pb-10">
         {conversations.length === 0 && !showNewChat ? (
           <div className="text-center py-20 animate-fade-in">
-            <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Headphones className="w-7 h-7 text-muted-foreground" />
+            <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
+              <Headphones className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
             </div>
             <p className="text-body font-medium text-foreground mb-1">No conversations yet</p>
             <p className="text-caption text-muted-foreground mb-5">Start a chat with our support team</p>
@@ -212,10 +205,10 @@ export default function ChatPage() {
               <button
                 key={conv.id}
                 onClick={() => setActiveConvId(conv.id)}
-                className="app-card-interactive w-full text-left p-4 flex items-center gap-3"
+                className="app-card-interactive w-full text-left p-4 flex items-center gap-3.5"
               >
-                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <Headphones className="w-5 h-5 text-muted-foreground" />
+                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
+                  <Headphones className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-body font-semibold text-foreground truncate">
