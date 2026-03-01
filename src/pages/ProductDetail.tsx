@@ -402,8 +402,8 @@ export default function ProductDetail() {
                 All <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {moreFromCategory.map((p) => <RecommendedCard key={p.id} product={p} />)}
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1 snap-x snap-mandatory">
+              {moreFromCategory.map((p) => <div key={p.id} className="flex-shrink-0 w-[160px] snap-start"><RecommendedCard product={p} /></div>)}
             </div>
           </section>
         )}
@@ -412,8 +412,8 @@ export default function ProductDetail() {
         {related.length > 0 && (
           <section className="mt-8">
             <h3 className="text-section-title text-foreground mb-3">You may also like</h3>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {related.map((p) => <RecommendedCard key={p.id} product={p} />)}
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1 snap-x snap-mandatory">
+              {related.map((p) => <div key={p.id} className="flex-shrink-0 w-[160px] snap-start"><RecommendedCard product={p} /></div>)}
             </div>
           </section>
         )}
