@@ -89,52 +89,15 @@ export default function AboutPage() {
 
   return (
     <div className="md:max-w-7xl md:mx-auto">
-      {/* ── Hero Carousel — top, full-bleed ── */}
-      <section className="px-4 pt-3 pb-1 md:px-8">
-        <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
-          <div className="flex">
-            {heroSlides.map((slide, i) => (
-              <div key={i} className="flex-[0_0_100%] min-w-0 px-0.5">
-                <div className="relative overflow-hidden rounded-2xl flex flex-col justify-end" style={{ aspectRatio: "2.2 / 1" }}>
-                  {slide.image ? (
-                    <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
-                  ) : (
-                    <div className="absolute inset-0" style={{ background: i === 0 ? "linear-gradient(135deg, hsl(230 25% 12%), hsl(230 18% 24%))" : i === 1 ? "linear-gradient(135deg, hsl(44 80% 50%), hsl(32 90% 45%))" : "linear-gradient(135deg, hsl(199 70% 35%), hsl(199 80% 50%))" }} />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/10 to-transparent" />
-                  <div className="relative z-10 p-5 md:p-7">
-                    <h2 className="text-[18px] md:text-[22px] font-extrabold text-background tracking-tight leading-tight">{slide.title}</h2>
-                    <p className="text-[12px] md:text-[13px] text-background/60 mt-1 mb-3 font-medium">{slide.subtitle}</p>
-                    <Link
-                      to={slide.link}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-background text-foreground text-[12px] font-bold active:scale-95 transition-transform"
-                      style={{ boxShadow: "var(--shadow-sm)" }}
-                    >
-                      {slide.cta} <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="flex justify-center gap-1.5 mt-3">
-          {heroSlides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => emblaApi?.scrollTo(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === selectedIndex ? "w-5 h-1.5 bg-foreground" : "w-1.5 h-1.5 bg-foreground/12"
-              }`}
-            />
-          ))}
-        </div>
-      </section>
+      {/* Greeting + Search */}
+      <div className="px-5 pt-5 pb-2 md:px-8">
+        <p className="text-caption text-muted-foreground font-medium">{greeting} 👋</p>
+        <h1 className="text-page-title text-foreground mt-0.5">Discover</h1>
+      </div>
 
-      {/* Sticky Search */}
-      <div className="px-5 py-3 md:px-8 sticky top-[52px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
+      <div className="px-5 pb-4 md:px-8 sticky top-[52px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
         <Link to="/shop" className="block">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card text-muted-foreground active:scale-[0.99] transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
+          <div className="flex items-center gap-3 px-4 py-3.5 rounded-2xl bg-card text-muted-foreground active:scale-[0.99] transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
             <Search className="w-[18px] h-[18px] text-muted-foreground/50" strokeWidth={2} />
             <span className="text-[15px]">Search products & services</span>
           </div>
@@ -142,6 +105,72 @@ export default function AboutPage() {
       </div>
 
       <div className="px-5 space-y-8 pb-12 md:px-8 md:space-y-10">
+
+        {/* ── Bento Status Cards (Admin only) ── */}
+        {(role === "approved_admin" || role === "super_admin") && (
+          <section className="flex gap-2.5 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+            {[
+              { icon: FileText, label: "Quotes", count: 0, color: "hsl(44 92% 53% / 0.12)", iconColor: "text-primary", link: "/admin" },
+              { icon: Package, label: "Orders", count: 0, color: "hsl(199 89% 48% / 0.1)", iconColor: "text-cyan", link: "/admin/orders" },
+              { icon: Headphones, label: "Support", count: 0, color: "hsl(152 60% 38% / 0.1)", iconColor: "text-success", link: "/admin/messages" },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                to={item.link}
+                className="bento-card flex items-center gap-3 px-4 py-3 flex-shrink-0 active:scale-[0.97] transition-transform"
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: item.color }}>
+                  <item.icon className={`w-4 h-4 ${item.iconColor}`} strokeWidth={1.8} />
+                </div>
+                <div>
+                  <p className="text-[18px] font-extrabold text-foreground leading-none tracking-tight">{item.count}</p>
+                  <p className="text-[10px] text-muted-foreground/50 font-semibold mt-0.5">{item.label}</p>
+                </div>
+              </Link>
+            ))}
+          </section>
+        )}
+
+        {/* ── Hero Carousel ── */}
+        <section>
+          <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
+            <div className="flex">
+              {heroSlides.map((slide, i) => (
+                <div key={i} className="flex-[0_0_100%] min-w-0">
+                  <div className="relative overflow-hidden rounded-3xl flex flex-col justify-end mx-1" style={{ height: "185px" }}>
+                    {slide.image ? (
+                      <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0" style={{ background: i === 0 ? "linear-gradient(135deg, hsl(230 25% 12%), hsl(230 20% 22%))" : i === 1 ? "linear-gradient(135deg, hsl(44 80% 50%), hsl(32 90% 45%))" : "linear-gradient(135deg, hsl(199 70% 35%), hsl(199 80% 45%))" }} />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-transparent to-transparent" />
+                    <div className="relative z-10 p-6">
+                      <h2 className="text-[20px] font-extrabold text-background tracking-tight leading-tight">{slide.title}</h2>
+                      <p className="text-[13px] text-background/60 mt-1 mb-3.5 font-medium">{slide.subtitle}</p>
+                      <Link
+                        to={slide.link}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-background/20 backdrop-blur-md text-background text-[12px] font-bold active:scale-95 transition-transform border border-background/10"
+                      >
+                        {slide.cta} <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex justify-center gap-1.5 mt-3.5">
+            {heroSlides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={`rounded-full transition-all duration-300 ${
+                  i === selectedIndex ? "w-6 h-1.5 bg-foreground" : "w-1.5 h-1.5 bg-foreground/12"
+                }`}
+              />
+            ))}
+          </div>
+        </section>
 
         {/* ── Quick Actions ── */}
         <section>
