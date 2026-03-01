@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, Headphones, Plus, ArrowLeft } from "lucide-react";
+import { Send, Headphones, Plus, ArrowLeft, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -104,47 +104,53 @@ export default function ChatPage() {
   // Thread view
   if (activeConvId) {
     return (
-      <div className="flex flex-col h-[calc(100vh-136px)] md:h-[calc(100vh-80px)] md:max-w-3xl md:mx-auto">
-        <div className="px-5 py-3.5 border-b border-border/50 flex items-center gap-3">
-          <button onClick={() => { setActiveConvId(null); setMessages([]); }} className="p-1 active:scale-90 transition-transform">
-            <ArrowLeft className="w-5 h-5 text-muted-foreground" strokeWidth={1.7} />
+      <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-80px)] md:max-w-3xl md:mx-auto animate-fade-in">
+        <div className="px-5 py-4 border-b border-border/30 flex items-center gap-3">
+          <button onClick={() => { setActiveConvId(null); setMessages([]); }} className="p-1.5 rounded-xl active:scale-90 transition-transform hover:bg-secondary/50">
+            <ArrowLeft className="w-5 h-5 text-muted-foreground" strokeWidth={2} />
           </button>
           <div className="flex-1">
-            <p className="text-body font-semibold text-foreground">Support Chat</p>
-            <p className="text-micro text-muted-foreground">Live Agent</p>
+            <p className="text-[15px] font-bold text-foreground tracking-tight">Support Chat</p>
+            <p className="text-[11px] text-muted-foreground/50 font-medium">Live Agent</p>
           </div>
-          <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+          <div className="flex items-center gap-1.5">
+            <div className="w-2 h-2 rounded-full bg-success" style={{ animation: "pulse-soft 2s infinite" }} />
+            <span className="text-[10px] text-success font-bold uppercase tracking-wider">Online</span>
+          </div>
         </div>
 
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5 space-y-3">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] px-4 py-2.5 text-body leading-relaxed ${
+              <div className={`max-w-[80%] px-4 py-3 text-[15px] leading-relaxed ${
                 msg.sender_type === "guest"
-                  ? "bg-foreground text-background rounded-2xl rounded-br-md"
-                  : "bg-card border border-border/50 rounded-2xl rounded-bl-md text-foreground"
-              }`}>
+                  ? "bg-foreground text-background rounded-[20px] rounded-br-md"
+                  : "bg-card rounded-[20px] rounded-bl-md text-foreground"
+              }`}
+              style={{ boxShadow: msg.sender_type === "admin" ? "var(--shadow-card)" : "none" }}
+              >
                 {msg.content}
               </div>
             </div>
           ))}
         </div>
 
-        <div className="border-t border-border/50 px-4 py-3 flex items-center gap-2.5">
+        <div className="border-t border-border/30 px-4 py-3.5 flex items-center gap-2.5">
           <input
             type="text"
             placeholder="Type a message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            className="flex-1 px-4 py-2.5 rounded-full bg-card border border-border/50 text-body text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors"
+            className="flex-1 px-5 py-3 rounded-full bg-card text-[15px] text-foreground placeholder:text-muted-foreground/40 focus:outline-none transition-colors"
+            style={{ boxShadow: "var(--shadow-card)" }}
           />
           <button
             onClick={sendMessage}
             disabled={!input.trim()}
-            className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-25 transition-all active:scale-90"
+            className="w-11 h-11 rounded-full bg-foreground text-background flex items-center justify-center disabled:opacity-20 transition-all active:scale-90"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-[18px] h-[18px]" strokeWidth={2} />
           </button>
         </div>
       </div>
@@ -153,24 +159,24 @@ export default function ChatPage() {
 
   // List view
   return (
-    <div className="md:max-w-3xl md:mx-auto">
-      <div className="px-5 pt-6 pb-4 flex items-center justify-between">
+    <div className="md:max-w-3xl md:mx-auto animate-fade-in">
+      <div className="px-5 pt-5 pb-5 flex items-center justify-between">
         <div>
           <h1 className="text-page-title text-foreground">Chat</h1>
-          <p className="text-caption text-muted-foreground mt-0.5">Talk to our sales & support team</p>
+          <p className="text-caption text-muted-foreground/60 mt-0.5">Talk to our sales & support team</p>
         </div>
         <button
           onClick={() => setShowNewChat(true)}
-          className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm active:scale-90 transition-transform"
+          className="w-11 h-11 rounded-2xl bg-foreground text-background flex items-center justify-center active:scale-90 transition-transform"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5" strokeWidth={2.5} />
         </button>
       </div>
 
       {showNewChat && (
-        <div className="px-5 pb-4 animate-fade-in">
-          <div className="app-card p-5 space-y-3">
-            <p className="text-body font-semibold text-foreground">Start a new conversation</p>
+        <div className="px-5 pb-5 animate-scale-in">
+          <div className="bento-card p-6 space-y-4">
+            <p className="text-[16px] font-bold text-foreground tracking-tight">Start a new conversation</p>
             <input
               type="text"
               placeholder="Your name"
@@ -180,41 +186,42 @@ export default function ChatPage() {
               className="input-field"
             />
             <div className="flex gap-2.5">
-              <button onClick={() => setShowNewChat(false)} className="btn-secondary flex-1 py-2.5 text-caption">Cancel</button>
-              <button onClick={startNewChat} className="btn-primary flex-1 py-2.5 text-caption">Start Chat</button>
+              <button onClick={() => setShowNewChat(false)} className="btn-secondary flex-1 py-3 text-[14px]">Cancel</button>
+              <button onClick={startNewChat} className="btn-primary flex-1 py-3 text-[14px]">Start Chat</button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="px-5 pb-10">
+      <div className="px-5 pb-12">
         {conversations.length === 0 && !showNewChat ? (
-          <div className="text-center py-20 animate-fade-in">
-            <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
-              <Headphones className="w-7 h-7 text-muted-foreground" strokeWidth={1.5} />
+          <div className="text-center py-24 animate-fade-in">
+            <div className="w-20 h-20 rounded-3xl bg-secondary/50 flex items-center justify-center mx-auto mb-6 mesh-gradient">
+              <MessageCircle className="w-9 h-9 text-muted-foreground/20" strokeWidth={1.5} />
             </div>
-            <p className="text-body font-medium text-foreground mb-1">No conversations yet</p>
-            <p className="text-caption text-muted-foreground mb-5">Start a chat with our support team</p>
-            <button onClick={() => setShowNewChat(true)} className="btn-primary py-2.5 px-6 text-caption">
+            <p className="text-[18px] font-bold text-foreground mb-1.5 tracking-tight">No conversations yet</p>
+            <p className="text-caption text-muted-foreground/60 mb-6">Start a chat with our support team</p>
+            <button onClick={() => setShowNewChat(true)} className="btn-primary py-3 px-8 text-[14px]">
               New Chat
             </button>
           </div>
         ) : (
           <div className="space-y-2">
-            {conversations.map((conv) => (
+            {conversations.map((conv, idx) => (
               <button
                 key={conv.id}
                 onClick={() => setActiveConvId(conv.id)}
-                className="app-card-interactive w-full text-left p-4 flex items-center gap-3.5"
+                className="bento-card w-full text-left p-5 flex items-center gap-4 active:scale-[0.98] transition-transform animate-fade-in"
+                style={{ animationDelay: `${idx * 50}ms` }}
               >
-                <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
-                  <Headphones className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
+                <div className="w-11 h-11 rounded-2xl bg-secondary/60 flex items-center justify-center shrink-0">
+                  <Headphones className="w-5 h-5 text-muted-foreground/40" strokeWidth={1.8} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-body font-semibold text-foreground truncate">
+                  <p className="text-[15px] font-bold text-foreground truncate tracking-tight">
                     {conv.subject || "Support Chat"}
                   </p>
-                  <p className="text-micro text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground/40 font-medium">
                     {conv.status === "active" ? "Active" : "Closed"} · {new Date(conv.updated_at).toLocaleDateString()}
                   </p>
                 </div>
