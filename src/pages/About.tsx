@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Search, ChevronRight, Star, FileText, Package, Headphones, MessageCircle, Wrench, ShoppingBag, Tag, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/context/AuthContext";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -34,6 +35,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "�
 
 export default function AboutPage() {
   const { t } = useLanguage();
+  const { role } = useAuth();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -104,28 +106,30 @@ export default function AboutPage() {
 
       <div className="px-5 space-y-8 pb-12 md:px-8 md:space-y-10">
 
-        {/* ── Bento Status Cards ── */}
-        <section className="grid grid-cols-3 gap-2.5">
-          {[
-            { icon: FileText, label: "Quotes", count: 0, color: "hsl(44 92% 53% / 0.12)", iconColor: "text-primary", link: "/profile" },
-            { icon: Package, label: "Orders", count: 0, color: "hsl(199 89% 48% / 0.1)", iconColor: "text-cyan", link: "/profile" },
-            { icon: Headphones, label: "Support", count: 0, color: "hsl(152 60% 38% / 0.1)", iconColor: "text-success", link: "/chat" },
-          ].map((item) => (
-            <Link
-              key={item.label}
-              to={item.link}
-              className="bento-card p-4 flex flex-col gap-3 active:scale-[0.97] transition-transform"
-            >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: item.color }}>
-                <item.icon className={`w-[18px] h-[18px] ${item.iconColor}`} strokeWidth={1.8} />
-              </div>
-              <div>
-                <p className="text-[22px] font-extrabold text-foreground leading-none tracking-tight">{item.count}</p>
-                <p className="text-micro text-muted-foreground mt-1 font-medium">{item.label}</p>
-              </div>
-            </Link>
-          ))}
-        </section>
+        {/* ── Bento Status Cards (Admin only) ── */}
+        {(role === "approved_admin" || role === "super_admin") && (
+          <section className="flex gap-2.5 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
+            {[
+              { icon: FileText, label: "Quotes", count: 0, color: "hsl(44 92% 53% / 0.12)", iconColor: "text-primary", link: "/admin" },
+              { icon: Package, label: "Orders", count: 0, color: "hsl(199 89% 48% / 0.1)", iconColor: "text-cyan", link: "/admin/orders" },
+              { icon: Headphones, label: "Support", count: 0, color: "hsl(152 60% 38% / 0.1)", iconColor: "text-success", link: "/admin/messages" },
+            ].map((item) => (
+              <Link
+                key={item.label}
+                to={item.link}
+                className="bento-card flex items-center gap-3 px-4 py-3 flex-shrink-0 active:scale-[0.97] transition-transform"
+              >
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: item.color }}>
+                  <item.icon className={`w-4 h-4 ${item.iconColor}`} strokeWidth={1.8} />
+                </div>
+                <div>
+                  <p className="text-[18px] font-extrabold text-foreground leading-none tracking-tight">{item.count}</p>
+                  <p className="text-[10px] text-muted-foreground/50 font-semibold mt-0.5">{item.label}</p>
+                </div>
+              </Link>
+            ))}
+          </section>
+        )}
 
         {/* ── Hero Carousel ── */}
         <section>
