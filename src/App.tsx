@@ -14,6 +14,7 @@ import ProductDetail from "./pages/ProductDetail";
 import Cart from "./pages/Cart";
 import Contact from "./pages/Contact";
 import Services from "./pages/Services";
+import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 import Auth from "./pages/Auth";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/shop/:id" element={<Layout><ProductDetail /></Layout>} />
               <Route path="/cart" element={<Layout><Cart /></Layout>} />
               <Route path="/services" element={<Layout><Services /></Layout>} />
+              <Route path="/chat" element={<Layout><Chat /></Layout>} />
               <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
               <Route path="/profile" element={<Layout><Profile /></Layout>} />
