@@ -113,19 +113,21 @@ export default function AboutPage() {
             <div className="flex">
               {heroSlides.map((slide, i) => (
                 <div key={i} className="flex-[0_0_100%] min-w-0">
-                  <div className="relative overflow-hidden rounded-3xl flex flex-col justify-end mx-1" style={{ height: "185px" }}>
+                  <div className="relative overflow-hidden rounded-2xl flex flex-col justify-end mx-1" style={{ height: "140px" }}>
                     {slide.image ? (
                       <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
                     ) : (
                       <div className="absolute inset-0" style={{ background: i === 0 ? "linear-gradient(135deg, hsl(230 25% 12%), hsl(230 20% 22%))" : i === 1 ? "linear-gradient(135deg, hsl(44 80% 50%), hsl(32 90% 45%))" : "linear-gradient(135deg, hsl(199 70% 35%), hsl(199 80% 45%))" }} />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 via-transparent to-transparent" />
-                    <div className="relative z-10 p-6">
-                      <h2 className="text-[20px] font-extrabold text-background tracking-tight leading-tight">{slide.title}</h2>
-                      <p className="text-[13px] text-background/60 mt-1 mb-3.5 font-medium">{slide.subtitle}</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 to-transparent" />
+                    <div className="relative z-10 p-5 flex items-end justify-between gap-3">
+                      <div>
+                        <h2 className="text-[17px] font-bold text-background tracking-tight leading-snug">{slide.title}</h2>
+                        <p className="text-[12px] text-background/55 mt-0.5 font-medium">{slide.subtitle}</p>
+                      </div>
                       <Link
                         to={slide.link}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-background/20 backdrop-blur-md text-background text-[12px] font-bold active:scale-95 transition-transform border border-background/10"
+                        className="flex-shrink-0 inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-background/15 backdrop-blur-md text-background text-[11px] font-semibold active:scale-95 transition-transform border border-background/10"
                       >
                         {slide.cta} <ArrowRight className="w-3 h-3" />
                       </Link>
