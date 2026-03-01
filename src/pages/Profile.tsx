@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { User, Package, ChevronRight, Settings, Heart, HelpCircle, ShoppingBag, LogOut, LogIn, Globe, ArrowLeft, FileText, Headphones, MessageCircle, Receipt, Bookmark } from "lucide-react";
+import { User, Package, ChevronRight, Settings, HelpCircle, ShoppingBag, LogOut, LogIn, Globe, ArrowLeft, FileText, Headphones, MessageCircle, Receipt, Bookmark } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage, Language } from "@/context/LanguageContext";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 export default function Profile() {
@@ -12,16 +11,15 @@ export default function Profile() {
   const { t, language, setLanguage } = useLanguage();
   const [showLanguage, setShowLanguage] = useState(false);
 
-  // Language sub-page
   if (showLanguage) {
     return (
-      <div className="px-5 py-5 space-y-5 md:max-w-md md:mx-auto md:px-8 md:py-8">
+      <div className="px-5 py-6 space-y-5 md:max-w-md md:mx-auto md:px-8">
         <button onClick={() => setShowLanguage(false)} className="flex items-center gap-1.5 text-caption text-muted-foreground active:scale-95 transition-transform">
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
         <h1 className="text-section-title text-foreground">{t("profile.language")}</h1>
         <p className="text-caption text-muted-foreground">{t("profile.languageDesc")}</p>
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5">
           {([["en", "🇺🇸 English"], ["lo", "🇱🇦 ລາວ"]] as [Language, string][]).map(([code, label]) => (
             <button
               key={code}
@@ -41,12 +39,11 @@ export default function Profile() {
     );
   }
 
-  // Not logged in
   if (!user) {
     return (
       <div className="px-5 py-20 space-y-6 md:max-w-sm md:mx-auto text-center">
-        <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mx-auto">
-          <User className="w-10 h-10 text-muted-foreground/50" strokeWidth={1.5} />
+        <div className="w-20 h-20 rounded-2xl bg-secondary flex items-center justify-center mx-auto">
+          <User className="w-10 h-10 text-muted-foreground/40" strokeWidth={1.4} />
         </div>
         <div>
           <h1 className="text-page-title text-foreground">{t("profile.welcome")}</h1>
@@ -64,7 +61,7 @@ export default function Profile() {
         </div>
         <button onClick={() => setShowLanguage(true)} className="app-card w-full flex items-center justify-between p-4 mt-4 active:scale-[0.98] transition-transform">
           <div className="flex items-center gap-3">
-            <Globe className="w-5 h-5 text-muted-foreground" strokeWidth={1.6} />
+            <Globe className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
             <span className="text-body font-medium text-foreground">{t("profile.language")}</span>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground" />
@@ -103,10 +100,10 @@ export default function Profile() {
   ];
 
   return (
-    <div className="px-5 py-5 space-y-5 md:max-w-3xl md:mx-auto md:px-8 md:py-8">
+    <div className="px-5 py-6 space-y-6 md:max-w-3xl md:mx-auto md:px-8 md:py-8">
       {/* Profile header */}
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+        <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden">
           {profile?.avatar_url ? (
             <img src={profile.avatar_url} alt="" className="w-14 h-14 object-cover" />
           ) : (
@@ -124,11 +121,11 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Admin Portal */}
+      {/* Admin */}
       {(role === "approved_admin" || role === "super_admin") && (
         <Link to="/admin" className="app-card-interactive flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <Settings className="w-5 h-5 text-primary" strokeWidth={1.6} />
+            <Settings className="w-5 h-5 text-primary" strokeWidth={1.5} />
             <div>
               <span className="text-body font-semibold text-foreground block">{t("profile.adminPortal")}</span>
               <span className="text-micro text-muted-foreground">{t("profile.adminPortalDesc")}</span>
@@ -138,11 +135,11 @@ export default function Profile() {
         </Link>
       )}
 
-      {/* Cart Summary */}
+      {/* Cart */}
       {cart.length > 0 && (
         <Link to="/cart" className="app-card-interactive flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <ShoppingBag className="w-5 h-5 text-primary" strokeWidth={1.6} />
+            <ShoppingBag className="w-5 h-5 text-primary" strokeWidth={1.5} />
             <div>
               <span className="text-body font-semibold text-foreground block">
                 {cart.length} {cart.length > 1 ? t("profile.itemsInCart") : t("profile.itemInCart")}
@@ -157,19 +154,19 @@ export default function Profile() {
       {/* Sections */}
       {sections.map((section) => (
         <section key={section.title}>
-          <h2 className="text-micro font-semibold text-muted-foreground uppercase tracking-widest mb-2 px-1">{section.title}</h2>
-          <div className="app-card divide-y divide-border/60 overflow-hidden">
+          <h2 className="text-micro font-semibold text-muted-foreground uppercase tracking-widest mb-2.5 px-1">{section.title}</h2>
+          <div className="app-card divide-y divide-border/50 overflow-hidden">
             {section.items.map((item) => {
               const inner = (
-                <div className="flex items-center justify-between p-4 hover:bg-secondary/40 transition-colors active:bg-secondary/60">
+                <div className="flex items-center justify-between p-4 hover:bg-secondary/30 transition-colors active:bg-secondary/50">
                   <div className="flex items-center gap-3">
-                    <item.icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.6} />
+                    <item.icon className="w-5 h-5 text-muted-foreground" strokeWidth={1.5} />
                     <div>
                       <span className="text-body font-medium text-foreground block">{item.label}</span>
                       {"desc" in item && item.desc && <span className="text-micro text-muted-foreground">{item.desc}</span>}
                     </div>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/40" />
                 </div>
               );
 
@@ -185,9 +182,9 @@ export default function Profile() {
       {/* Sign Out */}
       <button
         onClick={signOut}
-        className="w-full flex items-center gap-3 p-4 rounded-[var(--radius)] text-destructive hover:bg-destructive/5 transition-colors active:scale-[0.98]"
+        className="w-full flex items-center gap-3 p-4 rounded-2xl text-destructive hover:bg-destructive/5 transition-colors active:scale-[0.98]"
       >
-        <LogOut className="w-5 h-5" strokeWidth={1.6} />
+        <LogOut className="w-5 h-5" strokeWidth={1.5} />
         <span className="text-body font-medium">{t("profile.signOut")}</span>
       </button>
     </div>

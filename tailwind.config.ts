@@ -44,10 +44,11 @@ export default {
         md: "calc(var(--radius) - 4px)",
         sm: "calc(var(--radius) - 8px)",
         xl: "calc(var(--radius) + 4px)",
+        "2xl": "calc(var(--radius) + 8px)",
       },
       fontSize: {
-        "page-title": ["1.875rem", { lineHeight: "2.25rem", fontWeight: "700", letterSpacing: "-0.025em" }],
-        "section-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "600", letterSpacing: "-0.015em" }],
+        "page-title": ["2rem", { lineHeight: "2.375rem", fontWeight: "700", letterSpacing: "-0.03em" }],
+        "section-title": ["1.25rem", { lineHeight: "1.625rem", fontWeight: "600", letterSpacing: "-0.02em" }],
         "body-lg": ["1rem", { lineHeight: "1.5rem" }],
         "body": ["0.9375rem", { lineHeight: "1.375rem" }],
         "caption": ["0.8125rem", { lineHeight: "1.125rem" }],
