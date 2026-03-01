@@ -12,6 +12,7 @@ interface HeroSlide {
   cta: string;
   link: string;
   image?: string;
+  imagePosition?: string;
 }
 
 const defaultHeroSlides: HeroSlide[] = [
@@ -115,7 +116,7 @@ export default function AboutPage() {
                 <div key={i} className="flex-[0_0_100%] min-w-0">
                   <div className="relative overflow-hidden rounded-2xl flex flex-col justify-end mx-1" style={{ height: "140px" }}>
                     {slide.image ? (
-                      <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                      <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: slide.imagePosition || "center" }} />
                     ) : (
                       <div className="absolute inset-0" style={{ background: i === 0 ? "linear-gradient(135deg, hsl(230 25% 12%), hsl(230 20% 22%))" : i === 1 ? "linear-gradient(135deg, hsl(44 80% 50%), hsl(32 90% 45%))" : "linear-gradient(135deg, hsl(199 70% 35%), hsl(199 80% 45%))" }} />
                     )}
