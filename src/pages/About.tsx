@@ -202,7 +202,7 @@ export default function AboutPage() {
             {[
               { name: "Cisco", logo: "/brands/cisco.svg" },
               { name: "AWS", logo: "/brands/aws.svg" },
-              { name: "VMware", logo: "/brands/vmware.svg" },
+              { name: "VMware", logo: "/brands/vmware.png" },
               { name: "Fortinet", logo: "/brands/fortinet.svg" },
               { name: "Microsoft", logo: "/brands/microsoft.svg" },
               { name: "Dell", logo: "/brands/dell.svg" },
