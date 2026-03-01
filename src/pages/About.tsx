@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Search, ChevronRight, Star, FileText, Package, Headphones, ShoppingCart, Zap, Wrench, ShoppingBag, Tag } from "lucide-react";
+import { ArrowRight, Search, ChevronRight, Star, ShoppingCart, Zap, Wrench, ShoppingBag, Tag, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/context/LanguageContext";
-import { useAuth } from "@/context/AuthContext";
+
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -35,7 +35,7 @@ const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "�
 
 export default function AboutPage() {
   const { t } = useLanguage();
-  const { role } = useAuth();
+  
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -87,8 +87,6 @@ export default function AboutPage() {
     return "Good evening";
   })();
 
-  const isAdmin = role === "approved_admin" || role === "super_admin";
-
   return (
     <div className="md:max-w-7xl md:mx-auto">
       {/* ── 1. Greeting ── */}
@@ -109,32 +107,7 @@ export default function AboutPage() {
 
       <div className="px-5 space-y-7 pb-12 md:px-8 md:space-y-9">
 
-        {/* ── 3. Admin Status Cards (admin only) ── */}
-        {isAdmin && (
-          <section className="flex gap-2.5 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-            {[
-              { icon: FileText, label: "Quotes", count: 0, color: "hsl(44 92% 53% / 0.12)", iconColor: "text-primary", link: "/admin" },
-              { icon: Package, label: "Orders", count: 0, color: "hsl(199 89% 48% / 0.1)", iconColor: "text-cyan", link: "/admin/orders" },
-              { icon: Headphones, label: "Support", count: 0, color: "hsl(152 60% 38% / 0.1)", iconColor: "text-success", link: "/admin/messages" },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                to={item.link}
-                className="bento-card flex items-center gap-3 px-4 py-3 flex-shrink-0 active:scale-[0.97] transition-transform"
-              >
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: item.color }}>
-                  <item.icon className={`w-4 h-4 ${item.iconColor}`} strokeWidth={1.8} />
-                </div>
-                <div>
-                  <p className="text-[18px] font-extrabold text-foreground leading-none tracking-tight">{item.count}</p>
-                  <p className="text-[10px] text-muted-foreground/50 font-semibold mt-0.5">{item.label}</p>
-                </div>
-              </Link>
-            ))}
-          </section>
-        )}
-
-        {/* ── 4. Hero Carousel ── */}
+        {/* ── 3. Hero Carousel ── */}
         <section>
           <div className="overflow-hidden rounded-3xl" ref={emblaRef}>
             <div className="flex">
