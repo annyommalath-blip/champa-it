@@ -53,11 +53,12 @@ export default function CartPage() {
     if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     setUploading(true);
-    const path = `${Date.now()}-${file.name}`;
+    if (!user) { toast.error("Please log in first"); setUploading(false); return; }
+    const path = `${user.id}/${Date.now()}-${file.name}`;
     const { error } = await supabase.storage.from("payment-screenshots").upload(path, file);
     if (error) { toast.error(error.message); setUploading(false); return; }
-    const { data: pub } = supabase.storage.from("payment-screenshots").getPublicUrl(path);
-    setScreenshotUrl(pub.publicUrl);
+    // Store just the path, not the public URL — bucket is now private
+    setScreenshotUrl(path);
     setUploading(false);
   };
 

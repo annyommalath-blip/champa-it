@@ -13,6 +13,7 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [guestToken, setGuestToken] = useState<string | null>(null);
   const [guestName, setGuestName] = useState("");
   const [started, setStarted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -26,6 +27,7 @@ export default function ChatPopup({ onClose }: { onClose: () => void }) {
       .single();
     if (data && !error) {
       setConversationId(data.id);
+      setGuestToken(data.guest_token);
       setStarted(true);
       await supabase.from("chat_messages").insert({
         conversation_id: data.id,

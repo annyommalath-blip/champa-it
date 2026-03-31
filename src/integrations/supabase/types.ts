@@ -76,6 +76,7 @@ export type Database = {
           assigned_admin_id: string | null
           created_at: string
           guest_name: string
+          guest_token: string | null
           id: string
           status: string
           subject: string | null
@@ -86,6 +87,7 @@ export type Database = {
           assigned_admin_id?: string | null
           created_at?: string
           guest_name?: string
+          guest_token?: string | null
           id?: string
           status?: string
           subject?: string | null
@@ -96,6 +98,7 @@ export type Database = {
           assigned_admin_id?: string | null
           created_at?: string
           guest_name?: string
+          guest_token?: string | null
           id?: string
           status?: string
           subject?: string | null
