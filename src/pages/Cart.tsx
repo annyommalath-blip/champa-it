@@ -161,7 +161,13 @@ export default function CartPage() {
       {/* Step: Info */}
       {step === "info" && (
         <div className="app-card p-5 animate-fade-in">
-          <h2 className="text-section-title text-foreground mb-4">{t("cart.step.info")}</h2>
+          <h2 className="text-section-title text-foreground mb-2">{t("cart.step.info")}</h2>
+          {!user && (
+            <div className="mb-4 p-3 rounded-[14px] bg-secondary border border-border flex items-center justify-between gap-3">
+              <p className="text-micro text-muted-foreground">Checking out as guest. Your invoice & tracking will be sent to your email and phone.</p>
+              <button onClick={() => navigate("/auth")} className="text-micro font-semibold text-primary whitespace-nowrap">Sign in</button>
+            </div>
+          )}
           <div className="space-y-3">
             {[
               { key: "name", label: t("cart.fullName"), type: "text" },
