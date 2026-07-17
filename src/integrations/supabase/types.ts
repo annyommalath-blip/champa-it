@@ -184,6 +184,9 @@ export type Database = {
           customer_info: Json | null
           delivery_fee: number
           delivery_method: string
+          guest_email: string | null
+          guest_phone: string | null
+          guest_token: string | null
           id: string
           items: Json
           notes: string | null
@@ -191,13 +194,16 @@ export type Database = {
           status: string
           total: number
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
           customer_info?: Json | null
           delivery_fee?: number
           delivery_method?: string
+          guest_email?: string | null
+          guest_phone?: string | null
+          guest_token?: string | null
           id?: string
           items?: Json
           notes?: string | null
@@ -205,13 +211,16 @@ export type Database = {
           status?: string
           total?: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
           customer_info?: Json | null
           delivery_fee?: number
           delivery_method?: string
+          guest_email?: string | null
+          guest_phone?: string | null
+          guest_token?: string | null
           id?: string
           items?: Json
           notes?: string | null
@@ -219,7 +228,7 @@ export type Database = {
           status?: string
           total?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }

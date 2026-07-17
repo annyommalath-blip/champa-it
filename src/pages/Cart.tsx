@@ -17,11 +17,13 @@ export default function CartPage() {
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("cart");
+  const [checkoutMode, setCheckoutMode] = useState<"signin" | "guest" | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [guestFolder] = useState(() => crypto.randomUUID());
 
   const deliveryFee = deliveryMethod === "delivery" ? DELIVERY_FEE : 0;
   const grandTotal = cartTotal + deliveryFee;
@@ -53,32 +55,50 @@ export default function CartPage() {
     if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Max 5MB"); return; }
     setUploading(true);
-    if (!user) { toast.error("Please log in first"); setUploading(false); return; }
-    const path = `${user.id}/${Date.now()}-${file.name}`;
+    const folder = user ? user.id : `guest/${guestFolder}`;
+    const path = `${folder}/${Date.now()}-${file.name}`;
     const { error } = await supabase.storage.from("payment-screenshots").upload(path, file);
     if (error) { toast.error(error.message); setUploading(false); return; }
-    // Store just the path, not the public URL — bucket is now private
     setScreenshotUrl(path);
     setUploading(false);
   };
 
   const handleSubmitOrder = async () => {
-    if (!user) { toast.error(t("cart.loginRequired")); navigate("/auth"); return; }
     if (!screenshotUrl) { toast.error(t("cart.screenshotRequired")); return; }
+    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
     setSubmitting(true);
     const orderItems = cart.map((item) => ({
       product_id: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity,
     }));
-    const { error } = await supabase.from("orders").insert({
-      user_id: user.id, items: orderItems, total: grandTotal,
+    const payload: any = {
+      items: orderItems, total: grandTotal,
       delivery_method: deliveryMethod, delivery_fee: deliveryFee, payment_screenshot: screenshotUrl,
       customer_info: { name: form.name, phone: form.phone, email: form.email, address: form.address },
       notes: form.notes || null,
-    });
+    };
+    if (user) {
+      payload.user_id = user.id;
+    } else {
+      payload.user_id = null;
+      payload.guest_email = form.email;
+      payload.guest_phone = form.phone;
+    }
+    const { data, error } = await supabase.from("orders").insert(payload).select("id, guest_token").single();
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     toast.success(t("cart.orderSuccess"));
-    clearCart(); setStep("cart"); navigate("/profile");
+    clearCart(); setStep("cart");
+    if (user) {
+      navigate("/profile");
+    } else if (data?.guest_token) {
+      // Save tracking token locally so guest can view their order later
+      try {
+        const existing = JSON.parse(localStorage.getItem("guest_orders") || "[]");
+        existing.push({ id: data.id, token: data.guest_token, email: form.email, createdAt: new Date().toISOString() });
+        localStorage.setItem("guest_orders", JSON.stringify(existing));
+      } catch {}
+      navigate("/");
+    }
   };
 
   return (
@@ -141,7 +161,13 @@ export default function CartPage() {
       {/* Step: Info */}
       {step === "info" && (
         <div className="app-card p-5 animate-fade-in">
-          <h2 className="text-section-title text-foreground mb-4">{t("cart.step.info")}</h2>
+          <h2 className="text-section-title text-foreground mb-2">{t("cart.step.info")}</h2>
+          {!user && (
+            <div className="mb-4 p-3 rounded-[14px] bg-secondary border border-border flex items-center justify-between gap-3">
+              <p className="text-micro text-muted-foreground">Checking out as guest. Your invoice & tracking will be sent to your email and phone.</p>
+              <button onClick={() => navigate("/auth")} className="text-micro font-semibold text-primary whitespace-nowrap">Sign in</button>
+            </div>
+          )}
           <div className="space-y-3">
             {[
               { key: "name", label: t("cart.fullName"), type: "text" },
