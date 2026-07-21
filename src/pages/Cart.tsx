@@ -185,7 +185,6 @@ export default function CartPage() {
               { key: "name", label: t("cart.fullName"), type: "text" },
               { key: "phone", label: t("cart.phone"), type: "tel" },
               { key: "email", label: t("cart.email"), type: "email" },
-              { key: "address", label: t("cart.address"), type: "text" },
             ].map((field) => (
               <div key={field.key}>
                 <label className="text-caption text-muted-foreground mb-1 block">{field.label} *</label>
@@ -200,10 +199,11 @@ export default function CartPage() {
           <div className="flex gap-2.5 mt-5">
             <button onClick={() => setStep("cart")} className="btn-secondary flex-1">{t("cart.back")}</button>
             <button onClick={() => {
-              if (!form.name || !form.phone || !form.email || !form.address) { toast.error(t("contact.fillRequired")); return; }
+              if (!form.name || !form.phone || !form.email) { toast.error(t("contact.fillRequired")); return; }
               setStep("delivery");
             }} className="btn-primary flex-1">{t("cart.next")}</button>
           </div>
+
         </div>
       )}
 
@@ -232,6 +232,18 @@ export default function CartPage() {
               </button>
             ))}
           </div>
+          {deliveryMethod === "delivery" && (
+            <div className="mt-4 animate-fade-in">
+              <label className="text-caption text-muted-foreground mb-1 block">{t("cart.address")} *</label>
+              <textarea
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                rows={3}
+                placeholder="House no., street, village, district, city"
+                className="input-field resize-none"
+              />
+            </div>
+          )}
           <div className="mt-5 space-y-2 text-caption border-t border-border pt-4">
             <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>{deliveryFee > 0 ? `₭${deliveryFee.toLocaleString()}` : t("cart.free")}</span></div>
@@ -239,8 +251,12 @@ export default function CartPage() {
           </div>
           <div className="flex gap-2.5 mt-5">
             <button onClick={() => setStep("info")} className="btn-secondary flex-1">{t("cart.back")}</button>
-            <button onClick={() => setStep("payment")} className="btn-primary flex-1">{t("cart.next")}</button>
+            <button onClick={() => {
+              if (deliveryMethod === "delivery" && !form.address.trim()) { toast.error(t("contact.fillRequired")); return; }
+              setStep("payment");
+            }} className="btn-primary flex-1">{t("cart.next")}</button>
           </div>
+
         </div>
       )}
 
