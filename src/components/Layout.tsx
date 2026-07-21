@@ -120,6 +120,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
+      {/* Floating chat FAB — hidden on chat & admin routes */}
+      {!location.pathname.startsWith("/chat") && !location.pathname.startsWith("/admin") && (
+        <Link
+          to="/chat"
+          aria-label={t("nav.chat")}
+          className="md:hidden fixed right-4 bottom-[84px] z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background"
+        >
+          <Headphones className="w-6 h-6" strokeWidth={2} />
+        </Link>
+      )}
+
+
+
       {/* Desktop footer */}
       <footer className="hidden md:block border-t border-border/30 bg-card">
         <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-4 gap-10">
