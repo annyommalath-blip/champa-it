@@ -45,7 +45,7 @@ export default function Auth() {
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email, password, fullName, isAdmin, adminReason);
+    const { error } = await signUp(email, password, fullName, phone, isAdmin, adminReason);
     setLoading(false);
     if (error) {
       toast.error(error);
