@@ -398,6 +398,71 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Bank Transfer Payment Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Bank Transfer Details</CardTitle>
+          <p className="text-xs text-muted-foreground">Shown to customers at checkout when they choose bank transfer.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Payment QR Code</label>
+            {paymentInfo.qr_image ? (
+              <div className="flex items-start gap-3">
+                <img src={paymentInfo.qr_image} alt="Payment QR" className="w-32 h-32 object-cover rounded-lg border border-border" />
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={handleQrUpload} disabled={uploadingQr} />
+                    <Button size="sm" variant="secondary" className="gap-1.5" asChild>
+                      <span>{uploadingQr ? "Uploading..." : (<><Upload className="w-3.5 h-3.5" /> Replace</>)}</span>
+                    </Button>
+                  </label>
+                  <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => setPaymentInfo((p) => ({ ...p, qr_image: "" }))}>
+                    <X className="w-3.5 h-3.5" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <label className="cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={handleQrUpload} disabled={uploadingQr} />
+                <div className="w-full h-32 rounded-lg border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 flex flex-col items-center justify-center gap-1.5 transition-colors">
+                  {uploadingQr ? (
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Image className="w-6 h-6 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-medium">Upload QR code</span>
+                      <span className="text-[10px] text-muted-foreground">JPG, PNG • Max 5MB</span>
+                    </>
+                  )}
+                </div>
+              </label>
+            )}
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Bank Name</label>
+            <Input value={paymentInfo.bank_name} onChange={(e) => setPaymentInfo((p) => ({ ...p, bank_name: e.target.value }))} placeholder="e.g. BCEL Bank" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Account Name</label>
+            <Input value={paymentInfo.account_name} onChange={(e) => setPaymentInfo((p) => ({ ...p, account_name: e.target.value }))} placeholder="e.g. Champa Private Enterprise" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Account Number</label>
+            <Input value={paymentInfo.account_number} onChange={(e) => setPaymentInfo((p) => ({ ...p, account_number: e.target.value }))} placeholder="e.g. 010-12-00-12345678-001" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Notes for Customers</label>
+            <textarea
+              value={paymentInfo.notes}
+              onChange={(e) => setPaymentInfo((p) => ({ ...p, notes: e.target.value }))}
+              rows={2}
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              placeholder="e.g. Include your order number in the transfer reference"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
 
       <Button onClick={handleSave} disabled={loading} className="gap-2">
