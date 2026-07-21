@@ -87,7 +87,7 @@ export default function RecentActivity() {
           return (
             <Link
               key={o.id}
-              to="/profile/orders"
+              to={`/profile/orders/${o.id}`}
               className="bento-card shrink-0 w-[260px] snap-start p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
             >
               <div className="w-14 h-14 rounded-xl bg-secondary/50 flex items-center justify-center overflow-hidden shrink-0">
