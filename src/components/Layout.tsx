@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell } from "lucide-react";
+import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -9,9 +9,15 @@ const navKeys = [
   { to: "/", labelKey: "nav.home", icon: Home },
   { to: "/shop", labelKey: "nav.shop", icon: ShoppingBag },
   { to: "/services", labelKey: "nav.services", icon: Wrench },
-  { to: "/chat", labelKey: "nav.chat", icon: MessageCircle },
   { to: "/profile", labelKey: "nav.profile", icon: User },
 ];
+
+const desktopNavKeys = [
+  ...navKeys.slice(0, 3),
+  { to: "/chat", labelKey: "nav.chat", icon: MessageCircle },
+  navKeys[3],
+];
+
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
