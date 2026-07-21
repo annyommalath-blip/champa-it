@@ -1,14 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2 } from "lucide-react";
+import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2, CreditCard, Building2 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const DELIVERY_FEE = 20000;
 type Step = "cart" | "info" | "delivery" | "payment";
+type PayMethod = "card" | "bank_transfer";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
@@ -20,10 +22,12 @@ export default function CartPage() {
   const [checkoutMode, setCheckoutMode] = useState<"signin" | "guest" | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
+  const [payMethod, setPayMethod] = useState<PayMethod>("card");
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [guestFolder] = useState(() => crypto.randomUUID());
+  const [cardOrderId, setCardOrderId] = useState<string | null>(null);
 
   // Auto-fill contact info from the signed-in user's profile (user can still edit)
   useEffect(() => {
