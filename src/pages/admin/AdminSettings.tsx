@@ -122,9 +122,11 @@ export default function AdminSettings() {
   const [companyEmail, setCompanyEmail] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [bannerText, setBannerText] = useState("🔥 Free shipping on orders over $1,000");
+  const [chatGreeting, setChatGreeting] = useState("Hi {name}! 👋 Welcome to Champa Support. An agent will be with you shortly.");
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultSlides);
   const [loading, setLoading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+
 
   useEffect(() => {
     async function load() {
@@ -137,8 +139,10 @@ export default function AdminSettings() {
           if (s.key === "company_email") setCompanyEmail(val || "");
           if (s.key === "company_address") setCompanyAddress(val || "");
           if (s.key === "banner_text") setBannerText(val || "");
+          if (s.key === "chat_greeting" && typeof val === "string") setChatGreeting(val);
           if (s.key === "hero_slides" && Array.isArray(val)) setHeroSlides(val);
         });
+
       }
     }
     load();
@@ -161,8 +165,10 @@ export default function AdminSettings() {
       saveSetting("company_email", companyEmail),
       saveSetting("company_address", companyAddress),
       saveSetting("banner_text", bannerText),
+      saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
     ]);
+
     toast.success("Settings saved");
     setLoading(false);
   };
@@ -349,6 +355,30 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Chat auto-greeting */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Chat Auto-Greeting</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <label className="text-xs font-medium text-muted-foreground">
+            First message sent to customers when they start a new chat
+          </label>
+          <textarea
+            value={chatGreeting}
+            onChange={(e) => setChatGreeting(e.target.value)}
+            rows={3}
+            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+            placeholder="Hi {name}! 👋 Welcome to Champa Support..."
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Use <code className="px-1 py-0.5 rounded bg-secondary">{"{name}"}</code> to insert the customer's name.
+          </p>
+        </CardContent>
+      </Card>
+
+
 
       <Button onClick={handleSave} disabled={loading} className="gap-2">
         <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Settings"}
