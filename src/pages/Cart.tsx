@@ -283,47 +283,106 @@ export default function CartPage() {
       )}
 
       {/* Step: Payment */}
-      {step === "payment" && (
+      {step === "payment" && !cardOrderId && (
         <div className="app-card p-5 animate-fade-in">
           <h2 className="text-section-title text-foreground mb-1">{t("cart.paymentTitle")}</h2>
-          <p className="text-caption text-muted-foreground mb-5">{t("cart.paymentDesc")}</p>
-          <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
-            <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
+          <p className="text-caption text-muted-foreground mb-5">Choose how you'd like to pay.</p>
+
+          {/* Payment method selector */}
+          <div className="space-y-2 mb-5">
+            {([
+              { key: "card" as const, icon: CreditCard, label: "Card", desc: "Pay securely with Visa, Mastercard, Amex" },
+              { key: "bank_transfer" as const, icon: Building2, label: "Bank transfer", desc: "Transfer + upload screenshot" },
+            ]).map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setPayMethod(opt.key)}
+                className={`w-full p-4 rounded-[14px] border-2 text-left flex items-center gap-3 transition-all active:scale-[0.98] ${
+                  payMethod === opt.key ? "border-primary bg-primary/5" : "border-border"
+                }`}
+              >
+                <opt.icon className={`w-5 h-5 ${payMethod === opt.key ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.6} />
+                <div className="flex-1">
+                  <p className="text-body font-semibold text-foreground">{opt.label}</p>
+                  <p className="text-micro text-muted-foreground">{opt.desc}</p>
+                </div>
+              </button>
+            ))}
           </div>
+
           <div className="space-y-2 text-caption mb-5 app-card p-4">
             <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
             {deliveryFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>₭{deliveryFee.toLocaleString()}</span></div>}
             <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span></div>
           </div>
-          <div className="mb-5">
-            {screenshotUrl ? (
-              <div className="flex items-center gap-3 p-3 rounded-[14px] border border-success/30 bg-success/5">
-                <CheckCircle className="w-5 h-5 text-success shrink-0" />
-                <img src={screenshotUrl} alt="Payment" className="w-14 h-14 object-cover rounded-xl" />
-                <span className="text-caption font-medium flex-1">{t("cart.uploadedScreenshot")}</span>
-                <label className="text-micro text-primary cursor-pointer font-medium">
-                  {t("cart.changeScreenshot")}
-                  <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" />
-                </label>
+
+          {payMethod === "bank_transfer" && (
+            <>
+              <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
+                <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
               </div>
-            ) : (
-              <label className="flex flex-col items-center gap-2 p-8 rounded-[14px] border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
-                {uploading ? <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" /> : (
-                  <>
-                    <Upload className="w-7 h-7 text-muted-foreground" />
-                    <span className="text-caption font-medium">{t("cart.uploadScreenshot")}</span>
-                  </>
+              <div className="mb-5">
+                {screenshotUrl ? (
+                  <div className="flex items-center gap-3 p-3 rounded-[14px] border border-success/30 bg-success/5">
+                    <CheckCircle className="w-5 h-5 text-success shrink-0" />
+                    <img src={screenshotUrl} alt="Payment" className="w-14 h-14 object-cover rounded-xl" />
+                    <span className="text-caption font-medium flex-1">{t("cart.uploadedScreenshot")}</span>
+                    <label className="text-micro text-primary cursor-pointer font-medium">
+                      {t("cart.changeScreenshot")}
+                      <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" />
+                    </label>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center gap-2 p-8 rounded-[14px] border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
+                    {uploading ? <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" /> : (
+                      <>
+                        <Upload className="w-7 h-7 text-muted-foreground" />
+                        <span className="text-caption font-medium">{t("cart.uploadScreenshot")}</span>
+                      </>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" disabled={uploading} />
+                  </label>
                 )}
-                <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" disabled={uploading} />
-              </label>
-            )}
-          </div>
+              </div>
+            </>
+          )}
+
           <div className="flex gap-2.5">
             <button onClick={() => setStep("delivery")} className="btn-secondary flex-1">{t("cart.back")}</button>
-            <button onClick={handleSubmitOrder} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
-            </button>
+            {payMethod === "bank_transfer" ? (
+              <button onClick={handleBankTransferSubmit} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
+              </button>
+            ) : (
+              <button onClick={handleStartCardCheckout} disabled={submitting} className="btn-primary flex-1 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Pay $${grandTotal.toLocaleString()}`}
+              </button>
+            )}
           </div>
+        </div>
+      )}
+
+      {/* Stripe embedded checkout */}
+      {step === "payment" && cardOrderId && (
+        <div className="app-card p-3 animate-fade-in">
+          <div className="flex items-center justify-between mb-3 px-2">
+            <h2 className="text-section-title text-foreground">Card payment</h2>
+            <button onClick={() => setCardOrderId(null)} className="text-caption text-muted-foreground active:scale-95">Cancel</button>
+          </div>
+          <StripeEmbeddedCheckout
+            orderId={cardOrderId}
+            items={cart.map((item) => ({
+              product_id: item.product.id,
+              name: item.product.name,
+              price: item.product.price,
+              quantity: item.quantity,
+            }))}
+            deliveryFee={deliveryFee}
+            currency="usd"
+            customerEmail={form.email}
+            userId={user?.id}
+            returnUrl={`${window.location.origin}/checkout/return?order_id=${cardOrderId}&session_id={CHECKOUT_SESSION_ID}`}
+          />
         </div>
       )}
     </div>
