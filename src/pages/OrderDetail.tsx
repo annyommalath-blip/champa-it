@@ -20,8 +20,10 @@ export default function OrderDetail() {
   const { user } = useAuth();
   const [order, setOrder] = useState<any>(null);
   const [products, setProducts] = useState<Record<string, any>>({});
+  const [recs, setRecs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusOpen, setStatusOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(true);
+
 
 
   const load = async () => {
