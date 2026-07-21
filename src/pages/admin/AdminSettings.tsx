@@ -356,6 +356,30 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Chat auto-greeting */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Chat Auto-Greeting</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <label className="text-xs font-medium text-muted-foreground">
+            First message sent to customers when they start a new chat
+          </label>
+          <textarea
+            value={chatGreeting}
+            onChange={(e) => setChatGreeting(e.target.value)}
+            rows={3}
+            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+            placeholder="Hi {name}! 👋 Welcome to Champa Support..."
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Use <code className="px-1 py-0.5 rounded bg-secondary">{"{name}"}</code> to insert the customer's name.
+          </p>
+        </CardContent>
+      </Card>
+
+
+
       <Button onClick={handleSave} disabled={loading} className="gap-2">
         <Save className="w-4 h-4" /> {loading ? "Saving..." : "Save Settings"}
       </Button>
