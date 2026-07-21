@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, ArrowLeft, X, Plus, Headphones, MessageCircle } from "lucide-react";
+import { Send, ArrowLeft, X, Headphones } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 
@@ -20,45 +20,51 @@ interface ConversationRow {
 
 const DEFAULT_GREETING = "Hi {name}! 👋 Welcome to Champa Support. An agent will be with you shortly.";
 
+const QUICK_REPLIES = [
+  "Shopping for a product",
+  "Recent orders",
+  "Repairs and tech support",
+  "Get a quote",
+];
+
 export default function ChatWidget({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { user } = useAuth();
-  const [conversations, setConversations] = useState<ConversationRow[]>([]);
+  const { user, profile } = useAuth();
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [guestName, setGuestName] = useState("");
-  const [showNewChat, setShowNewChat] = useState(false);
   const [greeting, setGreeting] = useState(DEFAULT_GREETING);
+  const [creating, setCreating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load greeting once
+  const displayName = (profile?.full_name?.trim() || user?.email?.split("@")[0] || "").trim();
+
+  // Load greeting
   useEffect(() => {
     supabase.from("settings").select("value").eq("key", "chat_greeting").maybeSingle().then(({ data }) => {
-      const v = (data?.value as any);
+      const v = data?.value as any;
       if (typeof v === "string" && v.trim()) setGreeting(v);
     });
   }, []);
 
-  // Load conversations when opened
+  // Resume most-recent active conversation for logged-in users
   useEffect(() => {
-    if (!open) return;
-    if (user) {
-      supabase
-        .from("chat_conversations")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("updated_at", { ascending: false })
-        .then(({ data }) => { if (data) setConversations(data as ConversationRow[]); });
-    } else {
-      setConversations([]);
-      setShowNewChat(true);
-    }
+    if (!open || !user) return;
+    supabase
+      .from("chat_conversations")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => { if (data?.id) setActiveConvId(data.id); });
   }, [open, user]);
 
-  // Load messages + subscribe to realtime for active conversation
+  // Load + subscribe to messages
   useEffect(() => {
-    if (!activeConvId) return;
+    if (!activeConvId) { setMessages([]); return; }
     supabase
       .from("chat_messages")
       .select("*")
@@ -86,63 +92,76 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => { if (open && activeConvId) inputRef.current?.focus(); }, [open, activeConvId]);
+  useEffect(() => { if (open) inputRef.current?.focus(); }, [open, activeConvId]);
 
-  const startNewChat = async () => {
-    const name = guestName.trim() || (user?.email?.split("@")[0] ?? "Guest");
+  const ensureConversation = async (): Promise<string | null> => {
+    if (activeConvId) return activeConvId;
+    const name = user ? (displayName || "Customer") : guestName.trim();
+    if (!name) return null;
+    setCreating(true);
     const { data, error } = await supabase
       .from("chat_conversations")
       .insert({ guest_name: name, user_id: user?.id || null })
       .select()
       .single();
-    if (data && !error) {
-      setActiveConvId(data.id);
-      setConversations((prev) => [data as ConversationRow, ...prev]);
-      setShowNewChat(false);
-      setGuestName("");
-      await supabase.from("chat_messages").insert({
-        conversation_id: data.id,
-        sender_type: "admin",
-        content: greeting.replace(/\{name\}/gi, name),
-      });
-    }
+    setCreating(false);
+    if (error || !data) return null;
+    setActiveConvId(data.id);
+    await supabase.from("chat_messages").insert({
+      conversation_id: data.id,
+      sender_type: "admin",
+      content: greeting.replace(/\{name\}/gi, name),
+    });
+    return data.id;
   };
 
-  const sendMessage = async () => {
-    if (!input.trim() || !activeConvId) return;
-    const content = input.trim();
-    setInput("");
+  const sendText = async (content: string) => {
+    const trimmed = content.trim();
+    if (!trimmed) return;
+    const convId = await ensureConversation();
+    if (!convId) return;
     await supabase.from("chat_messages").insert({
-      conversation_id: activeConvId,
+      conversation_id: convId,
       sender_type: "guest",
-      content,
+      content: trimmed,
     });
+  };
+
+  const handleSend = async () => {
+    if (!input.trim()) return;
+    const text = input;
+    setInput("");
+    await sendText(text);
+  };
+
+  const handleQuickReply = async (text: string) => {
+    await sendText(text);
   };
 
   if (!open) return null;
 
+  const needsGuestName = !user && !activeConvId && !guestName.trim();
+  const showWelcome = !activeConvId || messages.length === 0;
+  const greetName = user ? (displayName || "there") : (guestName.trim() || "there");
+  const canSend = input.trim() && (user || guestName.trim()) && !creating;
+
   return (
     <>
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-[2px] animate-fade-in"
-      />
-      {/* Panel */}
+      <div onClick={onClose} className="fixed inset-0 z-[60] bg-foreground/20 backdrop-blur-[2px] animate-fade-in" />
       <div className="fixed z-[61] animate-scale-in bg-background shadow-2xl flex flex-col
         inset-x-3 bottom-3 top-14 rounded-[24px]
-        md:inset-auto md:right-6 md:bottom-6 md:top-auto md:left-auto md:w-[400px] md:h-[600px]
+        md:inset-auto md:right-6 md:bottom-6 md:top-auto md:left-auto md:w-[400px] md:h-[620px]
         overflow-hidden border border-border/40">
         {/* Header */}
         <div className="px-4 py-3 border-b border-border/40 flex items-center gap-2.5 bg-card/60">
-          {activeConvId ? (
-            <button onClick={() => { setActiveConvId(null); setMessages([]); }} className="p-1.5 rounded-xl active:scale-90 hover:bg-secondary/60">
-              <ArrowLeft className="w-4.5 h-4.5 text-muted-foreground" strokeWidth={2} />
+          {activeConvId && (
+            <button
+              onClick={() => { setActiveConvId(null); setMessages([]); }}
+              className="p-1.5 rounded-xl active:scale-90 hover:bg-secondary/60"
+              aria-label="Back"
+            >
+              <ArrowLeft className="w-4 h-4 text-muted-foreground" strokeWidth={2} />
             </button>
-          ) : (
-            <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center">
-              <Headphones className="w-4.5 h-4.5 text-primary" strokeWidth={2} />
-            </div>
           )}
           <div className="flex-1 min-w-0">
             <p className="text-[14px] font-bold text-foreground tracking-tight leading-tight">Champa Support</p>
@@ -150,107 +169,89 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
               <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" /> Online now
             </p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-xl active:scale-90 hover:bg-secondary/60">
-            <X className="w-4.5 h-4.5 text-muted-foreground" strokeWidth={2} />
+          <button onClick={onClose} className="text-[13px] font-semibold text-primary hover:opacity-80 px-2 py-1">
+            Close
           </button>
         </div>
 
         {/* Body */}
-        {activeConvId ? (
-          <>
-            <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 bg-background">
-              {messages.map((msg) => (
-                <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] px-3.5 py-2.5 text-[14px] leading-relaxed ${
-                    msg.sender_type === "guest"
-                      ? "bg-foreground text-background rounded-[18px] rounded-br-md"
-                      : "bg-card border border-border/40 rounded-[18px] rounded-bl-md text-foreground"
-                  }`}>
-                    {msg.content}
-                  </div>
-                </div>
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-background">
+          {showWelcome && (
+            <div className="flex items-start gap-3 pb-1">
+              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                <Headphones className="w-5 h-5 text-primary" strokeWidth={2} />
+              </div>
+              <p className="text-[17px] font-bold text-foreground leading-snug tracking-tight pt-1.5">
+                Hi{greetName !== "there" ? `, ${greetName}` : ""}! How can I help you?
+              </p>
+            </div>
+          )}
+
+          {showWelcome && (
+            <div className="flex flex-col items-start gap-2 pl-[52px]">
+              {QUICK_REPLIES.map((label) => (
+                <button
+                  key={label}
+                  onClick={() => handleQuickReply(label)}
+                  disabled={needsGuestName || creating}
+                  className="px-4 py-2.5 rounded-full border border-border bg-card text-[14px] font-semibold text-foreground hover:bg-secondary/60 active:scale-[0.97] transition-all disabled:opacity-40"
+                >
+                  {label}
+                </button>
               ))}
             </div>
-            <div className="border-t border-border/40 px-3 py-2.5 flex items-center gap-2 bg-card/40">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Type a message..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                className="flex-1 px-4 py-2.5 rounded-full bg-background border border-border/40 text-[14px] focus:outline-none focus:border-primary/50"
-              />
-              <button
-                onClick={sendMessage}
-                disabled={!input.trim()}
-                className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all"
-              >
-                <Send className="w-4 h-4" strokeWidth={2.2} />
-              </button>
+          )}
+
+          {messages.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[80%] px-3.5 py-2.5 text-[14px] leading-relaxed ${
+                msg.sender_type === "guest"
+                  ? "bg-foreground text-background rounded-[18px] rounded-br-md"
+                  : "bg-card border border-border/40 rounded-[18px] rounded-bl-md text-foreground"
+              }`}>
+                {msg.content}
+              </div>
             </div>
-          </>
-        ) : showNewChat ? (
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            <div>
-              <p className="text-[15px] font-bold text-foreground tracking-tight mb-1">Start a conversation</p>
-              <p className="text-[12px] text-muted-foreground">Our team typically replies within a few minutes.</p>
-            </div>
+          ))}
+        </div>
+
+        {/* Footer: guest name (if needed) + input */}
+        <div className="border-t border-border/40 px-3 py-2.5 bg-card/40 space-y-2">
+          {showWelcome && (
+            <p className="text-[11px] text-muted-foreground px-1 leading-relaxed">
+              Your conversation may be recorded for quality assurance.
+            </p>
+          )}
+          {!user && !activeConvId && (
             <input
               type="text"
               placeholder="Your name"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && startNewChat()}
-              className="input-field"
-              autoFocus
+              className="w-full px-4 py-2.5 rounded-full bg-background border border-border/40 text-[13px] focus:outline-none focus:border-primary/50"
             />
-            <div className="flex gap-2">
-              {user && (
-                <button onClick={() => setShowNewChat(false)} className="btn-secondary flex-1 py-2.5 text-[13px]">Cancel</button>
-              )}
-              <button onClick={startNewChat} className="btn-primary flex-1 py-2.5 text-[13px]">Start Chat</button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          )}
+          <div className="flex items-center gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder={needsGuestName ? "Enter your name to chat" : "Ask our team…"}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
+              disabled={needsGuestName}
+              className="flex-1 px-4 py-2.5 rounded-full bg-background border border-border/40 text-[14px] focus:outline-none focus:border-primary/50 disabled:opacity-50"
+            />
             <button
-              onClick={() => setShowNewChat(true)}
-              className="w-full flex items-center gap-3 p-3.5 rounded-2xl bg-primary/10 border border-primary/20 active:scale-[0.98] transition-transform"
+              onClick={handleSend}
+              disabled={!canSend}
+              className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all shrink-0"
+              aria-label="Send"
             >
-              <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center">
-                <Plus className="w-4.5 h-4.5 text-primary-foreground" strokeWidth={2.5} />
-              </div>
-              <div className="text-left flex-1">
-                <p className="text-[14px] font-bold text-foreground">New conversation</p>
-                <p className="text-[11px] text-muted-foreground">Send us a message</p>
-              </div>
+              <Send className="w-4 h-4" strokeWidth={2.2} />
             </button>
-            {conversations.length === 0 ? (
-              <div className="text-center py-10">
-                <MessageCircle className="w-8 h-8 text-muted-foreground/30 mx-auto mb-2" strokeWidth={1.5} />
-                <p className="text-[13px] text-muted-foreground">No conversations yet</p>
-              </div>
-            ) : conversations.map((conv) => (
-              <button
-                key={conv.id}
-                onClick={() => setActiveConvId(conv.id)}
-                className="w-full text-left p-3 rounded-2xl hover:bg-secondary/60 flex items-center gap-3 active:scale-[0.98] transition-transform"
-              >
-                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center shrink-0">
-                  <Headphones className="w-4 h-4 text-muted-foreground" strokeWidth={1.8} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-foreground truncate">{conv.subject || "Support Chat"}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {conv.status === "active" ? "Active" : "Closed"} · {new Date(conv.updated_at).toLocaleDateString()}
-                  </p>
-                </div>
-                {conv.status === "active" && <div className="w-2 h-2 rounded-full bg-success shrink-0" />}
-              </button>
-            ))}
           </div>
-        )}
+        </div>
       </div>
     </>
   );
