@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2, CreditCard, Building2 } from "lucide-react";
+import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2, CreditCard, Building2, Store } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
@@ -10,7 +10,7 @@ import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const DELIVERY_FEE = 20000;
 type Step = "cart" | "info" | "delivery" | "payment";
-type PayMethod = "card" | "bank_transfer";
+type PayMethod = "card" | "bank_transfer" | "pay_in_store";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
@@ -141,6 +141,23 @@ export default function CartPage() {
     if (!user && data?.guest_token) persistGuestOrder(data.id as string, data.guest_token as string);
     setCardOrderId(data.id as string);
   };
+
+  const handlePayInStoreSubmit = async () => {
+    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
+    setSubmitting(true);
+    const { data, error } = await createOrderRow({ payment_status: "pending" });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("cart.orderSuccess"));
+    clearCart(); setStep("cart");
+    if (user) navigate("/profile");
+    else if (data?.guest_token) { persistGuestOrder(data.id as string, data.guest_token as string); navigate("/"); }
+  };
+
+  // Reset pay-in-store selection if switching to delivery
+  useEffect(() => {
+    if (deliveryMethod === "delivery" && payMethod === "pay_in_store") setPayMethod("card");
+  }, [deliveryMethod, payMethod]);
 
   return (
     <div className="px-5 py-4 md:px-8 md:py-6 md:max-w-3xl md:mx-auto">
@@ -300,6 +317,9 @@ export default function CartPage() {
             {([
               { key: "card" as const, icon: CreditCard, label: "Card", desc: "Pay securely with Visa, Mastercard, Amex" },
               { key: "bank_transfer" as const, icon: Building2, label: "Bank transfer", desc: "Transfer + upload screenshot" },
+              ...(deliveryMethod === "pickup"
+                ? [{ key: "pay_in_store" as const, icon: Store, label: "Pay in store", desc: "Pay at pickup — cash or card at the counter" }]
+                : []),
             ]).map(opt => (
               <button
                 key={opt.key}
@@ -385,11 +405,25 @@ export default function CartPage() {
             </>
           )}
 
+          {payMethod === "pay_in_store" && (
+            <div className="app-card p-4 mb-5 flex gap-3 items-start bg-primary/5 border-primary/20">
+              <Store className="w-5 h-5 text-primary shrink-0 mt-0.5" strokeWidth={1.6} />
+              <div className="text-caption text-foreground">
+                <p className="font-semibold mb-1">Pay when you pick up</p>
+                <p className="text-muted-foreground text-micro">We'll reserve your items. Pay by cash or card at our store when you collect your order.</p>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2.5">
             <button onClick={() => setStep("delivery")} className="btn-secondary flex-1">{t("cart.back")}</button>
             {payMethod === "bank_transfer" ? (
               <button onClick={handleBankTransferSubmit} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
+              </button>
+            ) : payMethod === "pay_in_store" ? (
+              <button onClick={handlePayInStoreSubmit} disabled={submitting} className="btn-primary flex-1 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reserve & pay in store"}
               </button>
             ) : (
               <button onClick={handleStartCardCheckout} disabled={submitting} className="btn-primary flex-1 disabled:opacity-50">
