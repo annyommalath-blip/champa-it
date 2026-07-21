@@ -405,7 +405,18 @@ export default function CartPage() {
         <div className="app-card p-3 animate-fade-in">
           <div className="flex items-center justify-between mb-3 px-2">
             <h2 className="text-section-title text-foreground">Card payment</h2>
-            <button onClick={() => setCardOrderId(null)} className="text-caption text-muted-foreground active:scale-95">Cancel</button>
+            <button
+              onClick={async () => {
+                const id = cardOrderId;
+                setCardOrderId(null);
+                if (id) {
+                  await supabase.from("orders").delete().eq("id", id).eq("payment_status", "pending");
+                }
+              }}
+              className="text-caption text-muted-foreground active:scale-95"
+            >
+              Cancel
+            </button>
           </div>
           <StripeEmbeddedCheckout
             orderId={cardOrderId}

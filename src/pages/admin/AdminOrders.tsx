@@ -204,7 +204,7 @@ export default function AdminOrders() {
                         <div className="pt-2">
                           <p className="text-muted-foreground mb-1">Transfer screenshot (verify before confirming):</p>
                           <a href={o.payment_screenshot} target="_blank" rel="noreferrer" className="block">
-                            <img src={o.payment_screenshot} alt="Payment proof" className="max-h-48 rounded-lg border object-contain bg-background" />
+                            <img src={o.payment_screenshot} alt="Payment proof" className="w-full h-auto rounded-lg border object-contain bg-background" />
                           </a>
                           <a href={o.payment_screenshot} target="_blank" rel="noreferrer" className="text-primary underline text-[11px] mt-1 inline-block">Open full size</a>
                         </div>
