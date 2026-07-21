@@ -7,10 +7,10 @@ type AppRole = "customer" | "pending_admin" | "approved_admin" | "super_admin";
 interface AuthState {
   user: User | null;
   role: AppRole | null;
-  profile: { full_name: string; avatar_url: string; email: string } | null;
+  profile: { full_name: string; avatar_url: string; email: string; phone?: string | null; address?: string | null } | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, fullName: string, isAdminRequest: boolean, adminReason: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, fullName: string, phone: string, isAdminRequest: boolean, adminReason: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (password: string) => Promise<{ error: string | null }>;
@@ -32,7 +32,7 @@ async function fetchRole(userId: string): Promise<AppRole | null> {
 async function fetchProfile(userId: string) {
   const { data } = await supabase
     .from("profiles")
-    .select("full_name, avatar_url, email")
+    .select("full_name, avatar_url, email, phone, address")
     .eq("user_id", userId)
     .single();
   return data;
@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: error?.message ?? null };
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string, isAdminRequest: boolean, adminReason: string) => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string, phone: string, isAdminRequest: boolean, adminReason: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -92,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: window.location.origin,
         data: {
           full_name: fullName,
+          phone,
           is_admin_request: isAdminRequest,
           admin_reason: adminReason,
         },

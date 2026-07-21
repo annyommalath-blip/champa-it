@@ -19,6 +19,7 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminReason, setAdminReason] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +45,7 @@ export default function Auth() {
       return;
     }
     setLoading(true);
-    const { error } = await signUp(email, password, fullName, isAdmin, adminReason);
+    const { error } = await signUp(email, password, fullName, phone, isAdmin, adminReason);
     setLoading(false);
     if (error) {
       toast.error(error);
@@ -136,6 +137,10 @@ export default function Auth() {
             <div className="space-y-2">
               <Label htmlFor="signupEmail">{t("auth.email")}</Label>
               <Input id="signupEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="signupPhone">Phone number</Label>
+              <Input id="signupPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+856 20 xxx xxxx" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="signupPassword">{t("auth.password")}</Label>

@@ -3,7 +3,7 @@ import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, Che
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,7 +13,7 @@ type Step = "cart" | "info" | "delivery" | "payment";
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("cart");
@@ -24,6 +24,18 @@ export default function CartPage() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [guestFolder] = useState(() => crypto.randomUUID());
+
+  // Auto-fill contact info from the signed-in user's profile (user can still edit)
+  useEffect(() => {
+    if (!user || !profile) return;
+    setForm((prev) => ({
+      name: prev.name || profile.full_name || "",
+      phone: prev.phone || profile.phone || "",
+      email: prev.email || profile.email || user.email || "",
+      address: prev.address || profile.address || "",
+      notes: prev.notes,
+    }));
+  }, [user, profile]);
 
   const deliveryFee = deliveryMethod === "delivery" ? DELIVERY_FEE : 0;
   const grandTotal = cartTotal + deliveryFee;
