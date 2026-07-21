@@ -222,21 +222,16 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
 
         {/* Footer: guest name (if needed) + input */}
         <div className="border-t border-border/40 px-3 py-2.5 bg-card/40 space-y-2">
-          {showWelcome && (
-            <p className="text-[11px] text-muted-foreground px-1 leading-relaxed">
-              Your conversation may be recorded for quality assurance.
-            </p>
-          )}
           {!user && !activeConvId && (
             <input
               type="text"
               placeholder="Your name"
               value={guestName}
               onChange={(e) => setGuestName(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-full bg-background border border-border/40 text-[13px] focus:outline-none focus:border-primary/50"
+              className="w-full px-4 py-3 rounded-2xl bg-background border border-border text-[15px] font-medium focus:outline-none focus:border-primary/50"
             />
           )}
-          <div className="flex items-center gap-2">
+          <div className="flex items-stretch gap-2">
             <input
               ref={inputRef}
               type="text"
@@ -245,17 +240,18 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
               disabled={needsGuestName}
-              className="flex-1 px-4 py-2.5 rounded-full bg-background border border-border/40 text-[14px] focus:outline-none focus:border-primary/50 disabled:opacity-50"
+              className="flex-1 px-5 py-3 rounded-2xl bg-background border border-border text-[15px] font-medium placeholder:text-muted-foreground/70 focus:outline-none focus:border-primary/50 disabled:opacity-50"
             />
             <button
               onClick={handleSend}
               disabled={!canSend}
-              className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 active:scale-90 transition-all shrink-0"
+              className="w-12 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-30 active:scale-95 transition-all shrink-0"
               aria-label="Send"
             >
-              <Send className="w-4 h-4" strokeWidth={2.2} />
+              <Send className="w-[18px] h-[18px]" strokeWidth={2.2} />
             </button>
           </div>
+
         </div>
       </div>
     </>
