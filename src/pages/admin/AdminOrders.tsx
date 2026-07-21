@@ -93,7 +93,16 @@ export default function AdminOrders() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold">${Number(o.total).toFixed(2)}</p>
-                    {cancelled && <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full mt-1"><XCircle className="w-3 h-3" />Cancelled</span>}
+                    <div className="flex flex-col items-end gap-1 mt-1">
+                      <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        o.payment_status === "paid" ? "bg-green-500/15 text-green-600" :
+                        o.payment_status === "failed" ? "bg-destructive/15 text-destructive" :
+                        "bg-amber-500/15 text-amber-600"
+                      }`}>
+                        {o.payment_method === "card" ? "Card" : "Bank"} · {(o.payment_status || "pending").toUpperCase()}
+                      </span>
+                      {cancelled && <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full"><XCircle className="w-3 h-3" />Cancelled</span>}
+                    </div>
                   </div>
                 </div>
 
