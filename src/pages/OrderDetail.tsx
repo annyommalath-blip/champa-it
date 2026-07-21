@@ -255,29 +255,56 @@ export default function OrderDetail() {
           <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 snap-x snap-mandatory scrollbar-none">
             {recs.map((p: any) => {
               const img = Array.isArray(p.images) ? p.images[0] : null;
-              const price = p.price_lak || p.price_thb || p.price_usd || 0;
-              const symbol = p.price_lak ? "₭" : p.price_thb ? "฿" : "$";
+              const price = Number(p.price || p.price_lak || p.price_thb || p.price_usd || 0);
+              const handleAdd = (e: React.MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart({
+                  id: p.id,
+                  name: p.name,
+                  description: p.description || "",
+                  longDescription: p.long_description || "",
+                  price,
+                  category: p.category || "",
+                  images: p.images || ["/placeholder.svg"],
+                  specs: (p.specs || {}) as Record<string, string>,
+                  inStock: p.in_stock ?? true,
+                  rating: p.rating || 0,
+                });
+                toast.success("Added to cart", { description: p.name });
+              };
               return (
                 <Link
                   key={p.id}
                   to={`/product/${p.id}`}
-                  className="snap-start shrink-0 w-44 bento-card p-3 hover:shadow-md transition-shadow"
+                  className="snap-start shrink-0 w-64 bento-card p-3 flex flex-col hover:shadow-md transition-shadow"
                 >
-                  <div className="w-full aspect-square rounded-xl bg-secondary/40 overflow-hidden mb-2 flex items-center justify-center">
-                    {img ? (
-                      <img src={img} alt={p.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Package className="w-6 h-6 text-muted-foreground/40" />
-                    )}
+                  <div className="flex gap-3">
+                    <div className="w-20 h-20 rounded-xl bg-secondary/40 overflow-hidden flex items-center justify-center shrink-0">
+                      {img ? (
+                        <img src={img} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-6 h-6 text-muted-foreground/40" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-foreground line-clamp-3 leading-snug">{p.name}</p>
+                      <p className="text-[14px] font-bold text-foreground mt-1">₭{price.toLocaleString()}</p>
+                    </div>
                   </div>
-                  <p className="text-[12px] font-semibold text-foreground line-clamp-2 leading-snug min-h-[32px]">{p.name}</p>
-                  <p className="text-[13px] font-bold text-foreground mt-1">{symbol}{Number(price).toLocaleString()}</p>
+                  <button
+                    onClick={handleAdd}
+                    className="mt-3 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold tracking-tight active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={2.5} /> Add to Cart
+                  </button>
                 </Link>
               );
             })}
           </div>
         </div>
       )}
+
     </div>
   );
 
