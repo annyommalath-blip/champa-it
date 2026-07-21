@@ -27,6 +27,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { cartCount } = useApp();
   const { user } = useAuth();
   const { t } = useLanguage();
+  const [chatOpen, setChatOpen] = useState(false);
+
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
