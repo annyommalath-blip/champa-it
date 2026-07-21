@@ -143,6 +143,7 @@ export default function AdminSettings() {
           if (s.key === "banner_text") setBannerText(val || "");
           if (s.key === "chat_greeting" && typeof val === "string") setChatGreeting(val);
           if (s.key === "hero_slides" && Array.isArray(val)) setHeroSlides(val);
+          if (s.key === "payment_info" && val && typeof val === "object") setPaymentInfo({ qr_image: val.qr_image || "", bank_name: val.bank_name || "", account_name: val.account_name || "", account_number: val.account_number || "", notes: val.notes || "" });
         });
 
       }
