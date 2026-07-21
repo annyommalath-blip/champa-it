@@ -10,7 +10,7 @@ import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const DELIVERY_FEE = 20000;
 type Step = "cart" | "info" | "delivery" | "payment";
-type PayMethod = "card" | "bank_transfer";
+type PayMethod = "card" | "bank_transfer" | "pay_in_store";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
