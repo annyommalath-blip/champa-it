@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import ChatWidget from "@/components/ChatWidget";
 import logo from "@/assets/logo.jpg";
+
 
 const navKeys = [
   { to: "/", labelKey: "nav.home", icon: Home },
