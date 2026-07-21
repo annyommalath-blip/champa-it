@@ -124,6 +124,8 @@ export default function AdminSettings() {
   const [bannerText, setBannerText] = useState("🔥 Free shipping on orders over $1,000");
   const [chatGreeting, setChatGreeting] = useState("Hi {name}! 👋 Welcome to Champa Support. An agent will be with you shortly.");
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultSlides);
+  const [paymentInfo, setPaymentInfo] = useState({ qr_image: "", bank_name: "", account_name: "", account_number: "", notes: "" });
+  const [uploadingQr, setUploadingQr] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
@@ -141,6 +143,7 @@ export default function AdminSettings() {
           if (s.key === "banner_text") setBannerText(val || "");
           if (s.key === "chat_greeting" && typeof val === "string") setChatGreeting(val);
           if (s.key === "hero_slides" && Array.isArray(val)) setHeroSlides(val);
+          if (s.key === "payment_info" && val && typeof val === "object") setPaymentInfo({ qr_image: val.qr_image || "", bank_name: val.bank_name || "", account_name: val.account_name || "", account_number: val.account_number || "", notes: val.notes || "" });
         });
 
       }
@@ -167,6 +170,7 @@ export default function AdminSettings() {
       saveSetting("banner_text", bannerText),
       saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
+      saveSetting("payment_info", paymentInfo),
     ]);
 
     toast.success("Settings saved");
@@ -223,6 +227,22 @@ export default function AdminSettings() {
     setHeroSlides((prev) =>
       prev.map((s, i) => (i === index ? { ...s, image: "" } : s))
     );
+  };
+
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please upload an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploadingQr(true);
+    const fileName = `payment-qr-${Date.now()}.${file.name.split(".").pop()}`;
+    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
+    if (error) { toast.error("Upload failed: " + error.message); setUploadingQr(false); return; }
+    const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
+    setPaymentInfo((p) => ({ ...p, qr_image: urlData.publicUrl }));
+    setUploadingQr(false);
+    toast.success("QR uploaded");
+    e.target.value = "";
   };
 
   return (
@@ -378,6 +398,71 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Bank Transfer Payment Info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Bank Transfer Details</CardTitle>
+          <p className="text-xs text-muted-foreground">Shown to customers at checkout when they choose bank transfer.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Payment QR Code</label>
+            {paymentInfo.qr_image ? (
+              <div className="flex items-start gap-3">
+                <img src={paymentInfo.qr_image} alt="Payment QR" className="w-32 h-32 object-cover rounded-lg border border-border" />
+                <div className="flex flex-col gap-2">
+                  <label className="cursor-pointer">
+                    <input type="file" accept="image/*" className="hidden" onChange={handleQrUpload} disabled={uploadingQr} />
+                    <Button size="sm" variant="secondary" className="gap-1.5" asChild>
+                      <span>{uploadingQr ? "Uploading..." : (<><Upload className="w-3.5 h-3.5" /> Replace</>)}</span>
+                    </Button>
+                  </label>
+                  <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => setPaymentInfo((p) => ({ ...p, qr_image: "" }))}>
+                    <X className="w-3.5 h-3.5" /> Remove
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <label className="cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={handleQrUpload} disabled={uploadingQr} />
+                <div className="w-full h-32 rounded-lg border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 flex flex-col items-center justify-center gap-1.5 transition-colors">
+                  {uploadingQr ? (
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <Image className="w-6 h-6 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-medium">Upload QR code</span>
+                      <span className="text-[10px] text-muted-foreground">JPG, PNG • Max 5MB</span>
+                    </>
+                  )}
+                </div>
+              </label>
+            )}
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Bank Name</label>
+            <Input value={paymentInfo.bank_name} onChange={(e) => setPaymentInfo((p) => ({ ...p, bank_name: e.target.value }))} placeholder="e.g. BCEL Bank" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Account Name</label>
+            <Input value={paymentInfo.account_name} onChange={(e) => setPaymentInfo((p) => ({ ...p, account_name: e.target.value }))} placeholder="e.g. Champa Private Enterprise" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Account Number</label>
+            <Input value={paymentInfo.account_number} onChange={(e) => setPaymentInfo((p) => ({ ...p, account_number: e.target.value }))} placeholder="e.g. 010-12-00-12345678-001" />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground">Notes for Customers</label>
+            <textarea
+              value={paymentInfo.notes}
+              onChange={(e) => setPaymentInfo((p) => ({ ...p, notes: e.target.value }))}
+              rows={2}
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              placeholder="e.g. Include your order number in the transfer reference"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
 
       <Button onClick={handleSave} disabled={loading} className="gap-2">

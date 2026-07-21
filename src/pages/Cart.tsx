@@ -28,6 +28,13 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [guestFolder] = useState(() => crypto.randomUUID());
   const [cardOrderId, setCardOrderId] = useState<string | null>(null);
+  const [paymentInfo, setPaymentInfo] = useState<{ qr_image: string; bank_name: string; account_name: string; account_number: string; notes: string } | null>(null);
+
+  useEffect(() => {
+    supabase.from("settings").select("value").eq("key", "payment_info").maybeSingle().then(({ data }) => {
+      if (data?.value && typeof data.value === "object") setPaymentInfo(data.value as any);
+    });
+  }, []);
 
   // Auto-fill contact info from the signed-in user's profile (user can still edit)
   useEffect(() => {
@@ -318,9 +325,40 @@ export default function CartPage() {
 
           {payMethod === "bank_transfer" && (
             <>
-              <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
-                <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
-              </div>
+              {paymentInfo?.qr_image ? (
+                <div className="mb-4 flex flex-col items-center">
+                  <img src={paymentInfo.qr_image} alt="Payment QR" className="w-full max-w-[240px] aspect-square object-contain rounded-2xl border border-border bg-white p-2" />
+                </div>
+              ) : (
+                <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
+                  <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
+                </div>
+              )}
+              {(paymentInfo?.bank_name || paymentInfo?.account_name || paymentInfo?.account_number || paymentInfo?.notes) && (
+                <div className="app-card p-4 mb-5 space-y-2 text-caption">
+                  {paymentInfo.bank_name && (
+                    <div className="flex justify-between gap-3"><span className="text-muted-foreground">Bank</span><span className="font-medium text-right">{paymentInfo.bank_name}</span></div>
+                  )}
+                  {paymentInfo.account_name && (
+                    <div className="flex justify-between gap-3"><span className="text-muted-foreground">Account name</span><span className="font-medium text-right">{paymentInfo.account_name}</span></div>
+                  )}
+                  {paymentInfo.account_number && (
+                    <div className="flex justify-between gap-3 items-center">
+                      <span className="text-muted-foreground">Account number</span>
+                      <button
+                        type="button"
+                        onClick={() => { navigator.clipboard.writeText(paymentInfo.account_number); toast.success("Copied"); }}
+                        className="font-mono font-semibold text-right active:scale-95"
+                      >
+                        {paymentInfo.account_number}
+                      </button>
+                    </div>
+                  )}
+                  {paymentInfo.notes && (
+                    <p className="text-micro text-muted-foreground pt-2 border-t border-border">{paymentInfo.notes}</p>
+                  )}
+                </div>
+              )}
               <div className="mb-5">
                 {screenshotUrl ? (
                   <div className="flex items-center gap-3 p-3 rounded-[14px] border border-success/30 bg-success/5">
