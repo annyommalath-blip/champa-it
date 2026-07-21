@@ -118,6 +118,8 @@ const defaultSlides: HeroSlide[] = [
 ];
 
 export default function AdminSettings() {
+  const { role } = useAuth();
+  const isSuperAdmin = role === "super_admin";
   const [companyName, setCompanyName] = useState("Champa Private Enterprise");
   const [companyPhone, setCompanyPhone] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
