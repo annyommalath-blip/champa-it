@@ -142,6 +142,23 @@ export default function CartPage() {
     setCardOrderId(data.id as string);
   };
 
+  const handlePayInStoreSubmit = async () => {
+    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
+    setSubmitting(true);
+    const { data, error } = await createOrderRow({ payment_status: "pending" });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(t("cart.orderSuccess"));
+    clearCart(); setStep("cart");
+    if (user) navigate("/profile");
+    else if (data?.guest_token) { persistGuestOrder(data.id as string, data.guest_token as string); navigate("/"); }
+  };
+
+  // Reset pay-in-store selection if switching to delivery
+  useEffect(() => {
+    if (deliveryMethod === "delivery" && payMethod === "pay_in_store") setPayMethod("card");
+  }, [deliveryMethod, payMethod]);
+
   return (
     <div className="px-5 py-4 md:px-8 md:py-6 md:max-w-3xl md:mx-auto">
       {/* Stepper — progress bar style */}
