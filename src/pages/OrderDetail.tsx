@@ -42,9 +42,9 @@ export default function OrderDetail() {
     const { data: recProds } = await supabase
       .from("products")
       .select("id,name,images,price_lak,price_thb,price_usd")
-      .not("id", "in", `(${ids.length ? ids.join(",") : "00000000-0000-0000-0000-000000000000"})`)
-      .limit(6);
-    setRecs(recProds || []);
+      .limit(8);
+    setRecs((recProds || []).filter((p: any) => !ids.includes(p.id)).slice(0, 6));
+
     setLoading(false);
   };
 
