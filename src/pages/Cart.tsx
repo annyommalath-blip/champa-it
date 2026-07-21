@@ -28,6 +28,13 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [guestFolder] = useState(() => crypto.randomUUID());
   const [cardOrderId, setCardOrderId] = useState<string | null>(null);
+  const [paymentInfo, setPaymentInfo] = useState<{ qr_image: string; bank_name: string; account_name: string; account_number: string; notes: string } | null>(null);
+
+  useEffect(() => {
+    supabase.from("settings").select("value").eq("key", "payment_info").maybeSingle().then(({ data }) => {
+      if (data?.value && typeof data.value === "object") setPaymentInfo(data.value as any);
+    });
+  }, []);
 
   // Auto-fill contact info from the signed-in user's profile (user can still edit)
   useEffect(() => {
