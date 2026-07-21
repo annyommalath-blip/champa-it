@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { User, Package, ChevronRight, Settings, HelpCircle, LogOut, LogIn, Globe, ArrowLeft, FileText, Headphones, MessageCircle, Receipt, Bookmark } from "lucide-react";
+import RecentActivity from "@/components/RecentActivity";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage, Language } from "@/context/LanguageContext";
@@ -133,6 +134,10 @@ export default function Profile() {
           <ChevronRight className="w-4 h-4 text-muted-foreground/15" />
         </Link>
       )}
+
+      {/* Recent activity (customer orders) */}
+      <RecentActivity />
+
 
       {/* Cart summary */}
       {cart.length > 0 && (
