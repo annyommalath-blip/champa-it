@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, ClipboardCheck, Package, Truck, Home, XCircle } from "lucide-react";
-
+import { ArrowLeft, Check, ChevronDown, ClipboardCheck, Package, Truck, Home, XCircle, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { useApp } from "@/context/AppContext";
+
 
 const STAGES = [
   { key: "pending", label: "Order placed", desc: "We received your order and are awaiting confirmation.", icon: ClipboardCheck },
@@ -18,6 +20,8 @@ const stageIndex = (s: string) => STAGES.findIndex((x) => x.key === s);
 export default function OrderDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { addToCart } = useApp();
+
   const [order, setOrder] = useState<any>(null);
   const [products, setProducts] = useState<Record<string, any>>({});
   const [recs, setRecs] = useState<any[]>([]);
@@ -41,8 +45,10 @@ export default function OrderDetail() {
     // Load recommendations - other products not in this order
     const { data: recProds } = await supabase
       .from("products")
-      .select("id,name,images,price_lak,price_thb,price_usd")
-      .limit(8);
+      .select("*")
+      .eq("in_stock", true)
+      .limit(10);
+
     setRecs((recProds || []).filter((p: any) => !ids.includes(p.id)).slice(0, 6));
 
     setLoading(false);
@@ -103,13 +109,17 @@ export default function OrderDetail() {
           <p><span className="font-bold text-foreground">Purchase Date:</span> <span className="text-muted-foreground">{new Date(order.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span></p>
           <p><span className="font-bold text-foreground">Order Number:</span> <span className="text-muted-foreground font-mono">CHAMPA-{order.id.slice(0, 8).toUpperCase()}</span></p>
         </div>
-        <div className="mt-4 flex items-center justify-center bg-white rounded-xl p-3 border border-border/60">
+        <div className="mt-4 flex flex-col items-center justify-center bg-white rounded-xl px-3 py-4 border border-border/60">
           <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${encodeURIComponent(`CHAMPA-${order.id}`)}`}
-            alt="Order QR code"
-            className="w-40 h-40"
+            src={`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(`CHAMPA-${order.id.slice(0, 12).toUpperCase()}`)}&scale=3&height=18&includetext=false&backgroundcolor=ffffff`}
+            alt="Order barcode"
+            className="w-full max-w-[300px] h-16 object-contain"
           />
+          <p className="text-[10px] font-mono text-muted-foreground/80 tracking-widest mt-1">
+            CHAMPA-{order.id.slice(0, 12).toUpperCase()}
+          </p>
         </div>
+
         <div className="mt-4 flex items-baseline justify-between border-t border-border/50 pt-3">
           <p className="text-[13px] font-bold text-foreground">Total</p>
           <p className="text-[20px] font-bold text-foreground tracking-tight">₭{Number(order.total).toLocaleString()}</p>
@@ -245,29 +255,56 @@ export default function OrderDetail() {
           <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 snap-x snap-mandatory scrollbar-none">
             {recs.map((p: any) => {
               const img = Array.isArray(p.images) ? p.images[0] : null;
-              const price = p.price_lak || p.price_thb || p.price_usd || 0;
-              const symbol = p.price_lak ? "₭" : p.price_thb ? "฿" : "$";
+              const price = Number(p.price || p.price_lak || p.price_thb || p.price_usd || 0);
+              const handleAdd = (e: React.MouseEvent) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart({
+                  id: p.id,
+                  name: p.name,
+                  description: p.description || "",
+                  longDescription: p.long_description || "",
+                  price,
+                  category: p.category || "",
+                  images: p.images || ["/placeholder.svg"],
+                  specs: (p.specs || {}) as Record<string, string>,
+                  inStock: p.in_stock ?? true,
+                  rating: p.rating || 0,
+                });
+                toast.success("Added to cart", { description: p.name });
+              };
               return (
                 <Link
                   key={p.id}
                   to={`/product/${p.id}`}
-                  className="snap-start shrink-0 w-44 bento-card p-3 hover:shadow-md transition-shadow"
+                  className="snap-start shrink-0 w-64 bento-card p-3 flex flex-col hover:shadow-md transition-shadow"
                 >
-                  <div className="w-full aspect-square rounded-xl bg-secondary/40 overflow-hidden mb-2 flex items-center justify-center">
-                    {img ? (
-                      <img src={img} alt={p.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <Package className="w-6 h-6 text-muted-foreground/40" />
-                    )}
+                  <div className="flex gap-3">
+                    <div className="w-20 h-20 rounded-xl bg-secondary/40 overflow-hidden flex items-center justify-center shrink-0">
+                      {img ? (
+                        <img src={img} alt={p.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-6 h-6 text-muted-foreground/40" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[12px] font-semibold text-foreground line-clamp-3 leading-snug">{p.name}</p>
+                      <p className="text-[14px] font-bold text-foreground mt-1">₭{price.toLocaleString()}</p>
+                    </div>
                   </div>
-                  <p className="text-[12px] font-semibold text-foreground line-clamp-2 leading-snug min-h-[32px]">{p.name}</p>
-                  <p className="text-[13px] font-bold text-foreground mt-1">{symbol}{Number(price).toLocaleString()}</p>
+                  <button
+                    onClick={handleAdd}
+                    className="mt-3 w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold tracking-tight active:scale-[0.98] transition-transform flex items-center justify-center gap-1.5"
+                  >
+                    <Plus className="w-4 h-4" strokeWidth={2.5} /> Add to Cart
+                  </button>
                 </Link>
               );
             })}
           </div>
         </div>
       )}
+
     </div>
   );
 
