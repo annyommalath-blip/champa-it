@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ClipboardCheck, Package, Truck, Home, XCircle } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ClipboardCheck, Package, Truck, Home, XCircle } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 
@@ -20,6 +21,8 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<any>(null);
   const [products, setProducts] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+  const [statusOpen, setStatusOpen] = useState(false);
+
 
   const load = async () => {
     if (!id) return;
@@ -90,56 +93,79 @@ export default function OrderDetail() {
         <p className="text-[18px] font-bold text-foreground mt-2">${Number(order.total).toLocaleString()}</p>
       </div>
 
-      {/* Tracker */}
+      {/* Tracker - current status with dropdown */}
       <div className="bento-card p-5">
-        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-4">Status</p>
-
         {cancelled ? (
-          <div className="flex items-center gap-3 py-3">
-            <div className="w-9 h-9 rounded-full bg-destructive/10 flex items-center justify-center">
-              <XCircle className="w-4 h-4 text-destructive" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+              <XCircle className="w-5 h-5 text-destructive" />
             </div>
-            <div>
-              <p className="text-[14px] font-bold text-destructive">Order cancelled</p>
+            <div className="flex-1">
+              <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Shipment</p>
+              <p className="text-[18px] font-bold text-destructive tracking-tight">Order cancelled</p>
               <p className="text-[12px] text-muted-foreground/70">Updated {new Date(order.updated_at).toLocaleString()}</p>
             </div>
           </div>
         ) : (
-          <div className="relative">
-            {STAGES.map((s, i) => {
-              const done = currentIdx >= i;
-              const active = currentIdx === i;
-              const Icon = s.icon;
-              const isLast = i === STAGES.length - 1;
-              return (
-                <div key={s.key} className="flex gap-3.5 relative">
-                  <div className="flex flex-col items-center">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0 ${
-                      done ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground/50"
-                    } ${active ? "ring-4 ring-primary/20" : ""}`}>
-                      <Icon className="w-4 h-4" strokeWidth={2.2} />
+          <>
+            <button
+              onClick={() => setStatusOpen((v) => !v)}
+              className="w-full flex items-center gap-3 text-left"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                {(() => { const I = STAGES[Math.max(0, currentIdx)].icon; return <I className="w-5 h-5" strokeWidth={2.2} />; })()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em]">Shipment</p>
+                <p className="text-[18px] font-bold text-foreground tracking-tight truncate">
+                  {STAGES[Math.max(0, currentIdx)].label}
+                </p>
+                <p className="text-[12px] text-muted-foreground/70">
+                  Updated {new Date(order.updated_at).toLocaleString()}
+                </p>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-muted-foreground/60 transition-transform shrink-0 ${statusOpen ? "rotate-180" : ""}`} />
+            </button>
+
+            {statusOpen && (
+              <div className="relative mt-5 pt-5 border-t border-border/50 animate-fade-in">
+                {STAGES.map((s, i) => {
+                  const done = currentIdx >= i;
+                  const active = currentIdx === i;
+                  const Icon = s.icon;
+                  const isLast = i === STAGES.length - 1;
+                  return (
+                    <div key={s.key} className="flex gap-3.5 relative">
+                      <div className="flex flex-col items-center">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0 ${
+                          done ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground/50"
+                        } ${active ? "ring-4 ring-primary/20" : ""}`}>
+                          <Icon className="w-4 h-4" strokeWidth={2.2} />
+                        </div>
+                        {!isLast && <div className={`w-0.5 flex-1 min-h-[28px] ${currentIdx > i ? "bg-primary" : "bg-secondary"}`} />}
+                      </div>
+                      <div className={`pb-6 flex-1 ${isLast ? "pb-0" : ""}`}>
+                        <p className={`text-[14px] font-bold tracking-tight ${done ? "text-foreground" : "text-muted-foreground/50"}`}>
+                          {s.label}
+                        </p>
+                        <p className={`text-[12px] mt-0.5 ${done ? "text-muted-foreground/70" : "text-muted-foreground/40"}`}>
+                          {s.desc}
+                        </p>
+                        {active && (
+                          <p className="text-[11px] font-semibold text-primary mt-1">
+                            Updated {new Date(order.updated_at).toLocaleString()}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    {!isLast && <div className={`w-0.5 flex-1 min-h-[28px] ${currentIdx > i ? "bg-primary" : "bg-secondary"}`} />}
-                  </div>
-                  <div className={`pb-6 flex-1 ${isLast ? "pb-0" : ""}`}>
-                    <p className={`text-[14px] font-bold tracking-tight ${done ? "text-foreground" : "text-muted-foreground/50"}`}>
-                      {s.label}
-                    </p>
-                    <p className={`text-[12px] mt-0.5 ${done ? "text-muted-foreground/70" : "text-muted-foreground/40"}`}>
-                      {s.desc}
-                    </p>
-                    {active && (
-                      <p className="text-[11px] font-semibold text-primary mt-1">
-                        Updated {new Date(order.updated_at).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </div>
+
 
       {/* Items */}
       <div className="bento-card p-5">
