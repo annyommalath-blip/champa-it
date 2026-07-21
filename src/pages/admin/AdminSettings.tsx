@@ -122,9 +122,11 @@ export default function AdminSettings() {
   const [companyEmail, setCompanyEmail] = useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [bannerText, setBannerText] = useState("🔥 Free shipping on orders over $1,000");
+  const [chatGreeting, setChatGreeting] = useState("Hi {name}! 👋 Welcome to Champa Support. An agent will be with you shortly.");
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultSlides);
   const [loading, setLoading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+
 
   useEffect(() => {
     async function load() {
