@@ -84,7 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error: error?.message ?? null };
   }, []);
 
-  const signUp = useCallback(async (email: string, password: string, fullName: string, isAdminRequest: boolean, adminReason: string) => {
+  const signUp = useCallback(async (email: string, password: string, fullName: string, phone: string, isAdminRequest: boolean, adminReason: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -92,6 +92,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         emailRedirectTo: window.location.origin,
         data: {
           full_name: fullName,
+          phone,
           is_admin_request: isAdminRequest,
           admin_reason: adminReason,
         },
