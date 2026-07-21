@@ -111,7 +111,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Mobile header + overlay */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0 w-full">
+
         <header className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-border/10 bg-navy">
           <button onClick={() => setSidebarOpen(true)} className="p-2 text-muted-foreground">
             <Menu className="w-5 h-5" />
@@ -163,7 +164,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         )}
 
-        <main className="flex-1 overflow-auto bg-navy-lighter p-4 lg:p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto overflow-x-hidden bg-navy-lighter p-3 sm:p-4 lg:p-6 min-w-0">{children}</main>
       </div>
     </div>
   );
