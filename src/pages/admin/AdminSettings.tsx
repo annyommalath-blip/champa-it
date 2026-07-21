@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, GripVertical, Upload, X, Image, Move } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, Upload, X, Image, Move, Lock } from "lucide-react";
 
 function DraggableImageCrop({
   src,
