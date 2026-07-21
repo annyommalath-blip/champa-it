@@ -467,6 +467,15 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+      ) : (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2"><Lock className="w-4 h-4" /> Bank Transfer Details</CardTitle>
+          <p className="text-xs text-muted-foreground">Only the Super Admin can view or edit bank transfer details.</p>
+        </CardHeader>
+      </Card>
+      )}
+
 
 
       <Button onClick={handleSave} disabled={loading} className="gap-2">
