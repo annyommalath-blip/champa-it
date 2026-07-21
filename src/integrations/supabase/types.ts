@@ -190,8 +190,12 @@ export type Database = {
           id: string
           items: Json
           notes: string | null
+          payment_method: string
           payment_screenshot: string | null
+          payment_status: string
           status: string
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
           total: number
           updated_at: string
           user_id: string | null
@@ -207,8 +211,12 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
+          payment_method?: string
           payment_screenshot?: string | null
+          payment_status?: string
           status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
           total?: number
           updated_at?: string
           user_id?: string | null
@@ -224,8 +232,12 @@ export type Database = {
           id?: string
           items?: Json
           notes?: string | null
+          payment_method?: string
           payment_screenshot?: string | null
+          payment_status?: string
           status?: string
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
           total?: number
           updated_at?: string
           user_id?: string | null

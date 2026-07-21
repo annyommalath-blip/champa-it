@@ -1,14 +1,16 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2 } from "lucide-react";
+import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2, CreditCard, Building2 } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const DELIVERY_FEE = 20000;
 type Step = "cart" | "info" | "delivery" | "payment";
+type PayMethod = "card" | "bank_transfer";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
@@ -20,10 +22,12 @@ export default function CartPage() {
   const [checkoutMode, setCheckoutMode] = useState<"signin" | "guest" | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
+  const [payMethod, setPayMethod] = useState<PayMethod>("card");
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [guestFolder] = useState(() => crypto.randomUUID());
+  const [cardOrderId, setCardOrderId] = useState<string | null>(null);
 
   // Auto-fill contact info from the signed-in user's profile (user can still edit)
   useEffect(() => {
@@ -75,18 +79,17 @@ export default function CartPage() {
     setUploading(false);
   };
 
-  const handleSubmitOrder = async () => {
-    if (!screenshotUrl) { toast.error(t("cart.screenshotRequired")); return; }
-    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
-    setSubmitting(true);
+  const createOrderRow = async (extra: Record<string, any> = {}) => {
     const orderItems = cart.map((item) => ({
       product_id: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity,
     }));
     const payload: any = {
       items: orderItems, total: grandTotal,
-      delivery_method: deliveryMethod, delivery_fee: deliveryFee, payment_screenshot: screenshotUrl,
+      delivery_method: deliveryMethod, delivery_fee: deliveryFee,
       customer_info: { name: form.name, phone: form.phone, email: form.email, address: form.address },
       notes: form.notes || null,
+      payment_method: payMethod,
+      ...extra,
     };
     if (user) {
       payload.user_id = user.id;
@@ -95,22 +98,41 @@ export default function CartPage() {
       payload.guest_email = form.email;
       payload.guest_phone = form.phone;
     }
-    const { data, error } = await supabase.from("orders").insert(payload).select("id, guest_token").single();
+    return supabase.from("orders").insert(payload).select("id, guest_token").single();
+  };
+
+  const persistGuestOrder = (id: string, token: string) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("guest_orders") || "[]");
+      existing.push({ id, token, email: form.email, createdAt: new Date().toISOString() });
+      localStorage.setItem("guest_orders", JSON.stringify(existing));
+    } catch {}
+  };
+
+  const handleBankTransferSubmit = async () => {
+    if (!screenshotUrl) { toast.error(t("cart.screenshotRequired")); return; }
+    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
+    setSubmitting(true);
+    const { data, error } = await createOrderRow({
+      payment_screenshot: screenshotUrl,
+      payment_status: "pending",
+    });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     toast.success(t("cart.orderSuccess"));
     clearCart(); setStep("cart");
-    if (user) {
-      navigate("/profile");
-    } else if (data?.guest_token) {
-      // Save tracking token locally so guest can view their order later
-      try {
-        const existing = JSON.parse(localStorage.getItem("guest_orders") || "[]");
-        existing.push({ id: data.id, token: data.guest_token, email: form.email, createdAt: new Date().toISOString() });
-        localStorage.setItem("guest_orders", JSON.stringify(existing));
-      } catch {}
-      navigate("/");
-    }
+    if (user) navigate("/profile");
+    else if (data?.guest_token) { persistGuestOrder(data.id as string, data.guest_token as string); navigate("/"); }
+  };
+
+  const handleStartCardCheckout = async () => {
+    if (!form.email || !form.phone) { toast.error("Email and phone are required"); return; }
+    setSubmitting(true);
+    const { data, error } = await createOrderRow({ payment_status: "pending" });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    if (!user && data?.guest_token) persistGuestOrder(data.id as string, data.guest_token as string);
+    setCardOrderId(data.id as string);
   };
 
   return (
@@ -261,47 +283,106 @@ export default function CartPage() {
       )}
 
       {/* Step: Payment */}
-      {step === "payment" && (
+      {step === "payment" && !cardOrderId && (
         <div className="app-card p-5 animate-fade-in">
           <h2 className="text-section-title text-foreground mb-1">{t("cart.paymentTitle")}</h2>
-          <p className="text-caption text-muted-foreground mb-5">{t("cart.paymentDesc")}</p>
-          <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
-            <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
+          <p className="text-caption text-muted-foreground mb-5">Choose how you'd like to pay.</p>
+
+          {/* Payment method selector */}
+          <div className="space-y-2 mb-5">
+            {([
+              { key: "card" as const, icon: CreditCard, label: "Card", desc: "Pay securely with Visa, Mastercard, Amex" },
+              { key: "bank_transfer" as const, icon: Building2, label: "Bank transfer", desc: "Transfer + upload screenshot" },
+            ]).map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => setPayMethod(opt.key)}
+                className={`w-full p-4 rounded-[14px] border-2 text-left flex items-center gap-3 transition-all active:scale-[0.98] ${
+                  payMethod === opt.key ? "border-primary bg-primary/5" : "border-border"
+                }`}
+              >
+                <opt.icon className={`w-5 h-5 ${payMethod === opt.key ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.6} />
+                <div className="flex-1">
+                  <p className="text-body font-semibold text-foreground">{opt.label}</p>
+                  <p className="text-micro text-muted-foreground">{opt.desc}</p>
+                </div>
+              </button>
+            ))}
           </div>
+
           <div className="space-y-2 text-caption mb-5 app-card p-4">
             <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
             {deliveryFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>₭{deliveryFee.toLocaleString()}</span></div>}
             <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span></div>
           </div>
-          <div className="mb-5">
-            {screenshotUrl ? (
-              <div className="flex items-center gap-3 p-3 rounded-[14px] border border-success/30 bg-success/5">
-                <CheckCircle className="w-5 h-5 text-success shrink-0" />
-                <img src={screenshotUrl} alt="Payment" className="w-14 h-14 object-cover rounded-xl" />
-                <span className="text-caption font-medium flex-1">{t("cart.uploadedScreenshot")}</span>
-                <label className="text-micro text-primary cursor-pointer font-medium">
-                  {t("cart.changeScreenshot")}
-                  <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" />
-                </label>
+
+          {payMethod === "bank_transfer" && (
+            <>
+              <div className="w-full max-w-[240px] mx-auto aspect-square rounded-2xl border-2 border-dashed border-border flex items-center justify-center bg-secondary mb-5">
+                <p className="text-caption text-muted-foreground text-center px-4">{t("cart.qrPlaceholder")}</p>
               </div>
-            ) : (
-              <label className="flex flex-col items-center gap-2 p-8 rounded-[14px] border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
-                {uploading ? <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" /> : (
-                  <>
-                    <Upload className="w-7 h-7 text-muted-foreground" />
-                    <span className="text-caption font-medium">{t("cart.uploadScreenshot")}</span>
-                  </>
+              <div className="mb-5">
+                {screenshotUrl ? (
+                  <div className="flex items-center gap-3 p-3 rounded-[14px] border border-success/30 bg-success/5">
+                    <CheckCircle className="w-5 h-5 text-success shrink-0" />
+                    <img src={screenshotUrl} alt="Payment" className="w-14 h-14 object-cover rounded-xl" />
+                    <span className="text-caption font-medium flex-1">{t("cart.uploadedScreenshot")}</span>
+                    <label className="text-micro text-primary cursor-pointer font-medium">
+                      {t("cart.changeScreenshot")}
+                      <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" />
+                    </label>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center gap-2 p-8 rounded-[14px] border-2 border-dashed border-border hover:border-primary/30 cursor-pointer transition-colors active:scale-[0.98]">
+                    {uploading ? <Loader2 className="w-7 h-7 animate-spin text-muted-foreground" /> : (
+                      <>
+                        <Upload className="w-7 h-7 text-muted-foreground" />
+                        <span className="text-caption font-medium">{t("cart.uploadScreenshot")}</span>
+                      </>
+                    )}
+                    <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" disabled={uploading} />
+                  </label>
                 )}
-                <input type="file" accept="image/*" onChange={handleScreenshotUpload} className="hidden" disabled={uploading} />
-              </label>
-            )}
-          </div>
+              </div>
+            </>
+          )}
+
           <div className="flex gap-2.5">
             <button onClick={() => setStep("delivery")} className="btn-secondary flex-1">{t("cart.back")}</button>
-            <button onClick={handleSubmitOrder} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
-            </button>
+            {payMethod === "bank_transfer" ? (
+              <button onClick={handleBankTransferSubmit} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
+              </button>
+            ) : (
+              <button onClick={handleStartCardCheckout} disabled={submitting} className="btn-primary flex-1 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : `Pay $${grandTotal.toLocaleString()}`}
+              </button>
+            )}
           </div>
+        </div>
+      )}
+
+      {/* Stripe embedded checkout */}
+      {step === "payment" && cardOrderId && (
+        <div className="app-card p-3 animate-fade-in">
+          <div className="flex items-center justify-between mb-3 px-2">
+            <h2 className="text-section-title text-foreground">Card payment</h2>
+            <button onClick={() => setCardOrderId(null)} className="text-caption text-muted-foreground active:scale-95">Cancel</button>
+          </div>
+          <StripeEmbeddedCheckout
+            orderId={cardOrderId}
+            items={cart.map((item) => ({
+              product_id: item.product.id,
+              name: item.product.name,
+              price: item.product.price,
+              quantity: item.quantity,
+            }))}
+            deliveryFee={deliveryFee}
+            currency="usd"
+            customerEmail={form.email}
+            userId={user?.id}
+            returnUrl={`${window.location.origin}/checkout/return?order_id=${cardOrderId}&session_id={CHECKOUT_SESSION_ID}`}
+          />
         </div>
       )}
     </div>
