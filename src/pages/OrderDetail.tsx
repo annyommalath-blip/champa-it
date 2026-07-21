@@ -38,10 +38,18 @@ export default function OrderDetail() {
       (prods || []).forEach((p: any) => { map[p.id] = { ...p, image: Array.isArray(p.images) ? p.images[0] : null }; });
       setProducts(map);
     }
+    // Load recommendations - other products not in this order
+    const { data: recProds } = await supabase
+      .from("products")
+      .select("id,name,images,price_lak,price_thb,price_usd")
+      .not("id", "in", `(${ids.length ? ids.join(",") : "00000000-0000-0000-0000-000000000000"})`)
+      .limit(6);
+    setRecs(recProds || []);
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [id]);
+
 
   // Realtime status updates
   useEffect(() => {
