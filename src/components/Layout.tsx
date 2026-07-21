@@ -35,7 +35,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="font-extrabold text-[17px] tracking-tight text-foreground">Champa</span>
           </Link>
           <nav className="flex items-center gap-0.5">
-            {navKeys.map((item) => {
+            {desktopNavKeys.map((item) => {
+
               const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
               return (
                 <Link
