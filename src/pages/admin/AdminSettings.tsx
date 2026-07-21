@@ -124,6 +124,8 @@ export default function AdminSettings() {
   const [bannerText, setBannerText] = useState("🔥 Free shipping on orders over $1,000");
   const [chatGreeting, setChatGreeting] = useState("Hi {name}! 👋 Welcome to Champa Support. An agent will be with you shortly.");
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultSlides);
+  const [paymentInfo, setPaymentInfo] = useState({ qr_image: "", bank_name: "", account_name: "", account_number: "", notes: "" });
+  const [uploadingQr, setUploadingQr] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
