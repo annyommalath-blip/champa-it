@@ -20,8 +20,10 @@ export default function OrderDetail() {
   const { user } = useAuth();
   const [order, setOrder] = useState<any>(null);
   const [products, setProducts] = useState<Record<string, any>>({});
+  const [recs, setRecs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusOpen, setStatusOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(true);
+
 
 
   const load = async () => {
@@ -36,10 +38,18 @@ export default function OrderDetail() {
       (prods || []).forEach((p: any) => { map[p.id] = { ...p, image: Array.isArray(p.images) ? p.images[0] : null }; });
       setProducts(map);
     }
+    // Load recommendations - other products not in this order
+    const { data: recProds } = await supabase
+      .from("products")
+      .select("id,name,images,price_lak,price_thb,price_usd")
+      .limit(8);
+    setRecs((recProds || []).filter((p: any) => !ids.includes(p.id)).slice(0, 6));
+
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [id]);
+
 
   // Realtime status updates
   useEffect(() => {
@@ -83,15 +93,29 @@ export default function OrderDetail() {
         <ArrowLeft className="w-4 h-4" /> Back to orders
       </Link>
 
-      {/* Header */}
-      <div className="bento-card p-5 space-y-1">
-        <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider">Order</p>
-        <h1 className="text-[22px] font-bold text-foreground tracking-tight">#{order.id.slice(0, 8).toUpperCase()}</h1>
-        <p className="text-[12px] text-muted-foreground/70">
-          Placed {new Date(order.created_at).toLocaleString()} · {order.delivery_method || "—"}
-        </p>
-        <p className="text-[18px] font-bold text-foreground mt-2">${Number(order.total).toLocaleString()}</p>
+      {/* Header - Order Details */}
+      <div className="bento-card p-5">
+        <div className="flex items-baseline justify-between mb-4">
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Order Details</h1>
+          <Link to="/profile/orders" className="text-[13px] font-semibold text-primary">See all ›</Link>
+        </div>
+        <div className="space-y-1.5 text-[13px]">
+          <p><span className="font-bold text-foreground">Purchase Date:</span> <span className="text-muted-foreground">{new Date(order.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span></p>
+          <p><span className="font-bold text-foreground">Order Number:</span> <span className="text-muted-foreground font-mono">CHAMPA-{order.id.slice(0, 8).toUpperCase()}</span></p>
+        </div>
+        <div className="mt-4 flex items-center justify-center bg-white rounded-xl p-3 border border-border/60">
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${encodeURIComponent(`CHAMPA-${order.id}`)}`}
+            alt="Order QR code"
+            className="w-40 h-40"
+          />
+        </div>
+        <div className="mt-4 flex items-baseline justify-between border-t border-border/50 pt-3">
+          <p className="text-[13px] font-bold text-foreground">Total</p>
+          <p className="text-[20px] font-bold text-foreground tracking-tight">₭{Number(order.total).toLocaleString()}</p>
+        </div>
       </div>
+
 
       {/* Tracker - current status with dropdown */}
       <div className="bento-card p-5">
@@ -167,24 +191,45 @@ export default function OrderDetail() {
       </div>
 
 
-      {/* Items */}
+      {/* Shipping address */}
       <div className="bento-card p-5">
-        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-3">Items ({items.length})</p>
-        <div className="space-y-3">
+        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-3">Shipping Address</p>
+        <div className="space-y-1 text-[13px]">
+          <p className="text-foreground font-semibold">{customer.name || "—"}</p>
+          {customer.address && <p className="text-muted-foreground whitespace-pre-line">{customer.address}</p>}
+          <p className="text-muted-foreground pt-1">{customer.email || order.guest_email || "—"}</p>
+          <p className="text-muted-foreground">{customer.phone || order.guest_phone || "—"}</p>
+          <p className="text-muted-foreground pt-1 capitalize">Method: {order.delivery_method || "—"}</p>
+        </div>
+      </div>
+
+      {/* Product Details */}
+      <div className="bento-card p-5">
+        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-4">Product Details ({items.length})</p>
+        <div className="space-y-5 divide-y divide-border/50">
           {items.map((it: any, idx: number) => {
             const p = products[it.product_id];
+            const lineTotal = Number(it.price) * Number(it.quantity || 1);
             return (
-              <div key={idx} className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl bg-secondary/50 flex items-center justify-center overflow-hidden shrink-0">
-                  {p?.image ? (
-                    <img src={p.image} alt={it.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <Package className="w-5 h-5 text-muted-foreground/40" strokeWidth={1.6} />
-                  )}
+              <div key={idx} className={idx > 0 ? "pt-5" : ""}>
+                <p className="text-[14px] font-bold text-foreground mb-3 leading-snug">{it.name}</p>
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 rounded-xl bg-secondary/50 flex items-center justify-center overflow-hidden shrink-0">
+                    {p?.image ? (
+                      <img src={p.image} alt={it.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted-foreground/40" strokeWidth={1.6} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 text-[12px] space-y-1">
+                    <p><span className="font-bold text-foreground">SKU:</span> <span className="text-muted-foreground font-mono">{String(it.product_id || "").slice(0, 8).toUpperCase()}</span></p>
+                    <p><span className="font-bold text-foreground">Quantity:</span> <span className="text-muted-foreground">{it.quantity}</span></p>
+                    <p><span className="font-bold text-foreground">Unit Price:</span> <span className="text-muted-foreground">₭{Number(it.price).toLocaleString()}</span></p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-foreground truncate">{it.name}</p>
-                  <p className="text-[11px] text-muted-foreground/60">Qty {it.quantity} · ${Number(it.price).toLocaleString()}</p>
+                <div className="mt-3 flex items-baseline justify-between text-[13px]">
+                  <p className="font-bold text-foreground">Item Total</p>
+                  <p className="font-bold text-foreground">₭{lineTotal.toLocaleString()}</p>
                 </div>
               </div>
             );
@@ -192,16 +237,38 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      {/* Delivery details */}
-      <div className="bento-card p-5">
-        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-3">Delivery</p>
-        <div className="space-y-1 text-[13px]">
-          <p className="text-foreground font-medium">{customer.name || "—"}</p>
-          <p className="text-muted-foreground">{customer.email || order.guest_email || "—"}</p>
-          <p className="text-muted-foreground">{customer.phone || order.guest_phone || "—"}</p>
-          {customer.address && <p className="text-muted-foreground">{customer.address}</p>}
+      {/* You may also like */}
+      {recs.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-[18px] font-bold text-foreground tracking-tight px-1">Something you may like</h2>
+          <p className="text-[12px] text-muted-foreground/70 px-1 -mt-2">Recommended from our store</p>
+          <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 snap-x snap-mandatory scrollbar-none">
+            {recs.map((p: any) => {
+              const img = Array.isArray(p.images) ? p.images[0] : null;
+              const price = p.price_lak || p.price_thb || p.price_usd || 0;
+              const symbol = p.price_lak ? "₭" : p.price_thb ? "฿" : "$";
+              return (
+                <Link
+                  key={p.id}
+                  to={`/product/${p.id}`}
+                  className="snap-start shrink-0 w-44 bento-card p-3 hover:shadow-md transition-shadow"
+                >
+                  <div className="w-full aspect-square rounded-xl bg-secondary/40 overflow-hidden mb-2 flex items-center justify-center">
+                    {img ? (
+                      <img src={img} alt={p.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted-foreground/40" />
+                    )}
+                  </div>
+                  <p className="text-[12px] font-semibold text-foreground line-clamp-2 leading-snug min-h-[32px]">{p.name}</p>
+                  <p className="text-[13px] font-bold text-foreground mt-1">{symbol}{Number(price).toLocaleString()}</p>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
+
 }
