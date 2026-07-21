@@ -185,7 +185,6 @@ export default function CartPage() {
               { key: "name", label: t("cart.fullName"), type: "text" },
               { key: "phone", label: t("cart.phone"), type: "tel" },
               { key: "email", label: t("cart.email"), type: "email" },
-              { key: "address", label: t("cart.address"), type: "text" },
             ].map((field) => (
               <div key={field.key}>
                 <label className="text-caption text-muted-foreground mb-1 block">{field.label} *</label>
@@ -200,10 +199,11 @@ export default function CartPage() {
           <div className="flex gap-2.5 mt-5">
             <button onClick={() => setStep("cart")} className="btn-secondary flex-1">{t("cart.back")}</button>
             <button onClick={() => {
-              if (!form.name || !form.phone || !form.email || !form.address) { toast.error(t("contact.fillRequired")); return; }
+              if (!form.name || !form.phone || !form.email) { toast.error(t("contact.fillRequired")); return; }
               setStep("delivery");
             }} className="btn-primary flex-1">{t("cart.next")}</button>
           </div>
+
         </div>
       )}
 
