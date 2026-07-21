@@ -32,7 +32,7 @@ async function fetchRole(userId: string): Promise<AppRole | null> {
 async function fetchProfile(userId: string) {
   const { data } = await supabase
     .from("profiles")
-    .select("full_name, avatar_url, email")
+    .select("full_name, avatar_url, email, phone, address")
     .eq("user_id", userId)
     .single();
   return data;
