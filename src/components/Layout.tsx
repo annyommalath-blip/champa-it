@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell } from "lucide-react";
+import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
@@ -9,9 +9,15 @@ const navKeys = [
   { to: "/", labelKey: "nav.home", icon: Home },
   { to: "/shop", labelKey: "nav.shop", icon: ShoppingBag },
   { to: "/services", labelKey: "nav.services", icon: Wrench },
-  { to: "/chat", labelKey: "nav.chat", icon: MessageCircle },
   { to: "/profile", labelKey: "nav.profile", icon: User },
 ];
+
+const desktopNavKeys = [
+  ...navKeys.slice(0, 3),
+  { to: "/chat", labelKey: "nav.chat", icon: MessageCircle },
+  navKeys[3],
+];
+
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -29,7 +35,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="font-extrabold text-[17px] tracking-tight text-foreground">Champa</span>
           </Link>
           <nav className="flex items-center gap-0.5">
-            {navKeys.map((item) => {
+            {desktopNavKeys.map((item) => {
+
               const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
               return (
                 <Link
@@ -112,6 +119,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           })}
         </div>
       </nav>
+
+      {/* Floating chat FAB — hidden on chat & admin routes */}
+      {!location.pathname.startsWith("/chat") && !location.pathname.startsWith("/admin") && (
+        <Link
+          to="/chat"
+          aria-label={t("nav.chat")}
+          className="md:hidden fixed right-4 bottom-[84px] z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background"
+        >
+          <Headphones className="w-6 h-6" strokeWidth={2} />
+        </Link>
+      )}
+
+
 
       {/* Desktop footer */}
       <footer className="hidden md:block border-t border-border/30 bg-card">
