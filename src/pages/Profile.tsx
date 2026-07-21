@@ -75,24 +75,24 @@ export default function Profile() {
     {
       title: "Activity",
       items: [
-        { icon: Package, label: t("profile.orders"), desc: "View & track orders", link: "#" },
-        { icon: FileText, label: "Quotes", desc: "View quote requests", link: "#" },
-        { icon: Headphones, label: "Service Requests", desc: "Track service status", link: "#" },
-        { icon: Bookmark, label: "Saved Items", desc: "Bookmarked products", link: "#" },
+        { icon: Package, label: t("profile.orders"), desc: "View & track orders", link: "/profile/orders" },
+        { icon: FileText, label: "Quotes", desc: "View quote requests", link: "/profile/quotes" },
+        { icon: Headphones, label: "Service Requests", desc: "Track service status", link: "/profile/service-requests" },
+        { icon: Bookmark, label: "Saved Items", desc: "Bookmarked products", link: "/profile/saved" },
       ],
     },
     {
       title: "Account",
       items: [
-        { icon: Settings, label: t("profile.accountSettings"), link: "#" },
-        { icon: Receipt, label: "Billing & Invoices", link: "#" },
+        { icon: Settings, label: t("profile.accountSettings"), link: "/profile/settings" },
+        { icon: Receipt, label: "Billing & Invoices", link: "/profile/billing" },
         { icon: Globe, label: t("profile.language"), onClick: () => setShowLanguage(true) },
       ],
     },
     {
       title: "Help",
       items: [
-        { icon: HelpCircle, label: "FAQ", link: "#" },
+        { icon: HelpCircle, label: "FAQ", link: "/profile/faq" },
         { icon: MessageCircle, label: "Contact Support", link: "/chat" },
       ],
     },

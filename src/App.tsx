@@ -28,6 +28,11 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminManagement from "./pages/admin/AdminManagement";
 import AdminSettings from "./pages/admin/AdminSettings";
+import MyOrders from "./pages/MyOrders";
+import AccountSettings from "./pages/AccountSettings";
+import Saved from "./pages/Saved";
+import FAQ from "./pages/FAQ";
+import ComingSoon from "./pages/ComingSoon";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +69,13 @@ const App = () => (
               <Route path="/contact" element={<Layout><Contact /></Layout>} />
               <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
               <Route path="/profile" element={<Layout><Profile /></Layout>} />
+              <Route path="/profile/orders" element={<Layout><MyOrders /></Layout>} />
+              <Route path="/profile/settings" element={<Layout><AccountSettings /></Layout>} />
+              <Route path="/profile/saved" element={<Layout><Saved /></Layout>} />
+              <Route path="/profile/faq" element={<Layout><FAQ /></Layout>} />
+              <Route path="/profile/quotes" element={<Layout><ComingSoon title="Quotes" description="Your quote requests will appear here. Request a new quote from the Services page." ctaLabel="Request a quote" ctaTo="/services" /></Layout>} />
+              <Route path="/profile/service-requests" element={<Layout><ComingSoon title="Service Requests" description="Track your IT service bookings here. Start a new request from the Services page." ctaLabel="Book a service" ctaTo="/services" /></Layout>} />
+              <Route path="/profile/billing" element={<Layout><ComingSoon title="Billing & Invoices" description="Invoices for your completed orders will be available here soon." ctaLabel="View orders" ctaTo="/profile/orders" /></Layout>} />
 
               <Route path="*" element={<Layout><NotFound /></Layout>} />
             </Routes>
