@@ -39,6 +39,7 @@ const statusLine = (status: string, created_at: string) => {
 export default function RecentActivity() {
   const { user } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
+  const [productImages, setProductImages] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -50,7 +51,18 @@ export default function RecentActivity() {
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(6);
-      setOrders(data || []);
+      const list = data || [];
+      setOrders(list);
+
+      const ids = Array.from(new Set(
+        list.flatMap((o: any) => (Array.isArray(o.items) ? o.items : []).map((i: any) => i.product_id).filter(Boolean))
+      ));
+      if (ids.length > 0) {
+        const { data: prods } = await supabase.from("products").select("id,image_url").in("id", ids);
+        const map: Record<string, string> = {};
+        (prods || []).forEach((p: any) => { if (p.image_url) map[p.id] = p.image_url; });
+        setProductImages(map);
+      }
       setLoading(false);
     })();
   }, [user]);
@@ -68,7 +80,7 @@ export default function RecentActivity() {
           const meta = STATUS_META[o.status] || { label: o.status, tone: "text-foreground" };
           const items = Array.isArray(o.items) ? o.items : [];
           const first = items[0];
-          const image = first?.image_url || first?.image;
+          const image = productImages[first?.product_id] || first?.image_url || first?.image;
           return (
             <Link
               key={o.id}
