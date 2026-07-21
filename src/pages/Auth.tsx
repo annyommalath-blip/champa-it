@@ -139,6 +139,10 @@ export default function Auth() {
               <Input id="signupEmail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
             <div className="space-y-2">
+              <Label htmlFor="signupPhone">Phone number</Label>
+              <Input id="signupPhone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+856 20 xxx xxxx" required />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="signupPassword">{t("auth.password")}</Label>
               <div className="relative">
                 <Input id="signupPassword" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min 6 characters" required />
