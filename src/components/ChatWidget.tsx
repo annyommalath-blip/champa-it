@@ -153,7 +153,7 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
         md:inset-auto md:right-6 md:bottom-6 md:top-auto md:left-auto md:w-[400px] md:h-[620px]
         overflow-hidden border border-border/40">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-border/40 flex items-center gap-2.5 bg-card/60">
+        <div className="px-5 py-3.5 border-b border-border/40 flex items-center gap-2.5 bg-card/60">
           {activeConvId && (
             <button
               onClick={() => { setActiveConvId(null); setMessages([]); }}
@@ -164,56 +164,61 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
             </button>
           )}
           <div className="flex-1 min-w-0">
-            <p className="text-[14px] font-bold text-foreground tracking-tight leading-tight">Champa Support</p>
-            <p className="text-[10px] text-success font-semibold flex items-center gap-1">
+            <p className="text-[17px] font-extrabold text-foreground tracking-tight leading-none">Champa Support</p>
+            <p className="text-[11px] text-success font-medium flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" /> Online now
             </p>
           </div>
-          <button onClick={onClose} className="text-[13px] font-semibold text-primary hover:opacity-80 px-2 py-1">
+          <button onClick={onClose} className="text-[15px] font-semibold text-primary hover:opacity-80">
             Close
           </button>
         </div>
 
         {/* Body */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 bg-background">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-5 space-y-4 bg-background">
           {showWelcome && (
-            <div className="flex items-start gap-3 pb-1">
-              <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
-                <Headphones className="w-5 h-5 text-primary" strokeWidth={2} />
+            <>
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+                  <Headphones className="w-[22px] h-[22px] text-primary" strokeWidth={2} />
+                </div>
+                <p className="text-[22px] font-extrabold text-foreground leading-tight tracking-[-0.01em]">
+                  Hi{greetName !== "there" ? `, ${greetName}` : ""}! How can I help you?
+                </p>
               </div>
-              <p className="text-[17px] font-bold text-foreground leading-snug tracking-tight pt-1.5">
-                Hi{greetName !== "there" ? `, ${greetName}` : ""}! How can I help you?
-              </p>
-            </div>
-          )}
 
-          {showWelcome && (
-            <div className="flex flex-col items-start gap-2 pl-[52px]">
-              {QUICK_REPLIES.map((label) => (
-                <button
-                  key={label}
-                  onClick={() => handleQuickReply(label)}
-                  disabled={needsGuestName || creating}
-                  className="px-4 py-2.5 rounded-full border border-border bg-card text-[14px] font-semibold text-foreground hover:bg-secondary/60 active:scale-[0.97] transition-all disabled:opacity-40"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+              <div className="flex flex-col items-start gap-2.5 pt-1">
+                {QUICK_REPLIES.map((label) => (
+                  <button
+                    key={label}
+                    onClick={() => handleQuickReply(label)}
+                    disabled={needsGuestName || creating}
+                    className="px-5 py-3 rounded-2xl border border-border bg-card text-[15px] font-bold text-foreground tracking-tight hover:bg-secondary/60 active:scale-[0.97] transition-all disabled:opacity-40 shadow-sm"
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+
+              <p className="text-[12px] text-muted-foreground leading-relaxed pt-2">
+                Your conversation may be recorded for quality assurance. By continuing, you agree to our Terms and Privacy Policy.
+              </p>
+            </>
           )}
 
           {messages.map((msg) => (
             <div key={msg.id} className={`flex ${msg.sender_type === "guest" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] px-3.5 py-2.5 text-[14px] leading-relaxed ${
+              <div className={`max-w-[80%] px-4 py-2.5 text-[15px] leading-relaxed ${
                 msg.sender_type === "guest"
-                  ? "bg-foreground text-background rounded-[18px] rounded-br-md"
-                  : "bg-card border border-border/40 rounded-[18px] rounded-bl-md text-foreground"
+                  ? "bg-foreground text-background rounded-[20px] rounded-br-md font-medium"
+                  : "bg-card border border-border/40 rounded-[20px] rounded-bl-md text-foreground"
               }`}>
                 {msg.content}
               </div>
             </div>
           ))}
         </div>
+
 
         {/* Footer: guest name (if needed) + input */}
         <div className="border-t border-border/40 px-3 py-2.5 bg-card/40 space-y-2">
