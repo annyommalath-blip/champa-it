@@ -317,6 +317,9 @@ export default function CartPage() {
             {([
               { key: "card" as const, icon: CreditCard, label: "Card", desc: "Pay securely with Visa, Mastercard, Amex" },
               { key: "bank_transfer" as const, icon: Building2, label: "Bank transfer", desc: "Transfer + upload screenshot" },
+              ...(deliveryMethod === "pickup"
+                ? [{ key: "pay_in_store" as const, icon: Store, label: "Pay in store", desc: "Pay at pickup — cash or card at the counter" }]
+                : []),
             ]).map(opt => (
               <button
                 key={opt.key}
