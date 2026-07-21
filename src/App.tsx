@@ -33,6 +33,7 @@ import AccountSettings from "./pages/AccountSettings";
 import Saved from "./pages/Saved";
 import FAQ from "./pages/FAQ";
 import ComingSoon from "./pages/ComingSoon";
+import OrderDetail from "./pages/OrderDetail";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="/notifications" element={<Layout><Notifications /></Layout>} />
               <Route path="/profile" element={<Layout><Profile /></Layout>} />
               <Route path="/profile/orders" element={<Layout><MyOrders /></Layout>} />
+              <Route path="/profile/orders/:id" element={<Layout><OrderDetail /></Layout>} />
               <Route path="/profile/settings" element={<Layout><AccountSettings /></Layout>} />
               <Route path="/profile/saved" element={<Layout><Saved /></Layout>} />
               <Route path="/profile/faq" element={<Layout><FAQ /></Layout>} />

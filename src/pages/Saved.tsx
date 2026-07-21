@@ -11,8 +11,8 @@ export default function Saved() {
     const ids: string[] = JSON.parse(localStorage.getItem("saved_products") || "[]");
     if (ids.length === 0) { setLoading(false); return; }
     (async () => {
-      const { data } = await supabase.from("products").select("id,name,price,image_url,category").in("id", ids);
-      setItems(data || []);
+      const { data } = await supabase.from("products").select("id,name,price,images,category").in("id", ids);
+      setItems((data || []).map((p: any) => ({ ...p, image_url: Array.isArray(p.images) ? p.images[0] : null })));
       setLoading(false);
     })();
   }, []);

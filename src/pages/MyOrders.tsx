@@ -55,7 +55,7 @@ export default function MyOrders() {
           {orders.map((o) => {
             const count = Array.isArray(o.items) ? o.items.length : 0;
             return (
-              <div key={o.id} className="bento-card p-4 flex items-center gap-3">
+              <Link key={o.id} to={`/profile/orders/${o.id}`} className="bento-card p-4 flex items-center gap-3 active:scale-[0.98] transition-transform">
                 <div className="w-10 h-10 rounded-xl bg-secondary/60 flex items-center justify-center">
                   <Package className="w-4 h-4 text-foreground/70" strokeWidth={1.8} />
                 </div>
@@ -69,7 +69,7 @@ export default function MyOrders() {
                   </p>
                   <p className="text-[13px] font-semibold text-foreground mt-1">${Number(o.total).toLocaleString()}</p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

@@ -58,9 +58,12 @@ export default function RecentActivity() {
         list.flatMap((o: any) => (Array.isArray(o.items) ? o.items : []).map((i: any) => i.product_id).filter(Boolean))
       ));
       if (ids.length > 0) {
-        const { data: prods } = await supabase.from("products").select("id,image_url").in("id", ids);
+        const { data: prods } = await supabase.from("products").select("id,images").in("id", ids);
         const map: Record<string, string> = {};
-        (prods || []).forEach((p: any) => { if (p.image_url) map[p.id] = p.image_url; });
+        (prods || []).forEach((p: any) => {
+          const img = Array.isArray(p.images) ? p.images[0] : null;
+          if (img) map[p.id] = img;
+        });
         setProductImages(map);
       }
       setLoading(false);
@@ -84,7 +87,7 @@ export default function RecentActivity() {
           return (
             <Link
               key={o.id}
-              to="/profile/orders"
+              to={`/profile/orders/${o.id}`}
               className="bento-card shrink-0 w-[260px] snap-start p-3.5 flex items-center gap-3 active:scale-[0.98] transition-transform"
             >
               <div className="w-14 h-14 rounded-xl bg-secondary/50 flex items-center justify-center overflow-hidden shrink-0">
