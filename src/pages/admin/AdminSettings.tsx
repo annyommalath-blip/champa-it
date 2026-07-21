@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Save, Plus, Trash2, GripVertical, Upload, X, Image, Move } from "lucide-react";
+import { Save, Plus, Trash2, GripVertical, Upload, X, Image, Move, Lock } from "lucide-react";
 
 function DraggableImageCrop({
   src,
@@ -117,6 +118,8 @@ const defaultSlides: HeroSlide[] = [
 ];
 
 export default function AdminSettings() {
+  const { role } = useAuth();
+  const isSuperAdmin = role === "super_admin";
   const [companyName, setCompanyName] = useState("Champa Private Enterprise");
   const [companyPhone, setCompanyPhone] = useState("");
   const [companyEmail, setCompanyEmail] = useState("");
@@ -170,7 +173,7 @@ export default function AdminSettings() {
       saveSetting("banner_text", bannerText),
       saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
-      saveSetting("payment_info", paymentInfo),
+      ...(isSuperAdmin ? [saveSetting("payment_info", paymentInfo)] : []),
     ]);
 
     toast.success("Settings saved");
@@ -398,7 +401,8 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
-      {/* Bank Transfer Payment Info */}
+      {/* Bank Transfer Payment Info — Super Admin only */}
+      {isSuperAdmin ? (
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Bank Transfer Details</CardTitle>
@@ -463,6 +467,15 @@ export default function AdminSettings() {
           </div>
         </CardContent>
       </Card>
+      ) : (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2"><Lock className="w-4 h-4" /> Bank Transfer Details</CardTitle>
+          <p className="text-xs text-muted-foreground">Only the Super Admin can view or edit bank transfer details.</p>
+        </CardHeader>
+      </Card>
+      )}
+
 
 
       <Button onClick={handleSave} disabled={loading} className="gap-2">
