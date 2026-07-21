@@ -41,8 +41,10 @@ export default function OrderDetail() {
     // Load recommendations - other products not in this order
     const { data: recProds } = await supabase
       .from("products")
-      .select("id,name,images,price_lak,price_thb,price_usd")
-      .limit(8);
+      .select("*")
+      .eq("in_stock", true)
+      .limit(10);
+
     setRecs((recProds || []).filter((p: any) => !ids.includes(p.id)).slice(0, 6));
 
     setLoading(false);
