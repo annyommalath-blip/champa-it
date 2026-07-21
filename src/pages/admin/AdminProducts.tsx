@@ -229,7 +229,7 @@ export default function AdminProducts() {
                 onChange={(e) => setForm({ ...form, long_description: e.target.value })}
               />
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Price</label>
                 <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: +e.target.value })} />
