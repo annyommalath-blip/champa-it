@@ -13,7 +13,7 @@ type Step = "cart" | "info" | "delivery" | "payment";
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<Step>("cart");
