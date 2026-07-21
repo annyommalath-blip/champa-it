@@ -20,6 +20,8 @@ const stageIndex = (s: string) => STAGES.findIndex((x) => x.key === s);
 export default function OrderDetail() {
   const { id } = useParams();
   const { user } = useAuth();
+  const { addToCart } = useApp();
+
   const [order, setOrder] = useState<any>(null);
   const [products, setProducts] = useState<Record<string, any>>({});
   const [recs, setRecs] = useState<any[]>([]);
