@@ -79,18 +79,17 @@ export default function CartPage() {
     setUploading(false);
   };
 
-  const handleSubmitOrder = async () => {
-    if (!screenshotUrl) { toast.error(t("cart.screenshotRequired")); return; }
-    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
-    setSubmitting(true);
+  const createOrderRow = async (extra: Record<string, any> = {}) => {
     const orderItems = cart.map((item) => ({
       product_id: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity,
     }));
     const payload: any = {
       items: orderItems, total: grandTotal,
-      delivery_method: deliveryMethod, delivery_fee: deliveryFee, payment_screenshot: screenshotUrl,
+      delivery_method: deliveryMethod, delivery_fee: deliveryFee,
       customer_info: { name: form.name, phone: form.phone, email: form.email, address: form.address },
       notes: form.notes || null,
+      payment_method: payMethod,
+      ...extra,
     };
     if (user) {
       payload.user_id = user.id;
@@ -99,22 +98,41 @@ export default function CartPage() {
       payload.guest_email = form.email;
       payload.guest_phone = form.phone;
     }
-    const { data, error } = await supabase.from("orders").insert(payload).select("id, guest_token").single();
+    return supabase.from("orders").insert(payload).select("id, guest_token").single();
+  };
+
+  const persistGuestOrder = (id: string, token: string) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem("guest_orders") || "[]");
+      existing.push({ id, token, email: form.email, createdAt: new Date().toISOString() });
+      localStorage.setItem("guest_orders", JSON.stringify(existing));
+    } catch {}
+  };
+
+  const handleBankTransferSubmit = async () => {
+    if (!screenshotUrl) { toast.error(t("cart.screenshotRequired")); return; }
+    if (!form.email || !form.phone) { toast.error("Email and phone are required for invoices & tracking"); return; }
+    setSubmitting(true);
+    const { data, error } = await createOrderRow({
+      payment_screenshot: screenshotUrl,
+      payment_status: "pending",
+    });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     toast.success(t("cart.orderSuccess"));
     clearCart(); setStep("cart");
-    if (user) {
-      navigate("/profile");
-    } else if (data?.guest_token) {
-      // Save tracking token locally so guest can view their order later
-      try {
-        const existing = JSON.parse(localStorage.getItem("guest_orders") || "[]");
-        existing.push({ id: data.id, token: data.guest_token, email: form.email, createdAt: new Date().toISOString() });
-        localStorage.setItem("guest_orders", JSON.stringify(existing));
-      } catch {}
-      navigate("/");
-    }
+    if (user) navigate("/profile");
+    else if (data?.guest_token) { persistGuestOrder(data.id as string, data.guest_token as string); navigate("/"); }
+  };
+
+  const handleStartCardCheckout = async () => {
+    if (!form.email || !form.phone) { toast.error("Email and phone are required"); return; }
+    setSubmitting(true);
+    const { data, error } = await createOrderRow({ payment_status: "pending" });
+    setSubmitting(false);
+    if (error) { toast.error(error.message); return; }
+    if (!user && data?.guest_token) persistGuestOrder(data.id as string, data.guest_token as string);
+    setCardOrderId(data.id as string);
   };
 
   return (
