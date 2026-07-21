@@ -401,7 +401,8 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
-      {/* Bank Transfer Payment Info */}
+      {/* Bank Transfer Payment Info — Super Admin only */}
+      {isSuperAdmin ? (
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Bank Transfer Details</CardTitle>
