@@ -111,11 +111,6 @@ export default function AboutPage() {
 
   return (
     <div className="md:max-w-7xl md:mx-auto">
-      {/* ── Greeting ── */}
-      <div className="px-5 pt-4 pb-1 md:px-8">
-        <p className="text-caption text-muted-foreground/70 font-medium">{greeting} 👋</p>
-        <h1 className="text-page-title text-foreground mt-0.5">Discover</h1>
-      </div>
 
       {/* ── Search Bar ── */}
       <div className="px-5 pb-4 md:px-8 sticky top-[48px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl pt-2">
