@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2, CreditCard, Building2 } from "lucide-react";
+import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, CheckCircle, Loader2, CreditCard, Building2, Store } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
