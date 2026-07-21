@@ -93,15 +93,29 @@ export default function OrderDetail() {
         <ArrowLeft className="w-4 h-4" /> Back to orders
       </Link>
 
-      {/* Header */}
-      <div className="bento-card p-5 space-y-1">
-        <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-wider">Order</p>
-        <h1 className="text-[22px] font-bold text-foreground tracking-tight">#{order.id.slice(0, 8).toUpperCase()}</h1>
-        <p className="text-[12px] text-muted-foreground/70">
-          Placed {new Date(order.created_at).toLocaleString()} · {order.delivery_method || "—"}
-        </p>
-        <p className="text-[18px] font-bold text-foreground mt-2">${Number(order.total).toLocaleString()}</p>
+      {/* Header - Order Details */}
+      <div className="bento-card p-5">
+        <div className="flex items-baseline justify-between mb-4">
+          <h1 className="text-[24px] font-bold text-foreground tracking-tight">Order Details</h1>
+          <Link to="/profile/orders" className="text-[13px] font-semibold text-primary">See all ›</Link>
+        </div>
+        <div className="space-y-1.5 text-[13px]">
+          <p><span className="font-bold text-foreground">Purchase Date:</span> <span className="text-muted-foreground">{new Date(order.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span></p>
+          <p><span className="font-bold text-foreground">Order Number:</span> <span className="text-muted-foreground font-mono">CHAMPA-{order.id.slice(0, 8).toUpperCase()}</span></p>
+        </div>
+        <div className="mt-4 flex items-center justify-center bg-white rounded-xl p-3 border border-border/60">
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${encodeURIComponent(`CHAMPA-${order.id}`)}`}
+            alt="Order QR code"
+            className="w-40 h-40"
+          />
+        </div>
+        <div className="mt-4 flex items-baseline justify-between border-t border-border/50 pt-3">
+          <p className="text-[13px] font-bold text-foreground">Total</p>
+          <p className="text-[20px] font-bold text-foreground tracking-tight">₭{Number(order.total).toLocaleString()}</p>
+        </div>
       </div>
+
 
       {/* Tracker - current status with dropdown */}
       <div className="bento-card p-5">
