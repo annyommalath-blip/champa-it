@@ -1,0 +1,1 @@
+CREATE POLICY "Users can close own conversations" ON public.chat_conversations FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
