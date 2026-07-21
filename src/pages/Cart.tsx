@@ -25,6 +25,18 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [guestFolder] = useState(() => crypto.randomUUID());
 
+  // Auto-fill contact info from the signed-in user's profile (user can still edit)
+  useEffect(() => {
+    if (!user || !profile) return;
+    setForm((prev) => ({
+      name: prev.name || profile.full_name || "",
+      phone: prev.phone || profile.phone || "",
+      email: prev.email || profile.email || user.email || "",
+      address: prev.address || profile.address || "",
+      notes: prev.notes,
+    }));
+  }, [user, profile]);
+
   const deliveryFee = deliveryMethod === "delivery" ? DELIVERY_FEE : 0;
   const grandTotal = cartTotal + deliveryFee;
 
