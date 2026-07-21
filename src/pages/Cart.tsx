@@ -3,7 +3,7 @@ import { Trash2, Minus, Plus, ArrowLeft, ShoppingBag, MapPin, Truck, Upload, Che
 import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
