@@ -229,6 +229,22 @@ export default function AdminSettings() {
     );
   };
 
+  const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Please upload an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploadingQr(true);
+    const fileName = `payment-qr-${Date.now()}.${file.name.split(".").pop()}`;
+    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
+    if (error) { toast.error("Upload failed: " + error.message); setUploadingQr(false); return; }
+    const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
+    setPaymentInfo((p) => ({ ...p, qr_image: urlData.publicUrl }));
+    setUploadingQr(false);
+    toast.success("QR uploaded");
+    e.target.value = "";
+  };
+
   return (
     <div className="space-y-6">
       <div>
