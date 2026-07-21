@@ -165,8 +165,10 @@ export default function AdminSettings() {
       saveSetting("company_email", companyEmail),
       saveSetting("company_address", companyAddress),
       saveSetting("banner_text", bannerText),
+      saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
     ]);
+
     toast.success("Settings saved");
     setLoading(false);
   };
