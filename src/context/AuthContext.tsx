@@ -7,10 +7,10 @@ type AppRole = "customer" | "pending_admin" | "approved_admin" | "super_admin";
 interface AuthState {
   user: User | null;
   role: AppRole | null;
-  profile: { full_name: string; avatar_url: string; email: string } | null;
+  profile: { full_name: string; avatar_url: string; email: string; phone?: string | null; address?: string | null } | null;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string, fullName: string, isAdminRequest: boolean, adminReason: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, fullName: string, phone: string, isAdminRequest: boolean, adminReason: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
   updatePassword: (password: string) => Promise<{ error: string | null }>;
