@@ -191,24 +191,45 @@ export default function OrderDetail() {
       </div>
 
 
-      {/* Items */}
+      {/* Shipping address */}
       <div className="bento-card p-5">
-        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-3">Items ({items.length})</p>
-        <div className="space-y-3">
+        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-3">Shipping Address</p>
+        <div className="space-y-1 text-[13px]">
+          <p className="text-foreground font-semibold">{customer.name || "—"}</p>
+          {customer.address && <p className="text-muted-foreground whitespace-pre-line">{customer.address}</p>}
+          <p className="text-muted-foreground pt-1">{customer.email || order.guest_email || "—"}</p>
+          <p className="text-muted-foreground">{customer.phone || order.guest_phone || "—"}</p>
+          <p className="text-muted-foreground pt-1 capitalize">Method: {order.delivery_method || "—"}</p>
+        </div>
+      </div>
+
+      {/* Product Details */}
+      <div className="bento-card p-5">
+        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-4">Product Details ({items.length})</p>
+        <div className="space-y-5 divide-y divide-border/50">
           {items.map((it: any, idx: number) => {
             const p = products[it.product_id];
+            const lineTotal = Number(it.price) * Number(it.quantity || 1);
             return (
-              <div key={idx} className="flex items-center gap-3">
-                <div className="w-14 h-14 rounded-xl bg-secondary/50 flex items-center justify-center overflow-hidden shrink-0">
-                  {p?.image ? (
-                    <img src={p.image} alt={it.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <Package className="w-5 h-5 text-muted-foreground/40" strokeWidth={1.6} />
-                  )}
+              <div key={idx} className={idx > 0 ? "pt-5" : ""}>
+                <p className="text-[14px] font-bold text-foreground mb-3 leading-snug">{it.name}</p>
+                <div className="flex gap-4">
+                  <div className="w-24 h-24 rounded-xl bg-secondary/50 flex items-center justify-center overflow-hidden shrink-0">
+                    {p?.image ? (
+                      <img src={p.image} alt={it.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted-foreground/40" strokeWidth={1.6} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0 text-[12px] space-y-1">
+                    <p><span className="font-bold text-foreground">SKU:</span> <span className="text-muted-foreground font-mono">{String(it.product_id || "").slice(0, 8).toUpperCase()}</span></p>
+                    <p><span className="font-bold text-foreground">Quantity:</span> <span className="text-muted-foreground">{it.quantity}</span></p>
+                    <p><span className="font-bold text-foreground">Unit Price:</span> <span className="text-muted-foreground">₭{Number(it.price).toLocaleString()}</span></p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-semibold text-foreground truncate">{it.name}</p>
-                  <p className="text-[11px] text-muted-foreground/60">Qty {it.quantity} · ${Number(it.price).toLocaleString()}</p>
+                <div className="mt-3 flex items-baseline justify-between text-[13px]">
+                  <p className="font-bold text-foreground">Item Total</p>
+                  <p className="font-bold text-foreground">₭{lineTotal.toLocaleString()}</p>
                 </div>
               </div>
             );
@@ -216,16 +237,38 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      {/* Delivery details */}
-      <div className="bento-card p-5">
-        <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-[0.15em] mb-3">Delivery</p>
-        <div className="space-y-1 text-[13px]">
-          <p className="text-foreground font-medium">{customer.name || "—"}</p>
-          <p className="text-muted-foreground">{customer.email || order.guest_email || "—"}</p>
-          <p className="text-muted-foreground">{customer.phone || order.guest_phone || "—"}</p>
-          {customer.address && <p className="text-muted-foreground">{customer.address}</p>}
+      {/* You may also like */}
+      {recs.length > 0 && (
+        <div className="space-y-3">
+          <h2 className="text-[18px] font-bold text-foreground tracking-tight px-1">Something you may like</h2>
+          <p className="text-[12px] text-muted-foreground/70 px-1 -mt-2">Recommended from our store</p>
+          <div className="flex gap-3 overflow-x-auto -mx-5 px-5 pb-2 snap-x snap-mandatory scrollbar-none">
+            {recs.map((p: any) => {
+              const img = Array.isArray(p.images) ? p.images[0] : null;
+              const price = p.price_lak || p.price_thb || p.price_usd || 0;
+              const symbol = p.price_lak ? "₭" : p.price_thb ? "฿" : "$";
+              return (
+                <Link
+                  key={p.id}
+                  to={`/product/${p.id}`}
+                  className="snap-start shrink-0 w-44 bento-card p-3 hover:shadow-md transition-shadow"
+                >
+                  <div className="w-full aspect-square rounded-xl bg-secondary/40 overflow-hidden mb-2 flex items-center justify-center">
+                    {img ? (
+                      <img src={img} alt={p.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <Package className="w-6 h-6 text-muted-foreground/40" />
+                    )}
+                  </div>
+                  <p className="text-[12px] font-semibold text-foreground line-clamp-2 leading-snug min-h-[32px]">{p.name}</p>
+                  <p className="text-[13px] font-bold text-foreground mt-1">{symbol}{Number(price).toLocaleString()}</p>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
+
 }
