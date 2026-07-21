@@ -34,6 +34,8 @@ import Saved from "./pages/Saved";
 import FAQ from "./pages/FAQ";
 import ComingSoon from "./pages/ComingSoon";
 import OrderDetail from "./pages/OrderDetail";
+import CheckoutReturn from "./pages/CheckoutReturn";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +43,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Sonner />
+      <PaymentTestModeBanner />
       <BrowserRouter>
         <AuthProvider>
           <LanguageProvider>
@@ -65,6 +68,7 @@ const App = () => (
               <Route path="/shop" element={<Layout><Shop /></Layout>} />
               <Route path="/shop/:id" element={<Layout><ProductDetail /></Layout>} />
               <Route path="/cart" element={<Layout><Cart /></Layout>} />
+              <Route path="/checkout/return" element={<Layout><CheckoutReturn /></Layout>} />
               <Route path="/services" element={<Layout><Services /></Layout>} />
               <Route path="/chat" element={<Layout><Chat /></Layout>} />
               <Route path="/contact" element={<Layout><Contact /></Layout>} />
