@@ -109,13 +109,17 @@ export default function OrderDetail() {
           <p><span className="font-bold text-foreground">Purchase Date:</span> <span className="text-muted-foreground">{new Date(order.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}</span></p>
           <p><span className="font-bold text-foreground">Order Number:</span> <span className="text-muted-foreground font-mono">CHAMPA-{order.id.slice(0, 8).toUpperCase()}</span></p>
         </div>
-        <div className="mt-4 flex items-center justify-center bg-white rounded-xl p-3 border border-border/60">
+        <div className="mt-4 flex flex-col items-center justify-center bg-white rounded-xl px-3 py-4 border border-border/60">
           <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=${encodeURIComponent(`CHAMPA-${order.id}`)}`}
-            alt="Order QR code"
-            className="w-40 h-40"
+            src={`https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(`CHAMPA-${order.id.slice(0, 12).toUpperCase()}`)}&scale=3&height=18&includetext=false&backgroundcolor=ffffff`}
+            alt="Order barcode"
+            className="w-full max-w-[300px] h-16 object-contain"
           />
+          <p className="text-[10px] font-mono text-muted-foreground/80 tracking-widest mt-1">
+            CHAMPA-{order.id.slice(0, 12).toUpperCase()}
+          </p>
         </div>
+
         <div className="mt-4 flex items-baseline justify-between border-t border-border/50 pt-3">
           <p className="text-[13px] font-bold text-foreground">Total</p>
           <p className="text-[20px] font-bold text-foreground tracking-tight">₭{Number(order.total).toLocaleString()}</p>
