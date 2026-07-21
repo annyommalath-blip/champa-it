@@ -21,6 +21,8 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<any>(null);
   const [products, setProducts] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+  const [statusOpen, setStatusOpen] = useState(false);
+
 
   const load = async () => {
     if (!id) return;
