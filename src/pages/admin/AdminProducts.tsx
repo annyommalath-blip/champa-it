@@ -147,15 +147,16 @@ export default function AdminProducts() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold">Products</h1>
           <p className="text-sm text-muted-foreground">{products.length} total products</p>
         </div>
-        <Button onClick={openCreate} className="gap-2">
+        <Button onClick={openCreate} size="sm" className="gap-2 shrink-0">
           <Plus className="w-4 h-4" /> Add Product
         </Button>
       </div>
+
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
