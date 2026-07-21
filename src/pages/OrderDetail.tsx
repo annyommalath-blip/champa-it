@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ChevronDown, ClipboardCheck, Package, Truck, Home, XCircle } from "lucide-react";
-
+import { ArrowLeft, Check, ChevronDown, ClipboardCheck, Package, Truck, Home, XCircle, Plus } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { useApp } from "@/context/AppContext";
+
 
 const STAGES = [
   { key: "pending", label: "Order placed", desc: "We received your order and are awaiting confirmation.", icon: ClipboardCheck },
