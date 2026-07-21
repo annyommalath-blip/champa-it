@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Check, ClipboardCheck, Package, Truck, Home, XCircle } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ClipboardCheck, Package, Truck, Home, XCircle } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 
