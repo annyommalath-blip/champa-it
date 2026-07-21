@@ -93,7 +93,16 @@ export default function AdminOrders() {
                   </div>
                   <div className="text-right">
                     <p className="font-bold">${Number(o.total).toFixed(2)}</p>
-                    {cancelled && <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full mt-1"><XCircle className="w-3 h-3" />Cancelled</span>}
+                    <div className="flex flex-col items-end gap-1 mt-1">
+                      <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                        o.payment_status === "paid" ? "bg-green-500/15 text-green-600" :
+                        o.payment_status === "failed" ? "bg-destructive/15 text-destructive" :
+                        "bg-amber-500/15 text-amber-600"
+                      }`}>
+                        {o.payment_method === "card" ? "Card" : "Bank"} · {(o.payment_status || "pending").toUpperCase()}
+                      </span>
+                      {cancelled && <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-destructive bg-destructive/10 px-2 py-0.5 rounded-full"><XCircle className="w-3 h-3" />Cancelled</span>}
+                    </div>
                   </div>
                 </div>
 
@@ -154,37 +163,116 @@ export default function AdminOrders() {
 
                 {/* Details */}
                 {isOpen && (
-                  <div className="border-t pt-3 space-y-3 text-xs">
-                    <div>
-                      <p className="font-semibold text-foreground mb-1">Customer</p>
-                      <p className="text-muted-foreground">{customer.name || "—"}</p>
-                      <p className="text-muted-foreground">{customer.email || o.guest_email || "—"}</p>
-                      <p className="text-muted-foreground">{customer.phone || o.guest_phone || "—"}</p>
-                      {customer.address && <p className="text-muted-foreground">{customer.address}</p>}
+                  <div className="border-t pt-3 space-y-4 text-xs">
+                    {/* Payment */}
+                    <div className="rounded-lg bg-muted/30 p-3 space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <p className="font-semibold text-foreground">Payment</p>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          o.payment_status === "paid"
+                            ? "bg-green-500/15 text-green-600"
+                            : o.payment_status === "failed"
+                            ? "bg-destructive/15 text-destructive"
+                            : "bg-amber-500/15 text-amber-600"
+                        }`}>
+                          {(o.payment_status || "pending").toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-y-1 text-muted-foreground">
+                        <span>Method</span>
+                        <span className="text-foreground font-medium capitalize text-right">
+                          {o.payment_method === "card" ? "Card (Stripe)" : o.payment_method === "bank_transfer" ? "Bank Transfer" : o.payment_method || "—"}
+                        </span>
+                        <span>Amount</span>
+                        <span className="text-foreground font-medium text-right">${Number(o.total).toFixed(2)}</span>
+                        <span>Delivery fee</span>
+                        <span className="text-foreground text-right">${Number(o.delivery_fee || 0).toFixed(2)}</span>
+                        {o.stripe_payment_intent && (
+                          <>
+                            <span>Stripe PI</span>
+                            <span className="text-foreground font-mono text-[10px] truncate text-right">{o.stripe_payment_intent}</span>
+                          </>
+                        )}
+                        {o.stripe_session_id && (
+                          <>
+                            <span>Stripe Session</span>
+                            <span className="text-foreground font-mono text-[10px] truncate text-right">{o.stripe_session_id}</span>
+                          </>
+                        )}
+                      </div>
+                      {o.payment_screenshot && (
+                        <div className="pt-2">
+                          <p className="text-muted-foreground mb-1">Transfer screenshot (verify before confirming):</p>
+                          <a href={o.payment_screenshot} target="_blank" rel="noreferrer" className="block">
+                            <img src={o.payment_screenshot} alt="Payment proof" className="max-h-48 rounded-lg border object-contain bg-background" />
+                          </a>
+                          <a href={o.payment_screenshot} target="_blank" rel="noreferrer" className="text-primary underline text-[11px] mt-1 inline-block">Open full size</a>
+                        </div>
+                      )}
+                      {o.payment_method === "bank_transfer" && o.payment_status !== "paid" && (
+                        <div className="flex gap-2 pt-2">
+                          <Button size="sm" variant="outline" className="text-green-600" onClick={async () => {
+                            const { error } = await supabase.from("orders").update({ payment_status: "paid" }).eq("id", o.id);
+                            if (error) toast.error(error.message); else { toast.success("Payment marked as paid"); fetchOrders(); }
+                          }}>Mark payment as paid</Button>
+                          <Button size="sm" variant="outline" className="text-destructive" onClick={async () => {
+                            const { error } = await supabase.from("orders").update({ payment_status: "failed" }).eq("id", o.id);
+                            if (error) toast.error(error.message); else { toast.success("Payment rejected"); fetchOrders(); }
+                          }}>Reject payment</Button>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Customer */}
+                    <div>
+                      <p className="font-semibold text-foreground mb-1">Customer {!o.user_id && <span className="text-[10px] text-amber-600">(Guest)</span>}</p>
+                      <div className="grid grid-cols-[80px_1fr] gap-y-0.5 text-muted-foreground">
+                        <span>Name</span><span className="text-foreground">{customer.name || "—"}</span>
+                        <span>Email</span><span className="text-foreground">{customer.email || o.guest_email || "—"}</span>
+                        <span>Phone</span><span className="text-foreground">{customer.phone || o.guest_phone || "—"}</span>
+                        {customer.address && (<><span>Address</span><span className="text-foreground">{customer.address}</span></>)}
+                        <span>User ID</span><span className="text-foreground font-mono text-[10px] truncate">{o.user_id || "guest"}</span>
+                      </div>
+                    </div>
+
+                    {/* Delivery */}
+                    <div>
+                      <p className="font-semibold text-foreground mb-1">Delivery</p>
+                      <div className="grid grid-cols-[80px_1fr] gap-y-0.5 text-muted-foreground">
+                        <span>Method</span><span className="text-foreground capitalize">{o.delivery_method || "—"}</span>
+                        {customer.deliveryAddress && (<><span>Address</span><span className="text-foreground">{customer.deliveryAddress}</span></>)}
+                      </div>
+                    </div>
+
+                    {/* Items */}
                     {items.length > 0 && (
                       <div>
-                        <p className="font-semibold text-foreground mb-1">Items</p>
+                        <p className="font-semibold text-foreground mb-1">Items ({items.length})</p>
                         <ul className="space-y-1">
                           {items.map((it: any, idx: number) => (
                             <li key={idx} className="flex justify-between text-muted-foreground">
                               <span>{it.name || it.title || "Item"} × {it.quantity || 1}</span>
-                              <span>${Number(it.price || 0).toLocaleString()}</span>
+                              <span className="text-foreground">${(Number(it.price || 0) * Number(it.quantity || 1)).toLocaleString()}</span>
                             </li>
                           ))}
                         </ul>
                       </div>
                     )}
+
+                    {/* Timeline */}
+                    <div>
+                      <p className="font-semibold text-foreground mb-1">Timeline</p>
+                      <div className="grid grid-cols-[80px_1fr] gap-y-0.5 text-muted-foreground">
+                        <span>Placed</span><span className="text-foreground">{new Date(o.created_at).toLocaleString()}</span>
+                        <span>Updated</span><span className="text-foreground">{new Date(o.updated_at).toLocaleString()}</span>
+                        <span>Order ID</span><span className="text-foreground font-mono text-[10px]">{o.id}</span>
+                      </div>
+                    </div>
+
                     {o.notes && (
                       <div>
-                        <p className="font-semibold text-foreground mb-1">Notes</p>
+                        <p className="font-semibold text-foreground mb-1">Customer notes</p>
                         <p className="text-muted-foreground italic">{o.notes}</p>
-                      </div>
-                    )}
-                    {o.payment_screenshot && (
-                      <div>
-                        <p className="font-semibold text-foreground mb-1">Payment proof</p>
-                        <a href={o.payment_screenshot} target="_blank" rel="noreferrer" className="text-primary underline">View screenshot</a>
                       </div>
                     )}
                   </div>
