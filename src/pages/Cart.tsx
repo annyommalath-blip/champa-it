@@ -405,11 +405,25 @@ export default function CartPage() {
             </>
           )}
 
+          {payMethod === "pay_in_store" && (
+            <div className="app-card p-4 mb-5 flex gap-3 items-start bg-primary/5 border-primary/20">
+              <Store className="w-5 h-5 text-primary shrink-0 mt-0.5" strokeWidth={1.6} />
+              <div className="text-caption text-foreground">
+                <p className="font-semibold mb-1">Pay when you pick up</p>
+                <p className="text-muted-foreground text-micro">We'll reserve your items. Pay by cash or card at our store when you collect your order.</p>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-2.5">
             <button onClick={() => setStep("delivery")} className="btn-secondary flex-1">{t("cart.back")}</button>
             {payMethod === "bank_transfer" ? (
               <button onClick={handleBankTransferSubmit} disabled={submitting || uploading} className="btn-primary flex-1 disabled:opacity-50">
                 {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("cart.submitOrder")}
+              </button>
+            ) : payMethod === "pay_in_store" ? (
+              <button onClick={handlePayInStoreSubmit} disabled={submitting} className="btn-primary flex-1 disabled:opacity-50">
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Reserve & pay in store"}
               </button>
             ) : (
               <button onClick={handleStartCardCheckout} disabled={submitting} className="btn-primary flex-1 disabled:opacity-50">
