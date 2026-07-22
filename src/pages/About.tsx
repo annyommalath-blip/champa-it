@@ -47,6 +47,7 @@ export default function AboutPage() {
   const [products, setProducts] = useState<DbProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [dealsTab, setDealsTab] = useState(0);
+  const [outletTab, setOutletTab] = useState(0);
 
   useEffect(() => {
     async function loadSlides() {
