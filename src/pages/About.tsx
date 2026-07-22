@@ -123,7 +123,7 @@ export default function AboutPage() {
       </div>
 
 
-      <div className="px-5 space-y-6 pb-10 md:px-8 md:space-y-8">
+      <div className="px-5 space-y-6 pb-10 md:px-8 md:space-y-8 pt-5 md:pt-2">
 
         {/* ── Hero Carousel ── */}
         <section>
