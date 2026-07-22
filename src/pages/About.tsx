@@ -169,28 +169,28 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Category Circles ── */}
+        {/* ── Trusted Partners ── */}
         <section>
+          <h3 className="text-section-title text-foreground mb-3">{t("home.trustedPartners")}</h3>
           <div className="flex gap-4 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
             {[
-              { icon: Server, label: "Servers", link: "/shop?cat=servers", bg: "hsl(50 84% 92%)", fg: "hsl(38 60% 30%)" },
-              { icon: Wifi, label: "Networking", link: "/shop?cat=networking", bg: "hsl(199 70% 92%)", fg: "hsl(199 70% 30%)" },
-              { icon: Shield, label: "Security", link: "/shop?cat=security", bg: "hsl(0 70% 94%)", fg: "hsl(0 60% 40%)" },
-              { icon: Cloud, label: "Cloud", link: "/services", bg: "hsl(220 60% 94%)", fg: "hsl(220 60% 40%)" },
-              { icon: Cpu, label: "Compute", link: "/shop?cat=compute", bg: "hsl(280 40% 94%)", fg: "hsl(280 40% 40%)" },
-              { icon: HardDrive, label: "Storage", link: "/shop?cat=storage", bg: "hsl(150 40% 92%)", fg: "hsl(150 40% 28%)" },
-              { icon: Wrench, label: "Services", link: "/services", bg: "hsl(30 80% 92%)", fg: "hsl(30 80% 35%)" },
-              { icon: Tag, label: "Deals", link: "/shop", bg: "hsl(340 70% 94%)", fg: "hsl(340 60% 40%)" },
-            ].map((c) => (
-              <Link key={c.label} to={c.link} className="flex-shrink-0 flex flex-col items-center gap-2 active:scale-95 transition-transform w-[68px]">
-                <div className="w-[60px] h-[60px] rounded-full flex items-center justify-center" style={{ background: c.bg }}>
-                  <c.icon className="w-6 h-6" style={{ color: c.fg }} strokeWidth={2} />
+              { name: "Cisco", logo: "/brands/cisco.svg" },
+              { name: "AWS", logo: "/brands/aws.svg" },
+              { name: "VMware", logo: "/brands/vmware.png" },
+              { name: "Fortinet", logo: "/brands/fortinet.svg" },
+              { name: "Microsoft", logo: "/brands/microsoft.svg" },
+              { name: "Dell", logo: "/brands/dell.svg" },
+            ].map((brand) => (
+              <div key={brand.name} className="flex-shrink-0 flex flex-col items-center gap-2 w-[72px]">
+                <div className="w-[64px] h-[64px] rounded-full bg-card flex items-center justify-center p-3.5 active:scale-95 transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
+                  <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain" />
                 </div>
-                <span className="text-[11px] font-semibold text-foreground text-center leading-tight tracking-tight">{c.label}</span>
-              </Link>
+                <span className="text-[11px] font-semibold text-foreground text-center leading-tight tracking-tight">{brand.name}</span>
+              </div>
             ))}
           </div>
         </section>
+
 
         {/* ── Big Savings horizontal banners ── */}
         {!loading && products.length >= 2 && (
@@ -401,24 +401,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Trusted Partners ── */}
-        <section>
-          <h3 className="text-section-title text-foreground mb-3">{t("home.trustedPartners")}</h3>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-            {[
-              { name: "Cisco", logo: "/brands/cisco.svg" },
-              { name: "AWS", logo: "/brands/aws.svg" },
-              { name: "VMware", logo: "/brands/vmware.png" },
-              { name: "Fortinet", logo: "/brands/fortinet.svg" },
-              { name: "Microsoft", logo: "/brands/microsoft.svg" },
-              { name: "Dell", logo: "/brands/dell.svg" },
-            ].map((brand) => (
-              <div key={brand.name} className="flex-shrink-0 w-[64px] h-[64px] rounded-2xl bg-card flex items-center justify-center p-3 active:scale-95 transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
-                <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain" />
-              </div>
-            ))}
-          </div>
-        </section>
+
 
         {/* ── Featured Products ── */}
         <section>
