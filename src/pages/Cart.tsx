@@ -185,8 +185,12 @@ export default function CartPage() {
           <div className="space-y-2 mb-4">
             {cart.map((item) => (
               <div key={item.product.id} className="app-card p-4 flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center shrink-0">
-                  <span className="text-lg font-bold text-muted-foreground/30">{item.product.name.charAt(0)}</span>
+                <div className="w-14 h-14 rounded-xl bg-secondary overflow-hidden flex items-center justify-center shrink-0">
+                  {item.product.image_url ? (
+                    <img src={item.product.image_url} alt={item.product.name} className="w-full h-full object-cover" loading="lazy" />
+                  ) : (
+                    <span className="text-lg font-bold text-muted-foreground/30">{item.product.name.charAt(0)}</span>
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-body font-semibold text-foreground truncate">{item.product.name}</h3>
