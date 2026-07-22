@@ -248,29 +248,23 @@ export default function AdminSettings() {
     );
   };
 
-  const updatePromo = (index: number, field: keyof PromoCard, value: string) => {
-    setPromoCards((prev) => prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)));
-  };
-  const addPromo = () => {
-    setPromoCards((prev) => [...prev, { style: "yellow-save", eyebrow: "", title: "", subtitle: "", cta: "Shop now", link: "/shop", image: "" }]);
-  };
-  const removePromo = (index: number) => {
-    setPromoCards((prev) => prev.filter((_, i) => i !== index));
-  };
   const handlePromoUpload = async (index: number, file: File) => {
     if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
     setUploadingPromo(index);
-    const fileName = `promo-card-${index}-${Date.now()}.${file.name.split(".").pop()}`;
+    const fileName = `promo-slot-${index}-${Date.now()}.${file.name.split(".").pop()}`;
     const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
     if (error) { toast.error("Upload failed: " + error.message); setUploadingPromo(null); return; }
     const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
-    setPromoCards((prev) => prev.map((c, i) => (i === index ? { ...c, image: urlData.publicUrl } : c)));
+    setPromoImages((prev) => prev.map((p, i) => (i === index ? { ...p, image: urlData.publicUrl } : p)));
     setUploadingPromo(null);
     toast.success("Image uploaded!");
   };
+  const updatePromoPosition = (index: number, pos: string) => {
+    setPromoImages((prev) => prev.map((p, i) => (i === index ? { ...p, imagePosition: pos } : p)));
+  };
   const removePromoImage = (index: number) => {
-    setPromoCards((prev) => prev.map((c, i) => (i === index ? { ...c, image: "" } : c)));
+    setPromoImages((prev) => prev.map((p, i) => (i === index ? {} : p)));
   };
 
   const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
