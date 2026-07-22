@@ -90,6 +90,7 @@ export default function AdminProducts() {
       price: form.price,
       currency: form.currency,
       category: form.category,
+      condition: form.condition,
       images: form.images.length ? form.images : ["/placeholder.svg"],
       in_stock: form.in_stock,
       stock_quantity: form.stock_quantity,
