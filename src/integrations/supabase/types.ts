@@ -522,6 +522,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_has_role: {
+        Args: { _role: Database["public"]["Enums"]["app_role"] }
+        Returns: boolean
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
