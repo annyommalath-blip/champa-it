@@ -372,19 +372,6 @@ export default function AboutPage() {
           </section>
         )}
 
-        {/* ── Trending Now banner ── */}
-        <section>
-          <div className="rounded-3xl overflow-hidden p-6 relative" style={{ background: "hsl(50 84% 52%)" }}>
-            <div className="max-w-[70%]">
-              <p className="text-primary-foreground/70 text-[11px] font-bold uppercase tracking-widest">Champa Exclusive</p>
-              <h3 className="text-primary-foreground text-[22px] font-black tracking-tight leading-tight mt-2">Enterprise-grade support, on your schedule</h3>
-              <Link to="/services" className="mt-4 inline-flex items-center gap-1 px-4 py-2 rounded-full bg-foreground text-background text-[12px] font-bold">
-                Explore services <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-            <Zap className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 text-primary-foreground/15" strokeWidth={1.5} />
-          </div>
-        </section>
 
 
         {/* ── Quick Actions (pill row) ── */}
