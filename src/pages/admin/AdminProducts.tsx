@@ -11,6 +11,13 @@ import ImageCropper from "@/components/ImageCropper";
 
 const CURRENCIES = ["USD", "LAK", "THB"] as const;
 const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+const CONDITIONS = [
+  { value: "new", label: "New" },
+  { value: "refurbished", label: "Refurbished" },
+  { value: "clearance", label: "Clearance" },
+  { value: "open_box", label: "Open-box" },
+  { value: "pre_loved", label: "Pre-loved" },
+] as const;
 
 interface Product {
   id: string;
@@ -20,6 +27,7 @@ interface Product {
   price: number;
   currency: string;
   category: string;
+  condition: string;
   images: string[] | null;
   in_stock: boolean;
   stock_quantity: number;
@@ -29,8 +37,10 @@ interface Product {
 
 const emptyProduct = {
   name: "", description: "", long_description: "", price: 0, currency: "USD", category: "Uncategorized",
+  condition: "new",
   images: [] as string[], in_stock: true, stock_quantity: 0, rating: 0, specs: {} as Record<string, string>,
 };
+
 
 export default function AdminProducts() {
   const { user } = useAuth();
@@ -62,7 +72,9 @@ export default function AdminProducts() {
     setEditing(p);
     setForm({
       name: p.name, description: p.description, long_description: p.long_description || "",
-      price: p.price, currency: p.currency || "USD", category: p.category, images: p.images || [],
+      price: p.price, currency: p.currency || "USD", category: p.category,
+      condition: p.condition || "new",
+      images: p.images || [],
       in_stock: p.in_stock, stock_quantity: p.stock_quantity || 0, rating: p.rating || 0, specs: (p.specs || {}) as Record<string, string>,
     });
     setDialogOpen(true);
@@ -78,6 +90,7 @@ export default function AdminProducts() {
       price: form.price,
       currency: form.currency,
       category: form.category,
+      condition: form.condition,
       images: form.images.length ? form.images : ["/placeholder.svg"],
       in_stock: form.in_stock,
       stock_quantity: form.stock_quantity,
@@ -250,6 +263,21 @@ export default function AdminProducts() {
                 <label className="text-xs font-medium text-muted-foreground">Category</label>
                 <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
               </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Condition</label>
+              <select
+                value={form.condition}
+                onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                {CONDITIONS.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Non-"New" items appear under Outlet Deals on the home page.
+              </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
