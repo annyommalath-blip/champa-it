@@ -169,6 +169,215 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* ── Category Circles ── */}
+        <section>
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+            {[
+              { icon: Server, label: "Servers", link: "/shop?cat=servers", bg: "hsl(50 84% 92%)", fg: "hsl(38 60% 30%)" },
+              { icon: Wifi, label: "Networking", link: "/shop?cat=networking", bg: "hsl(199 70% 92%)", fg: "hsl(199 70% 30%)" },
+              { icon: Shield, label: "Security", link: "/shop?cat=security", bg: "hsl(0 70% 94%)", fg: "hsl(0 60% 40%)" },
+              { icon: Cloud, label: "Cloud", link: "/services", bg: "hsl(220 60% 94%)", fg: "hsl(220 60% 40%)" },
+              { icon: Cpu, label: "Compute", link: "/shop?cat=compute", bg: "hsl(280 40% 94%)", fg: "hsl(280 40% 40%)" },
+              { icon: HardDrive, label: "Storage", link: "/shop?cat=storage", bg: "hsl(150 40% 92%)", fg: "hsl(150 40% 28%)" },
+              { icon: Wrench, label: "Services", link: "/services", bg: "hsl(30 80% 92%)", fg: "hsl(30 80% 35%)" },
+              { icon: Tag, label: "Deals", link: "/shop", bg: "hsl(340 70% 94%)", fg: "hsl(340 60% 40%)" },
+            ].map((c) => (
+              <Link key={c.label} to={c.link} className="flex-shrink-0 flex flex-col items-center gap-2 active:scale-95 transition-transform w-[68px]">
+                <div className="w-[60px] h-[60px] rounded-full flex items-center justify-center" style={{ background: c.bg }}>
+                  <c.icon className="w-6 h-6" style={{ color: c.fg }} strokeWidth={2} />
+                </div>
+                <span className="text-[11px] font-semibold text-foreground text-center leading-tight tracking-tight">{c.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Big Savings horizontal banners ── */}
+        {!loading && products.length >= 2 && (
+          <section>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+              {products.slice(0, 3).map((p, i) => {
+                const sym = CURRENCY_SYMBOLS[p.currency] || "$";
+                const img = p.images?.[0];
+                const savings = [170, 220, 90][i] ?? 100;
+                return (
+                  <Link
+                    key={`save-${p.id}`}
+                    to={`/shop/${p.id}`}
+                    className="flex-shrink-0 w-[280px] rounded-3xl overflow-hidden active:scale-[0.98] transition-transform relative flex flex-col justify-between p-5"
+                    style={{ background: "linear-gradient(160deg, hsl(50 84% 52%) 0%, hsl(44 92% 48%) 100%)", height: "300px" }}
+                  >
+                    <div>
+                      <div className="text-primary-foreground/80 text-[13px] font-semibold">Save</div>
+                      <div className="text-primary-foreground text-[38px] font-black tracking-tight leading-none">{sym}{savings}</div>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center py-2">
+                      {img && img !== "/placeholder.svg" ? (
+                        <img src={img} alt={p.name} className="max-h-[130px] w-auto object-contain drop-shadow-xl" />
+                      ) : (
+                        <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
+                          <Package className="w-10 h-10 text-primary-foreground/60" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-primary-foreground text-[13px] font-medium line-clamp-2 mb-3">Save {sym}{savings} on {p.name}</p>
+                      <div className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-background text-foreground text-[13px] font-bold">
+                        Shop now
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── Outlet Deals section ── */}
+        {!loading && products.length >= 3 && (
+          <section>
+            <div className="rounded-2xl overflow-hidden mb-4 p-5 relative" style={{ background: "linear-gradient(120deg, hsl(228 30% 12%) 0%, hsl(199 60% 30%) 100%)" }}>
+              <h3 className="text-[26px] font-black tracking-tight" style={{ color: "hsl(50 84% 52%)" }}>Outlet Deals</h3>
+              <p className="text-background/70 text-[12px] mt-1 font-medium">Refurbished · Clearance · Open-box</p>
+            </div>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 mb-3">
+              {["Refurbished", "Clearance", "Open-box", "Pre-owned"].map((tab, i) => (
+                <button
+                  key={tab}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
+                    i === 0
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-card text-muted-foreground"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+              {products.slice(0, 6).map((product) => {
+                const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                const img = product.images?.[0];
+                const originalPrice = Number(product.price) * 1.35;
+                const save = Math.round(originalPrice - Number(product.price));
+                return (
+                  <Link
+                    key={`outlet-${product.id}`}
+                    to={`/shop/${product.id}`}
+                    className="flex-shrink-0 w-[180px] bento-card overflow-hidden active:scale-[0.98] transition-transform relative"
+                  >
+                    <div className="aspect-square bg-secondary/30 relative flex items-center justify-center">
+                      {img && img !== "/placeholder.svg" ? (
+                        <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-10 h-10 text-muted-foreground/30" />
+                      )}
+                      <span className="absolute top-2 left-2 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-[10px] font-bold">
+                        Save {sym}{save}
+                      </span>
+                      <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/90 flex items-center justify-center active:scale-90" onClick={(e) => e.preventDefault()}>
+                        <Heart className="w-3.5 h-3.5 text-foreground/70" strokeWidth={2} />
+                      </button>
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
+                      <div className="flex items-baseline gap-1.5 mt-1.5">
+                        <span className="text-[14px] font-extrabold text-foreground">{sym}{Number(product.price).toLocaleString()}</span>
+                        <span className="text-[11px] text-muted-foreground/60 line-through">{sym}{Math.round(originalPrice).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+            <Link to="/shop" className="mt-3 inline-block text-[13px] font-bold" style={{ color: "hsl(199 70% 40%)" }}>
+              See all outlet →
+            </Link>
+          </section>
+        )}
+
+        {/* ── AI Assistant promo ── */}
+        <section>
+          <Link
+            to="/contact"
+            className="block rounded-3xl overflow-hidden p-6 active:scale-[0.99] transition-transform relative"
+            style={{ background: "linear-gradient(140deg, hsl(228 30% 12%) 0%, hsl(228 40% 20%) 60%, hsl(50 84% 30%) 100%)" }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <Sparkles className="w-7 h-7 mb-3" style={{ color: "hsl(50 84% 62%)" }} strokeWidth={2} />
+                <p className="text-background text-[16px] font-semibold leading-snug tracking-tight">
+                  Our expert team helps you choose the right IT setup{" "}
+                  <span style={{ color: "hsl(50 84% 62%)" }}>for any business need...</span>
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 inline-flex items-center justify-center w-full px-4 py-3 rounded-full bg-background text-foreground text-[14px] font-bold">
+              Get a free consultation
+            </div>
+          </Link>
+        </section>
+
+        {/* ── Deals for you ── */}
+        {!loading && products.length >= 4 && (
+          <section>
+            <div>
+              <h3 className="text-[22px] font-black tracking-tight text-foreground">Deals for you</h3>
+              <p className="text-[13px] text-muted-foreground mt-0.5">Based on your activity and interests</p>
+            </div>
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 mt-4 mb-3">
+              {["Super savings", "Recommended", "New deals", "Best-selling"].map((tab, i) => (
+                <button
+                  key={tab}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
+                    i === 0
+                      ? "border-primary bg-primary/10 text-foreground"
+                      : "border-border bg-card text-muted-foreground"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {products.slice(0, 6).map((product) => {
+                const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                const img = product.images?.[0];
+                return (
+                  <Link key={`deal-${product.id}`} to={`/shop/${product.id}`} className="bento-card overflow-hidden active:scale-[0.98] transition-transform">
+                    <div className="aspect-square bg-secondary/30 flex items-center justify-center relative">
+                      {img && img !== "/placeholder.svg" ? (
+                        <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Package className="w-10 h-10 text-muted-foreground/30" />
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
+                      <span className="text-[14px] font-extrabold text-foreground mt-1.5 block">{sym}{Number(product.price).toLocaleString()}</span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── Trending Now banner ── */}
+        <section>
+          <div className="rounded-3xl overflow-hidden p-6 relative" style={{ background: "hsl(50 84% 52%)" }}>
+            <div className="max-w-[70%]">
+              <p className="text-primary-foreground/70 text-[11px] font-bold uppercase tracking-widest">Champa Exclusive</p>
+              <h3 className="text-primary-foreground text-[22px] font-black tracking-tight leading-tight mt-2">Enterprise-grade support, on your schedule</h3>
+              <Link to="/services" className="mt-4 inline-flex items-center gap-1 px-4 py-2 rounded-full bg-foreground text-background text-[12px] font-bold">
+                Explore services <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <Zap className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 text-primary-foreground/15" strokeWidth={1.5} />
+          </div>
+        </section>
+
+
         {/* ── Quick Actions (pill row) ── */}
         <section>
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
