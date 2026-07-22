@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Search, ChevronRight, Star, ShoppingCart, Zap, Wrench, ShoppingBag, Tag, Package } from "lucide-react";
+import { ArrowRight, Search, ChevronRight, Star, ShoppingCart, Zap, Wrench, ShoppingBag, Tag, Package, Sparkles, Server, Shield, Cloud, Cpu, HardDrive, Wifi, Heart } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/context/LanguageContext";
 import { useApp } from "@/context/AppContext";
