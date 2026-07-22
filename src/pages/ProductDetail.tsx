@@ -243,19 +243,9 @@ export default function ProductDetail() {
         <button onClick={() => navigate(-1)} className="p-1.5 rounded-xl active:scale-90 transition-transform">
           <ArrowLeft className="w-5 h-5 text-foreground" strokeWidth={2} />
         </button>
-        <div className="flex items-center gap-1">
-          <button onClick={handleShare} className="p-2 rounded-xl active:scale-90 transition-transform">
-            <Share2 className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
-          </button>
-          <Link to="/cart" className="relative p-2 rounded-xl active:scale-90 transition-transform">
-            <ShoppingCart className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
-            {cart.length > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] flex items-center justify-center font-bold px-0.5">
-                {cart.reduce((s, i) => s + i.quantity, 0)}
-              </span>
-            )}
-          </Link>
-        </div>
+        <button onClick={handleShare} className="p-2 rounded-xl active:scale-90 transition-transform">
+          <Share2 className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
+        </button>
       </div>
 
       {/* ── Image Gallery ── */}
