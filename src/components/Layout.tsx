@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones, HelpCircle, Search } from "lucide-react";
 import { useApp } from "@/context/AppContext";
