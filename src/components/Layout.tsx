@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones } from "lucide-react";
+import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones, HelpCircle, Search } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
