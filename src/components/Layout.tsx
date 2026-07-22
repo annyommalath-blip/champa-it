@@ -106,8 +106,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link to="/profile/faq" aria-label="Help" className="p-2 rounded-full active:scale-90 transition-transform">
                 <HelpCircle className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
               </Link>
-              <Link to="/notifications" aria-label="Notifications" className="p-2 rounded-full active:scale-90 transition-transform">
+              <Link to="/notifications" aria-label="Notifications" className="relative p-2 rounded-full active:scale-90 transition-transform">
                 <Bell className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
+                {unreadNotif > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] rounded-full bg-foreground text-background text-[9px] flex items-center justify-center font-bold px-1 ring-2 ring-primary">
+                    {unreadNotif > 9 ? "9+" : unreadNotif}
+                  </span>
+                )}
               </Link>
               <Link to="/cart" aria-label="Cart" className="relative p-2 rounded-full active:scale-90 transition-transform">
                 <ShoppingCart className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
