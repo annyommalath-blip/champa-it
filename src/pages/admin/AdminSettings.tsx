@@ -393,6 +393,95 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Promo Cards */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-base">Homepage Promo Cards</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Editable promotional cards shown below the hero on the home screen.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={addPromo} className="gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> Add Card
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {promoCards.map((card, i) => (
+            <div key={i} className="relative rounded-lg border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <GripVertical className="w-4 h-4" />
+                  <span className="text-xs font-semibold">Card {i + 1}</span>
+                </div>
+                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removePromo(i)}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground">Style</label>
+                <select
+                  value={card.style}
+                  onChange={(e) => updatePromo(i, "style", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  {(Object.keys(PROMO_STYLE_LABELS) as PromoCard["style"][]).map((k) => (
+                    <option key={k} value={k}>{PROMO_STYLE_LABELS[k]}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Image</label>
+                {card.image ? (
+                  <div className="space-y-2">
+                    <DraggableImageCrop
+                      src={card.image}
+                      position={card.imagePosition || "50% 50%"}
+                      onPositionChange={(pos) => updatePromo(i, "imagePosition", pos)}
+                    />
+                    <div className="flex items-center gap-2">
+                      <SlideImageUploadButton index={i} uploading={uploadingPromo === i} onUpload={handlePromoUpload} label="Replace" />
+                      <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => removePromoImage(i)}>
+                        <X className="w-3.5 h-3.5" /> Remove
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <SlideImageUploadButton index={i} uploading={uploadingPromo === i} onUpload={handlePromoUpload} isPlaceholder />
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Eyebrow / Label</label>
+                  <Input value={card.eyebrow || ""} onChange={(e) => updatePromo(i, "eyebrow", e.target.value)} placeholder="e.g. Save ₭170 or Champa Exclusive" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Title</label>
+                  <Input value={card.title} onChange={(e) => updatePromo(i, "title", e.target.value)} placeholder="Main headline" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Subtitle (optional)</label>
+                  <Input value={card.subtitle || ""} onChange={(e) => updatePromo(i, "subtitle", e.target.value)} placeholder="Highlighted phrase" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Button Text</label>
+                  <Input value={card.cta} onChange={(e) => updatePromo(i, "cta", e.target.value)} placeholder="e.g. Shop now" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-medium text-muted-foreground">Link</label>
+                  <Input value={card.link} onChange={(e) => updatePromo(i, "link", e.target.value)} placeholder="e.g. /shop" />
+                </div>
+              </div>
+            </div>
+          ))}
+          {promoCards.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">No promo cards. Click "Add Card" to create one.</p>
+          )}
+        </CardContent>
+      </Card>
+
+
       {/* Company Info */}
       <Card>
         <CardHeader>
