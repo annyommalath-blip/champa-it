@@ -110,11 +110,26 @@ interface HeroSlide {
   imagePosition?: string;
 }
 
+interface SavingsBanner {
+  label: string;
+  amount: string;
+  description: string;
+  cta: string;
+  link: string;
+  image?: string;
+}
+
 const defaultSlides: HeroSlide[] = [
   { title: "New Arrivals", subtitle: "Latest enterprise hardware & tools", cta: "Shop Now", link: "/shop" },
   { title: "Request a Quote", subtitle: "Fast estimate from our sales team", cta: "Get Quote", link: "/contact" },
   { title: "Talk to Sales", subtitle: "Live chat with our engineers", cta: "Start Chat", link: "/contact" },
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
+];
+
+const defaultSavingsBanners: SavingsBanner[] = [
+  { label: "Save", amount: "₭170", description: "Save ₭170 on Canon IR2206N", cta: "Shop now", link: "/shop" },
+  { label: "Save", amount: "₭220", description: "Save ₭220 on DPCM300", cta: "Shop now", link: "/shop" },
+  { label: "Save", amount: "₭90", description: "Save ₭90 on select items", cta: "Shop now", link: "/shop" },
 ];
 
 export default function AdminSettings() {
@@ -127,6 +142,8 @@ export default function AdminSettings() {
   const [bannerText, setBannerText] = useState("🔥 Free shipping on orders over $1,000");
   const [chatGreeting, setChatGreeting] = useState("Hi {name}! 👋 Welcome to Champa Support. An agent will be with you shortly.");
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(defaultSlides);
+  const [savingsBanners, setSavingsBanners] = useState<SavingsBanner[]>(defaultSavingsBanners);
+  const [uploadingSavings, setUploadingSavings] = useState<number | null>(null);
   const [paymentInfo, setPaymentInfo] = useState({ qr_image: "", bank_name: "", account_name: "", account_number: "", notes: "" });
   const [uploadingQr, setUploadingQr] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -146,6 +163,7 @@ export default function AdminSettings() {
           if (s.key === "banner_text") setBannerText(val || "");
           if (s.key === "chat_greeting" && typeof val === "string") setChatGreeting(val);
           if (s.key === "hero_slides" && Array.isArray(val)) setHeroSlides(val);
+          if (s.key === "savings_banners" && Array.isArray(val)) setSavingsBanners(val);
           if (s.key === "payment_info" && val && typeof val === "object") setPaymentInfo({ qr_image: val.qr_image || "", bank_name: val.bank_name || "", account_name: val.account_name || "", account_number: val.account_number || "", notes: val.notes || "" });
         });
 
@@ -173,6 +191,7 @@ export default function AdminSettings() {
       saveSetting("banner_text", bannerText),
       saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
+      saveSetting("savings_banners", savingsBanners),
       ...(isSuperAdmin ? [saveSetting("payment_info", paymentInfo)] : []),
     ]);
 
@@ -247,6 +266,29 @@ export default function AdminSettings() {
     toast.success("QR uploaded");
     e.target.value = "";
   };
+
+  const updateSavings = (index: number, field: keyof SavingsBanner, value: string) => {
+    setSavingsBanners((prev) => prev.map((b, i) => (i === index ? { ...b, [field]: value } : b)));
+  };
+  const addSavings = () => {
+    setSavingsBanners((prev) => [...prev, { label: "Save", amount: "", description: "", cta: "Shop now", link: "/shop", image: "" }]);
+  };
+  const removeSavings = (index: number) => {
+    setSavingsBanners((prev) => prev.filter((_, i) => i !== index));
+  };
+  const handleSavingsImageUpload = async (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Please upload an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploadingSavings(index);
+    const fileName = `savings-${index}-${Date.now()}.${file.name.split(".").pop()}`;
+    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
+    if (error) { toast.error("Upload failed: " + error.message); setUploadingSavings(null); return; }
+    const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
+    setSavingsBanners((prev) => prev.map((b, i) => (i === index ? { ...b, image: urlData.publicUrl } : b)));
+    setUploadingSavings(null);
+    toast.success("Image uploaded!");
+  };
+
 
   return (
     <div className="space-y-6">
@@ -340,6 +382,75 @@ export default function AdminSettings() {
           )}
         </CardContent>
       </Card>
+
+      {/* Big Savings Banners */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-base">Big Savings Banners</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Yellow promo cards on the home page.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={addSavings} className="gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> Add Banner
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {savingsBanners.map((b, i) => (
+            <div key={i} className="relative rounded-lg border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-muted-foreground">Banner {i + 1}</span>
+                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeSavings(i)}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Product Image</label>
+                {b.image ? (
+                  <div className="flex items-start gap-3">
+                    <img src={b.image} alt="banner" className="w-24 h-24 object-contain rounded-lg border border-border bg-muted/30" />
+                    <div className="flex flex-col gap-2">
+                      <SlideImageUploadButton index={i} uploading={uploadingSavings === i} onUpload={handleSavingsImageUpload} label="Replace" />
+                      <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => updateSavings(i, "image", "")}>
+                        <X className="w-3.5 h-3.5" /> Remove
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <SlideImageUploadButton index={i} uploading={uploadingSavings === i} onUpload={handleSavingsImageUpload} isPlaceholder />
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Label (small)</label>
+                  <Input value={b.label} onChange={(e) => updateSavings(i, "label", e.target.value)} placeholder="Save" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Amount (big)</label>
+                  <Input value={b.amount} onChange={(e) => updateSavings(i, "amount", e.target.value)} placeholder="₭170" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-medium text-muted-foreground">Description</label>
+                  <Input value={b.description} onChange={(e) => updateSavings(i, "description", e.target.value)} placeholder="Save ₭170 on Canon IR2206N" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Button Text</label>
+                  <Input value={b.cta} onChange={(e) => updateSavings(i, "cta", e.target.value)} placeholder="Shop now" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Link</label>
+                  <Input value={b.link} onChange={(e) => updateSavings(i, "link", e.target.value)} placeholder="/shop/PRODUCT_ID" />
+                </div>
+              </div>
+            </div>
+          ))}
+          {savingsBanners.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">No banners. Click "Add Banner" to create one.</p>
+          )}
+        </CardContent>
+      </Card>
+
 
       {/* Company Info */}
       <Card>
