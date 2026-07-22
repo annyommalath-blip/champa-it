@@ -222,43 +222,13 @@ export default function AboutPage() {
         </section>
 
 
-        {/* ── Big Savings horizontal banners ── */}
-        {!loading && products.length >= 2 && (
+        {/* ── Promo Cards (admin-managed) ── */}
+        {promoCards.length > 0 && (
           <section>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
-              {products.slice(0, 3).map((p, i) => {
-                const sym = CURRENCY_SYMBOLS[p.currency] || "$";
-                const img = p.images?.[0];
-                const savings = [170, 220, 90][i] ?? 100;
-                return (
-                  <Link
-                    key={`save-${p.id}`}
-                    to={`/shop/${p.id}`}
-                    className="flex-shrink-0 w-[280px] rounded-3xl overflow-hidden active:scale-[0.98] transition-transform relative flex flex-col justify-between p-5"
-                    style={{ background: "linear-gradient(160deg, hsl(50 84% 52%) 0%, hsl(44 92% 48%) 100%)", height: "300px" }}
-                  >
-                    <div>
-                      <div className="text-primary-foreground/80 text-[13px] font-semibold">Save</div>
-                      <div className="text-primary-foreground text-[38px] font-black tracking-tight leading-none">{sym}{savings}</div>
-                    </div>
-                    <div className="flex-1 flex items-center justify-center py-2">
-                      {img && img !== "/placeholder.svg" ? (
-                        <img src={img} alt={p.name} className="max-h-[130px] w-auto object-contain drop-shadow-xl" />
-                      ) : (
-                        <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
-                          <Package className="w-10 h-10 text-primary-foreground/60" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <p className="text-primary-foreground text-[13px] font-medium line-clamp-2 mb-3">Save {sym}{savings} on {p.name}</p>
-                      <div className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-background text-foreground text-[13px] font-bold">
-                        Shop now
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
+              {promoCards.map((card, i) => (
+                <PromoCardView key={`promo-${i}`} card={card} />
+              ))}
             </div>
           </section>
         )}
