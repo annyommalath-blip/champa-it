@@ -45,6 +45,7 @@ export default function AboutPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dealsTab, setDealsTab] = useState(0);
 
   useEffect(() => {
     async function loadSlides() {
@@ -329,8 +330,9 @@ export default function AboutPage() {
               {["Super savings", "Recommended", "New deals", "Best-selling"].map((tab, i) => (
                 <button
                   key={tab}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
-                    i === 0
+                  onClick={() => setDealsTab(i)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all active:scale-95 ${
+                    i === dealsTab
                       ? "border-primary bg-primary/10 text-foreground"
                       : "border-border bg-card text-muted-foreground"
                   }`}
@@ -340,26 +342,34 @@ export default function AboutPage() {
               ))}
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {products.slice(0, 6).map((product) => {
-                const sym = CURRENCY_SYMBOLS[product.currency] || "$";
-                const img = product.images?.[0];
-                return (
-                  <Link key={`deal-${product.id}`} to={`/shop/${product.id}`} className="bento-card overflow-hidden active:scale-[0.98] transition-transform">
-                    <div className="aspect-square bg-secondary/30 flex items-center justify-center relative">
-                      {img && img !== "/placeholder.svg" ? (
-                        <img src={img} alt={product.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-10 h-10 text-muted-foreground/30" />
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
-                      <span className="text-[14px] font-extrabold text-foreground mt-1.5 block">{sym}{Number(product.price).toLocaleString()}</span>
-                    </div>
-                  </Link>
-                );
-              })}
+              {(() => {
+                const list = [...products];
+                if (dealsTab === 0) list.sort((a, b) => Number(b.price) - Number(a.price)); // Super savings: priciest = biggest saves
+                else if (dealsTab === 1) list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)); // Recommended: top rated
+                else if (dealsTab === 2) list.reverse(); // New deals: newest first
+                else list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || Number(b.price) - Number(a.price)); // Best-selling
+                return list.slice(0, 6).map((product) => {
+                  const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                  const img = product.images?.[0];
+                  return (
+                    <Link key={`deal-${dealsTab}-${product.id}`} to={`/shop/${product.id}`} className="bento-card overflow-hidden active:scale-[0.98] transition-transform">
+                      <div className="aspect-square bg-secondary/30 flex items-center justify-center relative">
+                        {img && img !== "/placeholder.svg" ? (
+                          <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Package className="w-10 h-10 text-muted-foreground/30" />
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
+                        <span className="text-[14px] font-extrabold text-foreground mt-1.5 block">{sym}{Number(product.price).toLocaleString()}</span>
+                      </div>
+                    </Link>
+                  );
+                });
+              })()}
             </div>
+
           </section>
         )}
 
