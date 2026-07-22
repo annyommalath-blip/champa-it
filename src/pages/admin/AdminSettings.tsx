@@ -154,6 +154,8 @@ export default function AdminSettings() {
   const [uploadingQr, setUploadingQr] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
+  const [promoCards, setPromoCards] = useState<PromoCard[]>(defaultPromoCards);
+  const [uploadingPromo, setUploadingPromo] = useState<number | null>(null);
 
 
   useEffect(() => {
