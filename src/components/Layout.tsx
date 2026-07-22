@@ -73,26 +73,64 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Mobile top bar */}
-      <header className="md:hidden px-5 h-[48px] glass-header sticky top-0 z-50 border-b border-border/30 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="Champa" className="h-7 w-7 rounded-[10px] object-cover" />
-          <span className="font-bold text-[15px] text-foreground tracking-tight">Champa</span>
-        </Link>
-        <div className="flex items-center gap-0">
-          <Link to="/cart" className="relative p-2 rounded-xl active:scale-90 transition-transform">
-            <ShoppingCart className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
-            {cartCount > 0 && (
-              <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] flex items-center justify-center font-bold px-0.5">
-                {cartCount}
-              </span>
-            )}
+      {/* Mobile top bar — yellow branded on home */}
+      {location.pathname === "/" ? (
+        <header className="md:hidden sticky top-0 z-50 bg-primary">
+          <div className="px-5 pt-3 pb-3 flex items-center justify-between">
+            <Link to="/" className="flex items-center">
+              <img src={logo} alt="Champa Enterprise" className="h-9 w-auto object-contain" />
+            </Link>
+            <div className="flex items-center gap-1">
+              <Link to="/profile/faq" aria-label="Help" className="p-2 rounded-full active:scale-90 transition-transform">
+                <HelpCircle className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
+              </Link>
+              <Link to="/notifications" aria-label="Notifications" className="p-2 rounded-full active:scale-90 transition-transform">
+                <Bell className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
+              </Link>
+              <Link to="/cart" aria-label="Cart" className="relative p-2 rounded-full active:scale-90 transition-transform">
+                <ShoppingCart className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] rounded-full bg-foreground text-background text-[9px] flex items-center justify-center font-bold px-1 ring-2 ring-primary">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            </div>
+          </div>
+          <div className="px-5 pb-3">
+            <Link to="/shop" className="flex items-center gap-3 px-4 h-11 rounded-full bg-background shadow-sm active:scale-[0.99] transition-transform">
+              <Search className="w-[18px] h-[18px] text-muted-foreground" strokeWidth={2.2} />
+              <span className="text-[14px] text-muted-foreground/70">Search Champa</span>
+            </Link>
+          </div>
+          <div className="flex gap-5 overflow-x-auto scrollbar-hide px-5 pb-3 text-[13px] font-semibold text-primary-foreground">
+            <Link to="/shop" className="flex-shrink-0">Shop</Link>
+            <Link to="/services" className="flex-shrink-0">Services</Link>
+            <Link to="/shop" className="flex-shrink-0">Deals</Link>
+            <Link to="/contact" className="flex-shrink-0">Get Quote</Link>
+            <Link to="/profile/orders" className="flex-shrink-0">Track Order</Link>
+          </div>
+        </header>
+      ) : (
+        <header className="md:hidden px-5 h-[48px] glass-header sticky top-0 z-50 border-b border-border/30 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2">
+            <img src={logo} alt="Champa" className="h-7 w-auto object-contain" />
           </Link>
-          <Link to="/notifications" className="p-2 rounded-xl active:scale-90 transition-transform">
-            <Bell className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
-          </Link>
-        </div>
-      </header>
+          <div className="flex items-center gap-0">
+            <Link to="/cart" className="relative p-2 rounded-xl active:scale-90 transition-transform">
+              <ShoppingCart className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
+              {cartCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] flex items-center justify-center font-bold px-0.5">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <Link to="/notifications" className="p-2 rounded-xl active:scale-90 transition-transform">
+              <Bell className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
+            </Link>
+          </div>
+        </header>
+      )}
 
       <main className="flex-1 md:pb-0 pb-[72px]">{children}</main>
 
