@@ -59,6 +59,7 @@ export default function AboutPage() {
   const { t } = useLanguage();
   const { addToCart } = useApp();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
+  const [promoCards, setPromoCards] = useState<PromoCard[]>(defaultPromoCards);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
@@ -67,13 +68,14 @@ export default function AboutPage() {
   const [outletTab, setOutletTab] = useState(0);
 
   useEffect(() => {
-    async function loadSlides() {
-      const { data } = await supabase.from("settings").select("value").eq("key", "hero_slides").single();
-      if (data?.value && Array.isArray(data.value)) {
-        setHeroSlides(data.value as unknown as HeroSlide[]);
-      }
+    async function loadSettings() {
+      const { data } = await supabase.from("settings").select("key, value").in("key", ["hero_slides", "promo_cards"]);
+      data?.forEach((row: any) => {
+        if (row.key === "hero_slides" && Array.isArray(row.value)) setHeroSlides(row.value);
+        if (row.key === "promo_cards" && Array.isArray(row.value) && row.value.length) setPromoCards(row.value);
+      });
     }
-    loadSlides();
+    loadSettings();
   }, []);
 
   useEffect(() => {
