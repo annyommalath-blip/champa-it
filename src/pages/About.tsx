@@ -80,10 +80,10 @@ export default function AboutPage() {
 
   useEffect(() => {
     async function loadSettings() {
-      const { data } = await supabase.from("settings").select("key, value").in("key", ["hero_slides", "promo_cards"]);
+      const { data } = await supabase.from("settings").select("key, value").in("key", ["hero_slides", "promo_images"]);
       data?.forEach((row: any) => {
         if (row.key === "hero_slides" && Array.isArray(row.value)) setHeroSlides(row.value);
-        if (row.key === "promo_cards" && Array.isArray(row.value) && row.value.length) setPromoCards(row.value);
+        if (row.key === "promo_images" && Array.isArray(row.value)) mergePromoImages(row.value);
       });
     }
     loadSettings();
