@@ -45,6 +45,7 @@ export default function AboutPage() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dealsTab, setDealsTab] = useState(0);
 
   useEffect(() => {
     async function loadSlides() {
