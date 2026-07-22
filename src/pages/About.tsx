@@ -130,22 +130,22 @@ export default function AboutPage() {
       <div className="px-5 space-y-6 pb-10 md:px-8 md:space-y-8 pt-5 md:pt-2">
 
         {/* ── Hero Carousel ── */}
-        <section>
-          <div className="overflow-hidden rounded-2xl" ref={emblaRef}>
+        <section className="-mx-5 md:-mx-8">
+          <div className="overflow-hidden" ref={emblaRef}>
             <div className="flex">
               {heroSlides.map((slide, i) => (
                 <div key={i} className="flex-[0_0_100%] min-w-0">
-                  <div className="relative overflow-hidden rounded-2xl flex flex-col justify-end mx-0.5" style={{ height: "150px" }}>
+                  <div className="relative overflow-hidden flex flex-col justify-end aspect-[16/9] w-full">
                     {slide.image ? (
                       <img src={slide.image} alt="" className="absolute inset-0 w-full h-full object-cover" style={{ objectPosition: slide.imagePosition || "center" }} />
                     ) : (
                       <div className="absolute inset-0" style={{ background: i === 0 ? "linear-gradient(135deg, hsl(228 24% 10%), hsl(228 20% 22%))" : i === 1 ? "linear-gradient(135deg, hsl(44 80% 50%), hsl(32 90% 45%))" : "linear-gradient(135deg, hsl(199 70% 35%), hsl(199 80% 45%))" }} />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/45 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-foreground/50 to-transparent" />
                     <div className="relative z-10 p-5 flex items-end justify-between gap-3">
                       <div>
-                        <h2 className="text-[16px] font-bold text-background tracking-tight leading-snug">{slide.title}</h2>
-                        <p className="text-[12px] text-background/50 mt-0.5 font-medium">{slide.subtitle}</p>
+                        <h2 className="text-[18px] font-bold text-background tracking-tight leading-snug">{slide.title}</h2>
+                        <p className="text-[13px] text-background/60 mt-0.5 font-medium">{slide.subtitle}</p>
                       </div>
                       <Link
                         to={slide.link}
