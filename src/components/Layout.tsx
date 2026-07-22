@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones, HelpCircle, Search } from "lucide-react";
 import { useApp } from "@/context/AppContext";
@@ -86,7 +86,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       .channel(`chat-unread-${user.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload: any) => {
         const m = payload.new;
-        if (m?.sender_type === "admin" && convIds.includes(m.conversation_id)) recount();
+        if (m?.sender_type === "admin" && convIds.includes(m.conversation_id)) {
+          // If widget is open, mark seen immediately so no unread accrues
+          if (chatOpenRef.current) {
+            localStorage.setItem(lastSeenKey, new Date().toISOString());
+            setUnreadChat(0);
+          } else {
+            recount();
+          }
+        }
       })
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_conversations", filter: `user_id=eq.${user.id}` }, (payload: any) => {
         if (payload.new?.id) convIds.push(payload.new.id);
@@ -97,6 +105,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     window.addEventListener("storage", onStorage);
     return () => { cancelled = true; supabase.removeChannel(channel); window.removeEventListener("storage", onStorage); };
   }, [user]);
+
+  // Track chatOpen in ref for realtime handler
+  const chatOpenRef = useRef(false);
+  useEffect(() => { chatOpenRef.current = chatOpen; }, [chatOpen]);
 
   // Mark chat seen when widget opens
   useEffect(() => {
