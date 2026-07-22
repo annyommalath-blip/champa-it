@@ -237,67 +237,88 @@ export default function AboutPage() {
         )}
 
         {/* ── Outlet Deals section ── */}
-        {!loading && products.length >= 3 && (
-          <section>
-            <div className="rounded-2xl overflow-hidden mb-4 p-5 relative" style={{ background: "linear-gradient(120deg, hsl(228 30% 12%) 0%, hsl(199 60% 30%) 100%)" }}>
-              <h3 className="text-[26px] font-black tracking-tight" style={{ color: "hsl(50 84% 52%)" }}>Outlet Deals</h3>
-              <p className="text-background/70 text-[12px] mt-1 font-medium">Refurbished · Clearance · Open-box</p>
-            </div>
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 mb-3">
-              {["Refurbished", "Clearance", "Open-box", "Pre-owned"].map((tab, i) => (
-                <button
-                  key={tab}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all ${
-                    i === 0
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border bg-card text-muted-foreground"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
-              {products.slice(0, 6).map((product) => {
-                const sym = CURRENCY_SYMBOLS[product.currency] || "$";
-                const img = product.images?.[0];
-                const originalPrice = Number(product.price) * 1.35;
-                const save = Math.round(originalPrice - Number(product.price));
-                return (
-                  <Link
-                    key={`outlet-${product.id}`}
-                    to={`/shop/${product.id}`}
-                    className="flex-shrink-0 w-[180px] bento-card overflow-hidden active:scale-[0.98] transition-transform relative"
+        {(() => {
+          if (loading) return null;
+          const OUTLET_TABS = [
+            { label: "Refurbished", value: "refurbished" },
+            { label: "Clearance", value: "clearance" },
+            { label: "Open-box", value: "open_box" },
+            { label: "Pre-loved", value: "pre_loved" },
+          ];
+          const hasAnyOutlet = products.some((p) => p.condition && p.condition !== "new");
+          if (!hasAnyOutlet) return null;
+          const activeValue = OUTLET_TABS[outletTab].value;
+          const outletList = products.filter((p) => p.condition === activeValue).slice(0, 8);
+          return (
+            <section>
+              <div className="rounded-2xl overflow-hidden mb-4 p-5 relative" style={{ background: "linear-gradient(120deg, hsl(228 30% 12%) 0%, hsl(199 60% 30%) 100%)" }}>
+                <h3 className="text-[26px] font-black tracking-tight" style={{ color: "hsl(50 84% 52%)" }}>Outlet Deals</h3>
+                <p className="text-background/70 text-[12px] mt-1 font-medium">Refurbished · Clearance · Open-box · Pre-loved</p>
+              </div>
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 mb-3">
+                {OUTLET_TABS.map((tab, i) => (
+                  <button
+                    key={tab.value}
+                    onClick={() => setOutletTab(i)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-[12px] font-semibold border transition-all active:scale-95 ${
+                      i === outletTab
+                        ? "border-primary bg-primary/10 text-foreground"
+                        : "border-border bg-card text-muted-foreground"
+                    }`}
                   >
-                    <div className="aspect-square bg-secondary/30 relative flex items-center justify-center">
-                      {img && img !== "/placeholder.svg" ? (
-                        <img src={img} alt={product.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Package className="w-10 h-10 text-muted-foreground/30" />
-                      )}
-                      <span className="absolute top-2 left-2 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-[10px] font-bold">
-                        Save {sym}{save}
-                      </span>
-                      <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/90 flex items-center justify-center active:scale-90" onClick={(e) => e.preventDefault()}>
-                        <Heart className="w-3.5 h-3.5 text-foreground/70" strokeWidth={2} />
-                      </button>
-                    </div>
-                    <div className="p-3">
-                      <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
-                      <div className="flex items-baseline gap-1.5 mt-1.5">
-                        <span className="text-[14px] font-extrabold text-foreground">{sym}{Number(product.price).toLocaleString()}</span>
-                        <span className="text-[11px] text-muted-foreground/60 line-through">{sym}{Math.round(originalPrice).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-            <Link to="/shop" className="mt-3 inline-block text-[13px] font-bold" style={{ color: "hsl(199 70% 40%)" }}>
-              See all outlet →
-            </Link>
-          </section>
-        )}
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              {outletList.length === 0 ? (
+                <div className="bento-card p-6 text-center">
+                  <p className="text-[13px] text-muted-foreground">No {OUTLET_TABS[outletTab].label.toLowerCase()} items right now.</p>
+                </div>
+              ) : (
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
+                  {outletList.map((product) => {
+                    const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                    const img = product.images?.[0];
+                    const originalPrice = Number(product.price) * 1.35;
+                    const save = Math.round(originalPrice - Number(product.price));
+                    return (
+                      <Link
+                        key={`outlet-${product.id}`}
+                        to={`/shop/${product.id}`}
+                        className="flex-shrink-0 w-[180px] bento-card overflow-hidden active:scale-[0.98] transition-transform relative"
+                      >
+                        <div className="aspect-square bg-secondary/30 relative flex items-center justify-center">
+                          {img && img !== "/placeholder.svg" ? (
+                            <img src={img} alt={product.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <Package className="w-10 h-10 text-muted-foreground/30" />
+                          )}
+                          <span className="absolute top-2 left-2 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-[10px] font-bold">
+                            Save {sym}{save}
+                          </span>
+                          <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/90 flex items-center justify-center active:scale-90" onClick={(e) => e.preventDefault()}>
+                            <Heart className="w-3.5 h-3.5 text-foreground/70" strokeWidth={2} />
+                          </button>
+                        </div>
+                        <div className="p-3">
+                          <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
+                          <div className="flex items-baseline gap-1.5 mt-1.5">
+                            <span className="text-[14px] font-extrabold text-foreground">{sym}{Number(product.price).toLocaleString()}</span>
+                            <span className="text-[11px] text-muted-foreground/60 line-through">{sym}{Math.round(originalPrice).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+              <Link to="/shop" className="mt-3 inline-block text-[13px] font-bold" style={{ color: "hsl(199 70% 40%)" }}>
+                See all outlet →
+              </Link>
+            </section>
+          );
+        })()}
+
 
         {/* ── AI Assistant promo ── */}
         <section>
