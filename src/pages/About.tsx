@@ -112,8 +112,8 @@ export default function AboutPage() {
   return (
     <div className="md:max-w-7xl md:mx-auto">
 
-      {/* ── Search Bar ── */}
-      <div className="px-5 pb-4 md:px-8 sticky top-[48px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl pt-2">
+      {/* Search moved into the yellow home header on mobile */}
+      <div className="hidden md:block px-5 pb-4 md:px-8 sticky top-[56px] z-30 bg-background/80 backdrop-blur-xl pt-2">
         <Link to="/shop" className="block">
           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-card text-muted-foreground active:scale-[0.99] transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
             <Search className="w-[17px] h-[17px] text-muted-foreground/40" strokeWidth={2} />
@@ -121,6 +121,7 @@ export default function AboutPage() {
           </div>
         </Link>
       </div>
+
 
       <div className="px-5 space-y-6 pb-10 md:px-8 md:space-y-8">
 
