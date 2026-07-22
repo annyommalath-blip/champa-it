@@ -219,28 +219,34 @@ export default function AboutPage() {
                 <Link
                   key={`save-${i}`}
                   to={b.link || "/shop"}
-                  className="flex-shrink-0 w-[280px] rounded-3xl overflow-hidden active:scale-[0.98] transition-transform relative flex flex-col justify-between p-5"
-                  style={{ background: "linear-gradient(160deg, hsl(50 84% 52%) 0%, hsl(44 92% 48%) 100%)", height: "300px" }}
+                  className="flex-shrink-0 rounded-3xl overflow-hidden active:scale-[0.98] transition-transform relative bg-muted"
+                  style={b.image ? {} : { background: "linear-gradient(160deg, hsl(50 84% 52%) 0%, hsl(44 92% 48%) 100%)" }}
                 >
-                  <div>
-                    <div className="text-primary-foreground/80 text-[13px] font-semibold">{b.label || "Save"}</div>
-                    <div className="text-primary-foreground text-[38px] font-black tracking-tight leading-none">{b.amount}</div>
-                  </div>
-                  <div className="flex-1 flex items-center justify-center py-2">
-                    {b.image ? (
-                      <img src={b.image} alt={b.description} className="max-h-[130px] w-auto object-contain drop-shadow-xl" />
-                    ) : (
-                      <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
-                        <Package className="w-10 h-10 text-primary-foreground/60" />
+                  {b.image ? (
+                    <img
+                      src={b.image}
+                      alt={b.description || b.label || "Promo"}
+                      className="block h-[300px] w-auto max-w-none object-contain"
+                    />
+                  ) : (
+                    <div className="w-[280px] h-[300px] flex flex-col justify-between p-5">
+                      <div>
+                        <div className="text-primary-foreground/80 text-[13px] font-semibold">{b.label || "Save"}</div>
+                        <div className="text-primary-foreground text-[38px] font-black tracking-tight leading-none">{b.amount}</div>
                       </div>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-primary-foreground text-[13px] font-medium line-clamp-2 mb-3">{b.description}</p>
-                    <div className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-background text-foreground text-[13px] font-bold">
-                      {b.cta || "Shop now"}
+                      <div className="flex-1 flex items-center justify-center py-2">
+                        <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
+                          <Package className="w-10 h-10 text-primary-foreground/60" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-primary-foreground text-[13px] font-medium line-clamp-2 mb-3">{b.description}</p>
+                        <div className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-background text-foreground text-[13px] font-bold">
+                          {b.cta || "Shop now"}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </Link>
               ))}
             </div>
