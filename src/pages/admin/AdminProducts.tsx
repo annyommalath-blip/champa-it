@@ -72,7 +72,9 @@ export default function AdminProducts() {
     setEditing(p);
     setForm({
       name: p.name, description: p.description, long_description: p.long_description || "",
-      price: p.price, currency: p.currency || "USD", category: p.category, images: p.images || [],
+      price: p.price, currency: p.currency || "USD", category: p.category,
+      condition: p.condition || "new",
+      images: p.images || [],
       in_stock: p.in_stock, stock_quantity: p.stock_quantity || 0, rating: p.rating || 0, specs: (p.specs || {}) as Record<string, string>,
     });
     setDialogOpen(true);
