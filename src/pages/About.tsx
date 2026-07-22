@@ -60,6 +60,17 @@ export default function AboutPage() {
   const { addToCart } = useApp();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [promoCards, setPromoCards] = useState<PromoCard[]>(defaultPromoCards);
+  // Merge admin-uploaded images into the fixed promo spaces (does NOT change text/style/layout)
+  const mergePromoImages = (imgs: Array<{ image?: string; imagePosition?: string }> | null) => {
+    if (!Array.isArray(imgs)) return;
+    setPromoCards((prev) =>
+      prev.map((c, i) => ({
+        ...c,
+        image: imgs[i]?.image ?? c.image,
+        imagePosition: imgs[i]?.imagePosition ?? c.imagePosition,
+      }))
+    );
+  };
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
