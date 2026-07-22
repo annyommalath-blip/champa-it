@@ -22,7 +22,7 @@ export default function CartPage() {
   const [checkoutMode, setCheckoutMode] = useState<"signin" | "guest" | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
-  const [payMethod, setPayMethod] = useState<PayMethod>("card");
+  const [payMethod, setPayMethod] = useState<PayMethod>("bank_transfer");
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
