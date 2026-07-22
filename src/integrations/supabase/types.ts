@@ -361,6 +361,7 @@ export type Database = {
       products: {
         Row: {
           category: string
+          condition: string
           created_at: string
           created_by: string | null
           currency: string
@@ -378,6 +379,7 @@ export type Database = {
         }
         Insert: {
           category?: string
+          condition?: string
           created_at?: string
           created_by?: string | null
           currency?: string
@@ -395,6 +397,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          condition?: string
           created_at?: string
           created_by?: string | null
           currency?: string
