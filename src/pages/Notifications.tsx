@@ -34,6 +34,7 @@ export default function Notifications() {
         .from("notifications")
         .select("*")
         .eq("user_id", user.id)
+        .neq("type", "chat_message")
         .order("created_at", { ascending: false })
         .limit(100);
       setItems(data ?? []);
@@ -44,7 +45,11 @@ export default function Notifications() {
         .on(
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-          (payload) => setItems((prev) => [payload.new as Notification, ...prev])
+          (payload) => {
+            const n = payload.new as Notification;
+            if (n.type === "chat_message") return;
+            setItems((prev) => [n, ...prev]);
+          }
         )
         .on(
           "postgres_changes",
