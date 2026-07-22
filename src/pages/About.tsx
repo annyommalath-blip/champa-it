@@ -42,6 +42,7 @@ export default function AboutPage() {
   const { t } = useLanguage();
   const { addToCart } = useApp();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
+  const [savingsBanners, setSavingsBanners] = useState<Array<{ label: string; amount: string; description: string; cta: string; link: string; image?: string }>>([]);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
