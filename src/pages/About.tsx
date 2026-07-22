@@ -401,24 +401,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Trusted Partners ── */}
-        <section>
-          <h3 className="text-section-title text-foreground mb-3">{t("home.trustedPartners")}</h3>
-          <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0">
-            {[
-              { name: "Cisco", logo: "/brands/cisco.svg" },
-              { name: "AWS", logo: "/brands/aws.svg" },
-              { name: "VMware", logo: "/brands/vmware.png" },
-              { name: "Fortinet", logo: "/brands/fortinet.svg" },
-              { name: "Microsoft", logo: "/brands/microsoft.svg" },
-              { name: "Dell", logo: "/brands/dell.svg" },
-            ].map((brand) => (
-              <div key={brand.name} className="flex-shrink-0 w-[64px] h-[64px] rounded-2xl bg-card flex items-center justify-center p-3 active:scale-95 transition-transform" style={{ boxShadow: "var(--shadow-card)" }}>
-                <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain" />
-              </div>
-            ))}
-          </div>
-        </section>
+
 
         {/* ── Featured Products ── */}
         <section>
