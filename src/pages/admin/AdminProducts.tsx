@@ -262,7 +262,21 @@ export default function AdminProducts() {
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Category</label>
                 <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Condition</label>
+              <select
+                value={form.condition}
+                onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                {CONDITIONS.map((c) => (
+                  <option key={c.value} value={c.value}>{c.label}</option>
+                ))}
+              </select>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                Non-"New" items appear under Outlet Deals on the home page.
+              </p>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
