@@ -267,6 +267,29 @@ export default function AdminSettings() {
     e.target.value = "";
   };
 
+  const updateSavings = (index: number, field: keyof SavingsBanner, value: string) => {
+    setSavingsBanners((prev) => prev.map((b, i) => (i === index ? { ...b, [field]: value } : b)));
+  };
+  const addSavings = () => {
+    setSavingsBanners((prev) => [...prev, { label: "Save", amount: "", description: "", cta: "Shop now", link: "/shop", image: "" }]);
+  };
+  const removeSavings = (index: number) => {
+    setSavingsBanners((prev) => prev.filter((_, i) => i !== index));
+  };
+  const handleSavingsImageUpload = async (index: number, file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Please upload an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploadingSavings(index);
+    const fileName = `savings-${index}-${Date.now()}.${file.name.split(".").pop()}`;
+    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
+    if (error) { toast.error("Upload failed: " + error.message); setUploadingSavings(null); return; }
+    const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
+    setSavingsBanners((prev) => prev.map((b, i) => (i === index ? { ...b, image: urlData.publicUrl } : b)));
+    setUploadingSavings(null);
+    toast.success("Image uploaded!");
+  };
+
+
   return (
     <div className="space-y-6">
       <div>
