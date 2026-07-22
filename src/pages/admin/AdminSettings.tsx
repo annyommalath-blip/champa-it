@@ -383,6 +383,75 @@ export default function AdminSettings() {
         </CardContent>
       </Card>
 
+      {/* Big Savings Banners */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-base">Big Savings Banners</CardTitle>
+            <p className="text-xs text-muted-foreground mt-1">Yellow promo cards on the home page.</p>
+          </div>
+          <Button size="sm" variant="outline" onClick={addSavings} className="gap-1.5">
+            <Plus className="w-3.5 h-3.5" /> Add Banner
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {savingsBanners.map((b, i) => (
+            <div key={i} className="relative rounded-lg border border-border p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-muted-foreground">Banner {i + 1}</span>
+                <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => removeSavings(i)}>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Product Image</label>
+                {b.image ? (
+                  <div className="flex items-start gap-3">
+                    <img src={b.image} alt="banner" className="w-24 h-24 object-contain rounded-lg border border-border bg-muted/30" />
+                    <div className="flex flex-col gap-2">
+                      <SlideImageUploadButton index={i} uploading={uploadingSavings === i} onUpload={handleSavingsImageUpload} label="Replace" />
+                      <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => updateSavings(i, "image", "")}>
+                        <X className="w-3.5 h-3.5" /> Remove
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <SlideImageUploadButton index={i} uploading={uploadingSavings === i} onUpload={handleSavingsImageUpload} isPlaceholder />
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Label (small)</label>
+                  <Input value={b.label} onChange={(e) => updateSavings(i, "label", e.target.value)} placeholder="Save" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Amount (big)</label>
+                  <Input value={b.amount} onChange={(e) => updateSavings(i, "amount", e.target.value)} placeholder="₭170" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-medium text-muted-foreground">Description</label>
+                  <Input value={b.description} onChange={(e) => updateSavings(i, "description", e.target.value)} placeholder="Save ₭170 on Canon IR2206N" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Button Text</label>
+                  <Input value={b.cta} onChange={(e) => updateSavings(i, "cta", e.target.value)} placeholder="Shop now" />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Link</label>
+                  <Input value={b.link} onChange={(e) => updateSavings(i, "link", e.target.value)} placeholder="/shop/PRODUCT_ID" />
+                </div>
+              </div>
+            </div>
+          ))}
+          {savingsBanners.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">No banners. Click "Add Banner" to create one.</p>
+          )}
+        </CardContent>
+      </Card>
+
+
       {/* Company Info */}
       <Card>
         <CardHeader>
