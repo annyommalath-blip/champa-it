@@ -59,7 +59,7 @@ export default function AboutPage() {
   useEffect(() => {
     async function loadProducts() {
       setLoading(true);
-      const { data } = await supabase.from("products").select("id, name, description, price, currency, category, images, in_stock, rating").order("created_at", { ascending: false }).limit(8);
+      const { data } = await supabase.from("products").select("id, name, description, price, currency, category, images, in_stock, rating").order("created_at", { ascending: false }).limit(16);
       setProducts((data as DbProduct[]) || []);
       setLoading(false);
     }
