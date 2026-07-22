@@ -317,27 +317,6 @@ export default function AboutPage() {
         })()}
 
 
-        {/* ── AI Assistant promo ── */}
-        <section>
-          <Link
-            to="/contact"
-            className="block rounded-3xl overflow-hidden p-6 active:scale-[0.99] transition-transform relative"
-            style={{ background: "linear-gradient(140deg, hsl(228 30% 12%) 0%, hsl(228 40% 20%) 60%, hsl(50 84% 30%) 100%)" }}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <Sparkles className="w-7 h-7 mb-3" style={{ color: "hsl(50 84% 62%)" }} strokeWidth={2} />
-                <p className="text-background text-[16px] font-semibold leading-snug tracking-tight">
-                  Our expert team helps you choose the right IT setup{" "}
-                  <span style={{ color: "hsl(50 84% 62%)" }}>for any business need...</span>
-                </p>
-              </div>
-            </div>
-            <div className="mt-5 inline-flex items-center justify-center w-full px-4 py-3 rounded-full bg-background text-foreground text-[14px] font-bold">
-              Get a free consultation
-            </div>
-          </Link>
-        </section>
 
         {/* ── Deals for you ── */}
         {!loading && products.length >= 4 && (
