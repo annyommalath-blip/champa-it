@@ -262,6 +262,7 @@ export default function AdminProducts() {
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Category</label>
                 <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
+              </div>
             </div>
             <div>
               <label className="text-xs font-medium text-muted-foreground">Condition</label>
