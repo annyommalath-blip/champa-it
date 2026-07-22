@@ -110,11 +110,26 @@ interface HeroSlide {
   imagePosition?: string;
 }
 
+interface SavingsBanner {
+  label: string;
+  amount: string;
+  description: string;
+  cta: string;
+  link: string;
+  image?: string;
+}
+
 const defaultSlides: HeroSlide[] = [
   { title: "New Arrivals", subtitle: "Latest enterprise hardware & tools", cta: "Shop Now", link: "/shop" },
   { title: "Request a Quote", subtitle: "Fast estimate from our sales team", cta: "Get Quote", link: "/contact" },
   { title: "Talk to Sales", subtitle: "Live chat with our engineers", cta: "Start Chat", link: "/contact" },
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
+];
+
+const defaultSavingsBanners: SavingsBanner[] = [
+  { label: "Save", amount: "₭170", description: "Save ₭170 on Canon IR2206N", cta: "Shop now", link: "/shop" },
+  { label: "Save", amount: "₭220", description: "Save ₭220 on DPCM300", cta: "Shop now", link: "/shop" },
+  { label: "Save", amount: "₭90", description: "Save ₭90 on select items", cta: "Shop now", link: "/shop" },
 ];
 
 export default function AdminSettings() {
