@@ -60,6 +60,17 @@ export default function AboutPage() {
   const { addToCart } = useApp();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
   const [promoCards, setPromoCards] = useState<PromoCard[]>(defaultPromoCards);
+  // Merge admin-uploaded images into the fixed promo spaces (does NOT change text/style/layout)
+  const mergePromoImages = (imgs: Array<{ image?: string; imagePosition?: string }> | null) => {
+    if (!Array.isArray(imgs)) return;
+    setPromoCards((prev) =>
+      prev.map((c, i) => ({
+        ...c,
+        image: imgs[i]?.image ?? c.image,
+        imagePosition: imgs[i]?.imagePosition ?? c.imagePosition,
+      }))
+    );
+  };
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
@@ -69,10 +80,10 @@ export default function AboutPage() {
 
   useEffect(() => {
     async function loadSettings() {
-      const { data } = await supabase.from("settings").select("key, value").in("key", ["hero_slides", "promo_cards"]);
+      const { data } = await supabase.from("settings").select("key, value").in("key", ["hero_slides", "promo_images"]);
       data?.forEach((row: any) => {
         if (row.key === "hero_slides" && Array.isArray(row.value)) setHeroSlides(row.value);
-        if (row.key === "promo_cards" && Array.isArray(row.value) && row.value.length) setPromoCards(row.value);
+        if (row.key === "promo_images" && Array.isArray(row.value)) mergePromoImages(row.value);
       });
     }
     loadSettings();
