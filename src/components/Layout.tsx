@@ -152,8 +152,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </Link>
-            <Link to="/notifications" className="p-2 rounded-xl active:scale-90 transition-transform">
+            <Link to="/notifications" className="relative p-2 rounded-xl active:scale-90 transition-transform">
               <Bell className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
+              {unreadNotif > 0 && (
+                <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] flex items-center justify-center font-bold px-0.5">
+                  {unreadNotif > 9 ? "9+" : unreadNotif}
+                </span>
+              )}
             </Link>
           </div>
         </header>
