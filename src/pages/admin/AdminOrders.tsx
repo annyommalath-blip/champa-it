@@ -42,6 +42,45 @@ export default function AdminOrders() {
     else {
       const stage = STAGES.find((s) => s.key === status);
       toast.success(stage ? `Marked as "${stage.label}"` : `Updated to ${status}`);
+
+      if (status === "confirmed") {
+        const order = orders.find((o) => o.id === id);
+        const recipient =
+          order?.customer_info?.email || order?.guest_email || null;
+        if (recipient) {
+          const items = Array.isArray(order?.items) ? order.items : [];
+          supabase.functions
+            .invoke("send-transactional-email", {
+              body: {
+                templateName: "order-confirmation",
+                recipientEmail: recipient,
+                idempotencyKey: `order-confirmed-${id}`,
+                templateData: {
+                  customerName:
+                    order?.customer_info?.full_name ||
+                    order?.customer_info?.name ||
+                    "Customer",
+                  orderId: id,
+                  orderTotal: Number(order?.total ?? 0).toFixed(2),
+                  currency: (order?.currency || "USD").toUpperCase(),
+                  deliveryMethod: order?.delivery_method || "",
+                  deliveryAddress: order?.delivery_address || "",
+                  paymentMethod: order?.payment_method || "",
+                  status: "Confirmed",
+                  items: items.map((i: any) => ({
+                    name: i.name,
+                    quantity: i.quantity,
+                    price: i.price,
+                  })),
+                },
+              },
+            })
+            .then(({ error: mailErr }) => {
+              if (mailErr) console.error("send email failed", mailErr);
+            });
+        }
+      }
+
       fetchOrders();
     }
   };

@@ -35,6 +35,7 @@ import FAQ from "./pages/FAQ";
 import ComingSoon from "./pages/ComingSoon";
 import OrderDetail from "./pages/OrderDetail";
 import CheckoutReturn from "./pages/CheckoutReturn";
+import Unsubscribe from "./pages/Unsubscribe";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const queryClient = new QueryClient();
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/profile/service-requests" element={<Layout><ComingSoon title="Service Requests" description="Track your IT service bookings here. Start a new request from the Services page." ctaLabel="Book a service" ctaTo="/services" /></Layout>} />
               <Route path="/profile/billing" element={<Layout><ComingSoon title="Billing & Invoices" description="Invoices for your completed orders will be available here soon." ctaLabel="View orders" ctaTo="/profile/orders" /></Layout>} />
 
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<Layout><NotFound /></Layout>} />
             </Routes>
           </AppProvider>
