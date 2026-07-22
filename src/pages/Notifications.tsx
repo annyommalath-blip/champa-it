@@ -70,8 +70,8 @@ export default function Notifications() {
       setItems((prev) => prev.map((x) => (x.id === n.id ? { ...x, is_read: true } : x)));
       await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
     }
-    if (n.type.startsWith("order_") && n.reference_id) navigate(`/orders/${n.reference_id}`);
-    else if (n.type === "chat_message") navigate("/profile");
+    if (n.type.startsWith("order_") && n.reference_id) navigate(`/profile/orders/${n.reference_id}`);
+    else if (n.type === "chat_message") navigate("/chat");
   };
 
   const unreadCount = items.filter((n) => !n.is_read).length;
