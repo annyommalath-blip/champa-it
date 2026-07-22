@@ -57,7 +57,14 @@ export default function AboutPage() {
         setHeroSlides(data.value as unknown as HeroSlide[]);
       }
     }
+    async function loadSavings() {
+      const { data } = await supabase.from("settings").select("value").eq("key", "savings_banners").single();
+      if (data?.value && Array.isArray(data.value)) {
+        setSavingsBanners(data.value as any);
+      }
+    }
     loadSlides();
+    loadSavings();
   }, []);
 
   useEffect(() => {
