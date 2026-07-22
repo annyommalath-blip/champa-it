@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Home, ShoppingBag, Wrench, User, MessageCircle, ShoppingCart, Bell, Headphones, HelpCircle, Search } from "lucide-react";
 import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import ChatWidget from "@/components/ChatWidget";
 import logo from "@/assets/logo.jpg";
 
@@ -28,6 +29,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { t } = useLanguage();
   const [chatOpen, setChatOpen] = useState(false);
+  const [unreadNotif, setUnreadNotif] = useState(0);
+
+  useEffect(() => {
+    if (!user) { setUnreadNotif(0); return; }
+    let cancelled = false;
+    const load = async () => {
+      const { count } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("is_read", false);
+      if (!cancelled) setUnreadNotif(count ?? 0);
+    };
+    load();
+    const channel = supabase
+      .channel(`notif-badge-${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` }, load)
+      .subscribe();
+    return () => { cancelled = true; supabase.removeChannel(channel); };
+  }, [user]);
+
 
 
   return (
@@ -84,8 +106,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link to="/profile/faq" aria-label="Help" className="p-2 rounded-full active:scale-90 transition-transform">
                 <HelpCircle className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
               </Link>
-              <Link to="/notifications" aria-label="Notifications" className="p-2 rounded-full active:scale-90 transition-transform">
+              <Link to="/notifications" aria-label="Notifications" className="relative p-2 rounded-full active:scale-90 transition-transform">
                 <Bell className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
+                {unreadNotif > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-[16px] h-[16px] rounded-full bg-foreground text-background text-[9px] flex items-center justify-center font-bold px-1 ring-2 ring-primary">
+                    {unreadNotif > 9 ? "9+" : unreadNotif}
+                  </span>
+                )}
               </Link>
               <Link to="/cart" aria-label="Cart" className="relative p-2 rounded-full active:scale-90 transition-transform">
                 <ShoppingCart className="w-[22px] h-[22px] text-primary-foreground" strokeWidth={2} />
@@ -125,8 +152,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </Link>
-            <Link to="/notifications" className="p-2 rounded-xl active:scale-90 transition-transform">
+            <Link to="/notifications" className="relative p-2 rounded-xl active:scale-90 transition-transform">
               <Bell className="w-[18px] h-[18px] text-foreground/50" strokeWidth={1.8} />
+              {unreadNotif > 0 && (
+                <span className="absolute top-0.5 right-0.5 min-w-[14px] h-[14px] rounded-full bg-primary text-primary-foreground text-[8px] flex items-center justify-center font-bold px-0.5">
+                  {unreadNotif > 9 ? "9+" : unreadNotif}
+                </span>
+              )}
             </Link>
           </div>
         </header>
