@@ -30,6 +30,7 @@ interface DbProduct {
   price: number;
   currency: string;
   category: string;
+  condition?: string;
   images: string[] | null;
   in_stock: boolean;
   rating: number | null;
