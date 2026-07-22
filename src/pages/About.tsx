@@ -192,7 +192,7 @@ export default function AboutPage() {
                 { name: "Dell", logo: "/brands/dell.svg" },
               ].map((brand, i) => (
                 <div key={`${brand.name}-${i}`} className="flex-shrink-0 flex flex-col items-center gap-2 w-[72px]" aria-hidden={i >= 6 ? true : undefined}>
-                  <div className="w-[64px] h-[64px] rounded-full bg-card flex items-center justify-center p-3.5" style={{ boxShadow: "var(--shadow-card)" }}>
+                  <div className="w-[72px] h-[72px] rounded-[22px] bg-card flex items-center justify-center p-3.5" style={{ boxShadow: "var(--shadow-card)" }}>
                     <img src={brand.logo} alt={brand.name} className="w-full h-full object-contain" />
                   </div>
                   <span className="text-[11px] font-semibold text-foreground text-center leading-tight tracking-tight">{brand.name}</span>
