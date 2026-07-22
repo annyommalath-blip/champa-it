@@ -30,6 +30,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { t } = useLanguage();
   const [chatOpen, setChatOpen] = useState(false);
   const [unreadNotif, setUnreadNotif] = useState(0);
+  const [unreadChat, setUnreadChat] = useState(0);
 
   useEffect(() => {
     if (!user) { setUnreadNotif(0); return; }
@@ -49,6 +50,61 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       .subscribe();
     return () => { cancelled = true; supabase.removeChannel(channel); };
   }, [user]);
+
+  // Unread chat (admin replies) badge on FAB
+  useEffect(() => {
+    if (!user) { setUnreadChat(0); return; }
+    const lastSeenKey = `chat_last_seen_${user.id}`;
+    const getLastSeen = () => localStorage.getItem(lastSeenKey) || "1970-01-01T00:00:00Z";
+    let cancelled = false;
+    let convIds: string[] = [];
+
+    const recount = async () => {
+      if (convIds.length === 0) { if (!cancelled) setUnreadChat(0); return; }
+      const { count } = await supabase
+        .from("chat_messages")
+        .select("id", { count: "exact", head: true })
+        .in("conversation_id", convIds)
+        .eq("sender_type", "admin")
+        .gt("created_at", getLastSeen());
+      if (!cancelled) setUnreadChat(count ?? 0);
+    };
+
+    const setup = async () => {
+      const { data } = await supabase
+        .from("chat_conversations")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("status", "active");
+      convIds = (data || []).map((c: any) => c.id);
+      await recount();
+    };
+    setup();
+
+    const channel = supabase
+      .channel(`chat-unread-${user.id}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages" }, (payload: any) => {
+        const m = payload.new;
+        if (m?.sender_type === "admin" && convIds.includes(m.conversation_id)) recount();
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_conversations", filter: `user_id=eq.${user.id}` }, (payload: any) => {
+        if (payload.new?.id) convIds.push(payload.new.id);
+      })
+      .subscribe();
+
+    const onStorage = (e: StorageEvent) => { if (e.key === lastSeenKey) recount(); };
+    window.addEventListener("storage", onStorage);
+    return () => { cancelled = true; supabase.removeChannel(channel); window.removeEventListener("storage", onStorage); };
+  }, [user]);
+
+  // Mark chat seen when widget opens
+  useEffect(() => {
+    if (chatOpen && user) {
+      const key = `chat_last_seen_${user.id}`;
+      localStorage.setItem(key, new Date().toISOString());
+      setUnreadChat(0);
+    }
+  }, [chatOpen, user]);
 
 
 
