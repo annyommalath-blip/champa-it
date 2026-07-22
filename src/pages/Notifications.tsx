@@ -34,6 +34,7 @@ export default function Notifications() {
         .from("notifications")
         .select("*")
         .eq("user_id", user.id)
+        .neq("type", "chat_message")
         .order("created_at", { ascending: false })
         .limit(100);
       setItems(data ?? []);
