@@ -191,6 +191,7 @@ export default function AdminSettings() {
       saveSetting("banner_text", bannerText),
       saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
+      saveSetting("savings_banners", savingsBanners),
       ...(isSuperAdmin ? [saveSetting("payment_info", paymentInfo)] : []),
     ]);
 
