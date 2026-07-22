@@ -17,27 +17,10 @@ interface HeroSlide {
   imagePosition?: string;
 }
 
-interface PromoCard {
-  style: "yellow-save" | "dark-ai" | "yellow-exclusive";
-  eyebrow?: string;
-  title: string;
-  subtitle?: string;
-  cta: string;
-  link: string;
-  image?: string;
-  imagePosition?: string;
-}
-
 const defaultHeroSlides: HeroSlide[] = [
   { title: "Enterprise Hardware", subtitle: "Servers, networking & security solutions", cta: "Shop Now", link: "/shop" },
   { title: "Get a Custom Quote", subtitle: "Tailored solutions for your business", cta: "Request Quote", link: "/contact" },
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
-];
-
-const defaultPromoCards: PromoCard[] = [
-  { style: "yellow-save", eyebrow: "Save ₭170", title: "Save on our best-selling Canon IR2206N", subtitle: "", cta: "Shop now", link: "/shop" },
-  { style: "dark-ai", title: "Our expert team helps you choose the right IT setup", subtitle: "for any business need...", cta: "Get a free consultation", link: "/contact" },
-  { style: "yellow-exclusive", eyebrow: "Champa Exclusive", title: "Enterprise-grade support, on your schedule", cta: "Explore services", link: "/services" },
 ];
 
 interface DbProduct {
@@ -59,18 +42,6 @@ export default function AboutPage() {
   const { t } = useLanguage();
   const { addToCart } = useApp();
   const [heroSlides, setHeroSlides] = useState(defaultHeroSlides);
-  const [promoCards, setPromoCards] = useState<PromoCard[]>(defaultPromoCards);
-  // Merge admin-uploaded images into the fixed promo spaces (does NOT change text/style/layout)
-  const mergePromoImages = (imgs: Array<{ image?: string; imagePosition?: string }> | null) => {
-    if (!Array.isArray(imgs)) return;
-    setPromoCards((prev) =>
-      prev.map((c, i) => ({
-        ...c,
-        image: imgs[i]?.image ?? c.image,
-        imagePosition: imgs[i]?.imagePosition ?? c.imagePosition,
-      }))
-    );
-  };
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start" });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [products, setProducts] = useState<DbProduct[]>([]);
@@ -79,14 +50,13 @@ export default function AboutPage() {
   const [outletTab, setOutletTab] = useState(0);
 
   useEffect(() => {
-    async function loadSettings() {
-      const { data } = await supabase.from("settings").select("key, value").in("key", ["hero_slides", "promo_images"]);
-      data?.forEach((row: any) => {
-        if (row.key === "hero_slides" && Array.isArray(row.value)) setHeroSlides(row.value);
-        if (row.key === "promo_images" && Array.isArray(row.value)) mergePromoImages(row.value);
-      });
+    async function loadSlides() {
+      const { data } = await supabase.from("settings").select("value").eq("key", "hero_slides").single();
+      if (data?.value && Array.isArray(data.value)) {
+        setHeroSlides(data.value as unknown as HeroSlide[]);
+      }
     }
-    loadSettings();
+    loadSlides();
   }, []);
 
   useEffect(() => {
@@ -233,13 +203,43 @@ export default function AboutPage() {
         </section>
 
 
-        {/* ── Promo Cards (admin-managed) ── */}
-        {promoCards.length > 0 && (
+        {/* ── Big Savings horizontal banners ── */}
+        {!loading && products.length >= 2 && (
           <section>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
-              {promoCards.map((card, i) => (
-                <PromoCardView key={`promo-${i}`} card={card} />
-              ))}
+              {products.slice(0, 3).map((p, i) => {
+                const sym = CURRENCY_SYMBOLS[p.currency] || "$";
+                const img = p.images?.[0];
+                const savings = [170, 220, 90][i] ?? 100;
+                return (
+                  <Link
+                    key={`save-${p.id}`}
+                    to={`/shop/${p.id}`}
+                    className="flex-shrink-0 w-[280px] rounded-3xl overflow-hidden active:scale-[0.98] transition-transform relative flex flex-col justify-between p-5"
+                    style={{ background: "linear-gradient(160deg, hsl(50 84% 52%) 0%, hsl(44 92% 48%) 100%)", height: "300px" }}
+                  >
+                    <div>
+                      <div className="text-primary-foreground/80 text-[13px] font-semibold">Save</div>
+                      <div className="text-primary-foreground text-[38px] font-black tracking-tight leading-none">{sym}{savings}</div>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center py-2">
+                      {img && img !== "/placeholder.svg" ? (
+                        <img src={img} alt={p.name} className="max-h-[130px] w-auto object-contain drop-shadow-xl" />
+                      ) : (
+                        <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
+                          <Package className="w-10 h-10 text-primary-foreground/60" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-primary-foreground text-[13px] font-medium line-clamp-2 mb-3">Save {sym}{savings} on {p.name}</p>
+                      <div className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-background text-foreground text-[13px] font-bold">
+                        Shop now
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </section>
         )}
@@ -328,6 +328,27 @@ export default function AboutPage() {
         })()}
 
 
+        {/* ── AI Assistant promo ── */}
+        <section>
+          <Link
+            to="/contact"
+            className="block rounded-3xl overflow-hidden p-6 active:scale-[0.99] transition-transform relative"
+            style={{ background: "linear-gradient(140deg, hsl(228 30% 12%) 0%, hsl(228 40% 20%) 60%, hsl(50 84% 30%) 100%)" }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1">
+                <Sparkles className="w-7 h-7 mb-3" style={{ color: "hsl(50 84% 62%)" }} strokeWidth={2} />
+                <p className="text-background text-[16px] font-semibold leading-snug tracking-tight">
+                  Our expert team helps you choose the right IT setup{" "}
+                  <span style={{ color: "hsl(50 84% 62%)" }}>for any business need...</span>
+                </p>
+              </div>
+            </div>
+            <div className="mt-5 inline-flex items-center justify-center w-full px-4 py-3 rounded-full bg-background text-foreground text-[14px] font-bold">
+              Get a free consultation
+            </div>
+          </Link>
+        </section>
 
         {/* ── Deals for you ── */}
         {!loading && products.length >= 4 && (
@@ -383,6 +404,19 @@ export default function AboutPage() {
           </section>
         )}
 
+        {/* ── Trending Now banner ── */}
+        <section>
+          <div className="rounded-3xl overflow-hidden p-6 relative" style={{ background: "hsl(50 84% 52%)" }}>
+            <div className="max-w-[70%]">
+              <p className="text-primary-foreground/70 text-[11px] font-bold uppercase tracking-widest">Champa Exclusive</p>
+              <h3 className="text-primary-foreground text-[22px] font-black tracking-tight leading-tight mt-2">Enterprise-grade support, on your schedule</h3>
+              <Link to="/services" className="mt-4 inline-flex items-center gap-1 px-4 py-2 rounded-full bg-foreground text-background text-[12px] font-bold">
+                Explore services <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+            <Zap className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 text-primary-foreground/15" strokeWidth={1.5} />
+          </div>
+        </section>
 
 
         {/* ── Quick Actions (pill row) ── */}
@@ -516,89 +550,5 @@ export default function AboutPage() {
         )}
       </div>
     </div>
-  );
-}
-
-function PromoCardView({ card }: { card: PromoCard }) {
-  const commonImg = card.image ? (
-    <img
-      src={card.image}
-      alt=""
-      className="absolute inset-0 w-full h-full object-cover"
-      style={{ objectPosition: card.imagePosition || "center" }}
-    />
-  ) : null;
-
-  if (card.style === "dark-ai") {
-    return (
-      <Link
-        to={card.link}
-        className="flex-shrink-0 w-[300px] relative rounded-3xl overflow-hidden p-6 active:scale-[0.99] transition-transform flex flex-col justify-between"
-        style={{ height: "220px", background: "linear-gradient(140deg, hsl(228 30% 12%) 0%, hsl(228 40% 20%) 60%, hsl(50 84% 30%) 100%)" }}
-      >
-        {commonImg}
-        {card.image && <div className="absolute inset-0 bg-gradient-to-br from-foreground/70 via-foreground/50 to-transparent" />}
-        <div className="relative">
-          <Sparkles className="w-7 h-7 mb-3" style={{ color: "hsl(50 84% 62%)" }} strokeWidth={2} />
-          <p className="text-background text-[16px] font-semibold leading-snug tracking-tight">
-            {card.title}{card.subtitle && <> <span style={{ color: "hsl(50 84% 62%)" }}>{card.subtitle}</span></>}
-          </p>
-        </div>
-        <div className="relative inline-flex items-center justify-center w-full px-4 py-3 rounded-full bg-background text-foreground text-[14px] font-bold">
-          {card.cta}
-        </div>
-      </Link>
-    );
-  }
-
-  if (card.style === "yellow-exclusive") {
-    return (
-      <Link
-        to={card.link}
-        className="flex-shrink-0 w-[300px] relative rounded-3xl overflow-hidden p-6 active:scale-[0.99] transition-transform flex flex-col justify-between"
-        style={{ height: "220px", background: "hsl(50 84% 52%)" }}
-      >
-        {commonImg}
-        {card.image && <div className="absolute inset-0 bg-gradient-to-r from-[hsl(50_84%_52%)] via-[hsl(50_84%_52%)]/70 to-transparent" />}
-        <div className="relative max-w-[75%]">
-          {card.eyebrow && <p className="text-primary-foreground/70 text-[11px] font-bold uppercase tracking-widest">{card.eyebrow}</p>}
-          <h3 className="text-primary-foreground text-[20px] font-black tracking-tight leading-tight mt-2">{card.title}</h3>
-        </div>
-        <div className="relative">
-          <span className="inline-flex items-center gap-1 px-4 py-2 rounded-full bg-foreground text-background text-[12px] font-bold">
-            {card.cta} <ArrowRight className="w-3.5 h-3.5" />
-          </span>
-        </div>
-        {!card.image && <Zap className="absolute right-4 top-1/2 -translate-y-1/2 w-24 h-24 text-primary-foreground/15" strokeWidth={1.5} />}
-      </Link>
-    );
-  }
-
-  // yellow-save (default)
-  return (
-    <Link
-      to={card.link}
-      className="flex-shrink-0 w-[280px] relative rounded-3xl overflow-hidden active:scale-[0.98] transition-transform flex flex-col justify-between p-5"
-      style={{ height: "300px", background: "linear-gradient(160deg, hsl(50 84% 52%) 0%, hsl(44 92% 48%) 100%)" }}
-    >
-      <div className="relative">
-        {card.eyebrow && <div className="text-primary-foreground text-[26px] font-black tracking-tight leading-none">{card.eyebrow}</div>}
-      </div>
-      <div className="flex-1 flex items-center justify-center py-2 relative">
-        {card.image ? (
-          <img src={card.image} alt="" className="max-h-[150px] w-auto object-contain drop-shadow-xl rounded-xl" style={{ objectPosition: card.imagePosition || "center" }} />
-        ) : (
-          <div className="w-24 h-24 rounded-2xl bg-primary-foreground/10 flex items-center justify-center">
-            <Package className="w-10 h-10 text-primary-foreground/60" />
-          </div>
-        )}
-      </div>
-      <div className="relative">
-        {card.title && <p className="text-primary-foreground text-[13px] font-medium line-clamp-2 mb-3">{card.title}</p>}
-        <div className="inline-flex items-center justify-center w-full px-4 py-2 rounded-full bg-background text-foreground text-[13px] font-bold">
-          {card.cta}
-        </div>
-      </div>
-    </Link>
   );
 }

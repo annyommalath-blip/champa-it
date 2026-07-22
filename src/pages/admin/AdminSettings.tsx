@@ -110,23 +110,11 @@ interface HeroSlide {
   imagePosition?: string;
 }
 
-interface PromoImage {
-  image?: string;
-  imagePosition?: string;
-}
-
 const defaultSlides: HeroSlide[] = [
   { title: "New Arrivals", subtitle: "Latest enterprise hardware & tools", cta: "Shop Now", link: "/shop" },
   { title: "Request a Quote", subtitle: "Fast estimate from our sales team", cta: "Get Quote", link: "/contact" },
   { title: "Talk to Sales", subtitle: "Live chat with our engineers", cta: "Start Chat", link: "/contact" },
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
-];
-
-// Fixed promo spaces on the homepage — admin can only replace the image inside each.
-const PROMO_SLOTS: { label: string; description: string }[] = [
-  { label: "Save banner (yellow)", description: "Product photo shown on the yellow Save promo card." },
-  { label: "AI Expert card (dark)", description: "Background image behind the dark AI/Expert consultation card." },
-  { label: "Champa Exclusive (yellow)", description: "Background image behind the Champa Exclusive services card." },
 ];
 
 export default function AdminSettings() {
@@ -143,8 +131,6 @@ export default function AdminSettings() {
   const [uploadingQr, setUploadingQr] = useState(false);
   const [loading, setLoading] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
-  const [promoImages, setPromoImages] = useState<PromoImage[]>(PROMO_SLOTS.map(() => ({})));
-  const [uploadingPromo, setUploadingPromo] = useState<number | null>(null);
 
 
   useEffect(() => {
@@ -160,7 +146,6 @@ export default function AdminSettings() {
           if (s.key === "banner_text") setBannerText(val || "");
           if (s.key === "chat_greeting" && typeof val === "string") setChatGreeting(val);
           if (s.key === "hero_slides" && Array.isArray(val)) setHeroSlides(val);
-          if (s.key === "promo_images" && Array.isArray(val)) setPromoImages(PROMO_SLOTS.map((_, i) => val[i] || {}));
           if (s.key === "payment_info" && val && typeof val === "object") setPaymentInfo({ qr_image: val.qr_image || "", bank_name: val.bank_name || "", account_name: val.account_name || "", account_number: val.account_number || "", notes: val.notes || "" });
         });
 
@@ -188,7 +173,6 @@ export default function AdminSettings() {
       saveSetting("banner_text", bannerText),
       saveSetting("chat_greeting", chatGreeting),
       saveSetting("hero_slides", heroSlides),
-      saveSetting("promo_images", promoImages),
       ...(isSuperAdmin ? [saveSetting("payment_info", paymentInfo)] : []),
     ]);
 
@@ -246,25 +230,6 @@ export default function AdminSettings() {
     setHeroSlides((prev) =>
       prev.map((s, i) => (i === index ? { ...s, image: "" } : s))
     );
-  };
-
-  const handlePromoUpload = async (index: number, file: File) => {
-    if (!file.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
-    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
-    setUploadingPromo(index);
-    const fileName = `promo-slot-${index}-${Date.now()}.${file.name.split(".").pop()}`;
-    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
-    if (error) { toast.error("Upload failed: " + error.message); setUploadingPromo(null); return; }
-    const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
-    setPromoImages((prev) => prev.map((p, i) => (i === index ? { ...p, image: urlData.publicUrl } : p)));
-    setUploadingPromo(null);
-    toast.success("Image uploaded!");
-  };
-  const updatePromoPosition = (index: number, pos: string) => {
-    setPromoImages((prev) => prev.map((p, i) => (i === index ? { ...p, imagePosition: pos } : p)));
-  };
-  const removePromoImage = (index: number) => {
-    setPromoImages((prev) => prev.map((p, i) => (i === index ? {} : p)));
   };
 
   const handleQrUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -375,52 +340,6 @@ export default function AdminSettings() {
           )}
         </CardContent>
       </Card>
-
-      {/* Promo Cards */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Homepage Promo Card Images</CardTitle>
-          <p className="text-xs text-muted-foreground mt-1">
-            The three promo spaces on the home screen are fixed — you can only replace the image inside each space.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {PROMO_SLOTS.map((slot, i) => {
-            const img = promoImages[i] || {};
-            return (
-              <div key={i} className="relative rounded-lg border border-border p-4 space-y-3">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Image className="w-4 h-4" />
-                  <div>
-                    <p className="text-xs font-semibold text-foreground">{slot.label}</p>
-                    <p className="text-[11px] text-muted-foreground">{slot.description}</p>
-                  </div>
-                </div>
-
-                {img.image ? (
-                  <div className="space-y-2">
-                    <DraggableImageCrop
-                      src={img.image}
-                      position={img.imagePosition || "50% 50%"}
-                      onPositionChange={(pos) => updatePromoPosition(i, pos)}
-                    />
-                    <div className="flex items-center gap-2">
-                      <SlideImageUploadButton index={i} uploading={uploadingPromo === i} onUpload={handlePromoUpload} label="Replace" />
-                      <Button size="sm" variant="ghost" className="gap-1.5 text-muted-foreground hover:text-destructive" onClick={() => removePromoImage(i)}>
-                        <X className="w-3.5 h-3.5" /> Remove
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <SlideImageUploadButton index={i} uploading={uploadingPromo === i} onUpload={handlePromoUpload} isPlaceholder />
-                )}
-              </div>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-
 
       {/* Company Info */}
       <Card>
