@@ -186,8 +186,8 @@ export default function CartPage() {
             {cart.map((item) => (
               <div key={item.product.id} className="app-card p-4 flex items-center gap-3">
                 <div className="w-14 h-14 rounded-xl bg-secondary overflow-hidden flex items-center justify-center shrink-0">
-                  {item.product.image_url ? (
-                    <img src={item.product.image_url} alt={item.product.name} className="w-full h-full object-cover" loading="lazy" />
+                  {item.product.images?.[0] ? (
+                    <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
                     <span className="text-lg font-bold text-muted-foreground/30">{item.product.name.charAt(0)}</span>
                   )}
