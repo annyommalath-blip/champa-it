@@ -17,10 +17,27 @@ interface HeroSlide {
   imagePosition?: string;
 }
 
+interface PromoCard {
+  style: "yellow-save" | "dark-ai" | "yellow-exclusive";
+  eyebrow?: string;
+  title: string;
+  subtitle?: string;
+  cta: string;
+  link: string;
+  image?: string;
+  imagePosition?: string;
+}
+
 const defaultHeroSlides: HeroSlide[] = [
   { title: "Enterprise Hardware", subtitle: "Servers, networking & security solutions", cta: "Shop Now", link: "/shop" },
   { title: "Get a Custom Quote", subtitle: "Tailored solutions for your business", cta: "Request Quote", link: "/contact" },
   { title: "Flash Deals", subtitle: "Up to 20% off select products", cta: "View Deals", link: "/shop" },
+];
+
+const defaultPromoCards: PromoCard[] = [
+  { style: "yellow-save", eyebrow: "Save ₭170", title: "Save on our best-selling Canon IR2206N", subtitle: "", cta: "Shop now", link: "/shop" },
+  { style: "dark-ai", title: "Our expert team helps you choose the right IT setup", subtitle: "for any business need...", cta: "Get a free consultation", link: "/contact" },
+  { style: "yellow-exclusive", eyebrow: "Champa Exclusive", title: "Enterprise-grade support, on your schedule", cta: "Explore services", link: "/services" },
 ];
 
 interface DbProduct {
