@@ -25,8 +25,13 @@ export const useAuth = () => {
 };
 
 async function fetchRole(userId: string): Promise<AppRole | null> {
-  const { data } = await supabase.rpc("get_user_role", { _user_id: userId });
-  return (data as AppRole) || null;
+  const { data } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", userId);
+
+  const roles = ((data || []) as { role: AppRole }[]).map((row) => row.role);
+  return (["super_admin", "approved_admin", "pending_admin", "customer"] as AppRole[]).find((role) => roles.includes(role)) || null;
 }
 
 async function fetchProfile(userId: string) {

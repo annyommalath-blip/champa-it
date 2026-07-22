@@ -226,7 +226,7 @@ export default function AdminSettings() {
     
     const { error } = await supabase.storage
       .from("hero-images")
-      .upload(fileName, file, { upsert: true });
+      .upload(fileName, file);
 
     if (error) {
       toast.error("Upload failed: " + error.message);
@@ -258,7 +258,7 @@ export default function AdminSettings() {
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
     setUploadingQr(true);
     const fileName = `payment-qr-${Date.now()}.${file.name.split(".").pop()}`;
-    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
+    const { error } = await supabase.storage.from("hero-images").upload(fileName, file);
     if (error) { toast.error("Upload failed: " + error.message); setUploadingQr(false); return; }
     const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
     setPaymentInfo((p) => ({ ...p, qr_image: urlData.publicUrl }));
@@ -281,7 +281,7 @@ export default function AdminSettings() {
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
     setUploadingSavings(index);
     const fileName = `savings-${index}-${Date.now()}.${file.name.split(".").pop()}`;
-    const { error } = await supabase.storage.from("hero-images").upload(fileName, file, { upsert: true });
+    const { error } = await supabase.storage.from("hero-images").upload(fileName, file);
     if (error) { toast.error("Upload failed: " + error.message); setUploadingSavings(null); return; }
     const { data: urlData } = supabase.storage.from("hero-images").getPublicUrl(fileName);
     setSavingsBanners((prev) => prev.map((b, i) => (i === index ? { ...b, image: urlData.publicUrl } : b)));
