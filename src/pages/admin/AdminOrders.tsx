@@ -48,7 +48,29 @@ export default function AdminOrders() {
         const recipient =
           order?.customer_info?.email || order?.guest_email || null;
         if (recipient) {
-          const items = Array.isArray(order?.items) ? order.items : [];
+          const rawItems = Array.isArray(order?.items) ? order.items : [];
+          const productIds = rawItems
+            .map((i: any) => i.product_id)
+            .filter(Boolean);
+          const { data: prods } = productIds.length
+            ? await supabase
+                .from("products")
+                .select("id, name, images")
+                .in("id", productIds)
+            : { data: [] as any[] };
+          const prodMap = new Map<string, any>((prods || []).map((p: any) => [p.id, p]));
+          const siteUrl = "https://champaenterprise.com";
+          const items = rawItems.map((i: any) => {
+            const p = prodMap.get(i.product_id);
+            const img = Array.isArray(p?.images) ? p.images[0] : undefined;
+            return {
+              name: i.name || p?.name || "Item",
+              quantity: i.quantity,
+              price: i.price,
+              imageUrl: img,
+              productUrl: i.product_id ? `${siteUrl}/shop/${i.product_id}` : undefined,
+            };
+          });
           supabase.functions
             .invoke("send-transactional-email", {
               body: {
@@ -67,11 +89,7 @@ export default function AdminOrders() {
                   deliveryAddress: order?.delivery_address || "",
                   paymentMethod: order?.payment_method || "",
                   status: "Confirmed",
-                  items: items.map((i: any) => ({
-                    name: i.name,
-                    quantity: i.quantity,
-                    price: i.price,
-                  })),
+                  items,
                 },
               },
             })
