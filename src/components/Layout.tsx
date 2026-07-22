@@ -40,7 +40,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         .from("notifications")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id)
-        .eq("is_read", false);
+        .eq("is_read", false)
+        .neq("type", "chat_message");
       if (!cancelled) setUnreadNotif(count ?? 0);
     };
     load();
