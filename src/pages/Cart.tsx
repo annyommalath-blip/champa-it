@@ -22,7 +22,7 @@ export default function CartPage() {
   const [checkoutMode, setCheckoutMode] = useState<"signin" | "guest" | null>(null);
   const [form, setForm] = useState({ name: "", phone: "", email: "", address: "", notes: "" });
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
-  const [payMethod, setPayMethod] = useState<PayMethod>("card");
+  const [payMethod, setPayMethod] = useState<PayMethod>("bank_transfer");
   const [screenshotUrl, setScreenshotUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -315,22 +315,28 @@ export default function CartPage() {
           {/* Payment method selector */}
           <div className="space-y-2 mb-5">
             {([
-              { key: "card" as const, icon: CreditCard, label: "Card", desc: "Pay securely with Visa, Mastercard, Amex" },
-              { key: "bank_transfer" as const, icon: Building2, label: "Bank transfer", desc: "Transfer + upload screenshot" },
+              { key: "card" as const, icon: CreditCard, label: "Card", desc: "Currently not available", disabled: true },
+              { key: "bank_transfer" as const, icon: Building2, label: "Bank transfer", desc: "Transfer + upload screenshot", disabled: false },
               ...(deliveryMethod === "pickup"
-                ? [{ key: "pay_in_store" as const, icon: Store, label: "Pay in store", desc: "Pay at pickup — cash or card at the counter" }]
+                ? [{ key: "pay_in_store" as const, icon: Store, label: "Pay in store", desc: "Pay at pickup — cash or card at the counter", disabled: false }]
                 : []),
             ]).map(opt => (
               <button
                 key={opt.key}
-                onClick={() => setPayMethod(opt.key)}
-                className={`w-full p-4 rounded-[14px] border-2 text-left flex items-center gap-3 transition-all active:scale-[0.98] ${
-                  payMethod === opt.key ? "border-primary bg-primary/5" : "border-border"
+                onClick={() => !opt.disabled && setPayMethod(opt.key)}
+                disabled={opt.disabled}
+                className={`w-full p-4 rounded-[14px] border-2 text-left flex items-center gap-3 transition-all ${
+                  opt.disabled
+                    ? "border-border opacity-50 cursor-not-allowed"
+                    : `active:scale-[0.98] ${payMethod === opt.key ? "border-primary bg-primary/5" : "border-border"}`
                 }`}
               >
-                <opt.icon className={`w-5 h-5 ${payMethod === opt.key ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.6} />
+                <opt.icon className={`w-5 h-5 ${!opt.disabled && payMethod === opt.key ? "text-primary" : "text-muted-foreground"}`} strokeWidth={1.6} />
                 <div className="flex-1">
-                  <p className="text-body font-semibold text-foreground">{opt.label}</p>
+                  <p className="text-body font-semibold text-foreground flex items-center gap-2">
+                    {opt.label}
+                    {opt.disabled && <span className="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Unavailable</span>}
+                  </p>
                   <p className="text-micro text-muted-foreground">{opt.desc}</p>
                 </div>
               </button>
