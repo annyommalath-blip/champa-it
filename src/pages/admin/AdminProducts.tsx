@@ -11,6 +11,13 @@ import ImageCropper from "@/components/ImageCropper";
 
 const CURRENCIES = ["USD", "LAK", "THB"] as const;
 const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+const CONDITIONS = [
+  { value: "new", label: "New" },
+  { value: "refurbished", label: "Refurbished" },
+  { value: "clearance", label: "Clearance" },
+  { value: "open_box", label: "Open-box" },
+  { value: "pre_loved", label: "Pre-loved" },
+] as const;
 
 interface Product {
   id: string;
@@ -20,6 +27,7 @@ interface Product {
   price: number;
   currency: string;
   category: string;
+  condition: string;
   images: string[] | null;
   in_stock: boolean;
   stock_quantity: number;
@@ -29,8 +37,10 @@ interface Product {
 
 const emptyProduct = {
   name: "", description: "", long_description: "", price: 0, currency: "USD", category: "Uncategorized",
+  condition: "new",
   images: [] as string[], in_stock: true, stock_quantity: 0, rating: 0, specs: {} as Record<string, string>,
 };
+
 
 export default function AdminProducts() {
   const { user } = useAuth();
