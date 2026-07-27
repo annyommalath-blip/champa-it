@@ -10,20 +10,37 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 export default function ResetPassword() {
-  const { updatePassword } = useAuth();
+  const { updatePassword, signOut } = useAuth();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
+  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const [pendingTokenHash, setPendingTokenHash] = useState<string | null>(null);
+  const [pendingTokens, setPendingTokens] = useState<{ accessToken: string; refreshToken: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    const cleanResetUrl = () => {
+      window.history.replaceState({}, "", window.location.pathname);
+    };
+
+    const setReadyFromExistingSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        if (!cancelled) setStatus("ready");
+        return true;
+      }
+      return false;
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || (session && !cancelled)) {
         setStatus("ready");
+        cleanResetUrl();
       }
     });
 
@@ -31,37 +48,48 @@ export default function ResetPassword() {
       const url = new URL(window.location.href);
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 
+      const code = url.searchParams.get("code");
+      const tokenHash = url.searchParams.get("token_hash") || hash.get("token_hash");
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+      const hasResetParams = Boolean(code || tokenHash || accessToken || refreshToken);
+
+      if (hasResetParams && await setReadyFromExistingSession()) {
+        cleanResetUrl();
+        return;
+      }
+
       const errorDesc = url.searchParams.get("error_description") || hash.get("error_description");
       if (errorDesc) {
+        if (await setReadyFromExistingSession()) {
+          cleanResetUrl();
+          return;
+        }
         if (!cancelled) setStatus("invalid");
         return;
       }
 
       // 1) Implicit flow: #access_token=...&type=recovery
-      const accessToken = hash.get("access_token");
-      const refreshToken = hash.get("refresh_token");
       if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        if (!cancelled) setStatus(error ? "invalid" : "ready");
-        window.history.replaceState({}, "", window.location.pathname);
+        setPendingTokens({ accessToken, refreshToken });
+        if (!cancelled) setStatus("ready");
+        cleanResetUrl();
         return;
       }
 
       // 2) PKCE flow: ?code=...
-      const code = url.searchParams.get("code");
       if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!cancelled) setStatus(error ? "invalid" : "ready");
-        window.history.replaceState({}, "", window.location.pathname);
+        setPendingCode(code);
+        if (!cancelled) setStatus("ready");
+        cleanResetUrl();
         return;
       }
 
       // 3) Token hash flow: ?token_hash=...&type=recovery
-      const tokenHash = url.searchParams.get("token_hash") || hash.get("token_hash");
       if (tokenHash) {
-        const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
-        if (!cancelled) setStatus(error ? "invalid" : "ready");
-        window.history.replaceState({}, "", window.location.pathname);
+        setPendingTokenHash(tokenHash);
+        if (!cancelled) setStatus("ready");
+        cleanResetUrl();
         return;
       }
 
@@ -77,6 +105,29 @@ export default function ResetPassword() {
     };
   }, []);
 
+  const ensureRecoverySession = async () => {
+    if (pendingTokenHash) {
+      const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: pendingTokenHash });
+      return { error: error?.message ?? null };
+    }
+
+    if (pendingCode) {
+      const { error } = await supabase.auth.exchangeCodeForSession(pendingCode);
+      return { error: error?.message ?? null };
+    }
+
+    if (pendingTokens) {
+      const { error } = await supabase.auth.setSession({
+        access_token: pendingTokens.accessToken,
+        refresh_token: pendingTokens.refreshToken,
+      });
+      return { error: error?.message ?? null };
+    }
+
+    const { data } = await supabase.auth.getSession();
+    return { error: data.session ? null : "Please request a new password reset link." };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
@@ -88,13 +139,22 @@ export default function ResetPassword() {
       return;
     }
     setLoading(true);
+    const sessionResult = await ensureRecoverySession();
+    if (sessionResult.error) {
+      setLoading(false);
+      toast.error("This reset link is invalid or expired. Please request a new one.");
+      setStatus("invalid");
+      return;
+    }
+
     const { error } = await updatePassword(password);
     setLoading(false);
     if (error) {
       toast.error(error);
     } else {
       toast.success("Password updated successfully!");
-      navigate("/");
+      await signOut();
+      navigate("/auth");
     }
   };
 
