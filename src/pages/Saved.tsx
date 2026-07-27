@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Bookmark } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { formatMoney } from "@/lib/currency";
 
 export default function Saved() {
   const [items, setItems] = useState<any[]>([]);
@@ -54,7 +55,7 @@ export default function Saved() {
                 <div className="p-3">
                   <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">{p.category}</p>
                   <p className="text-[13px] font-semibold text-foreground line-clamp-2 mt-0.5">{p.name}</p>
-                  <p className="text-[13px] font-bold text-foreground mt-1">${Number(p.price).toLocaleString()}</p>
+                  <p className="text-[13px] font-bold text-foreground mt-1">{formatMoney(p.price, p.currency)}</p>
                 </div>
               </Link>
               <button onClick={() => remove(p.id)} className="w-full text-[11px] py-2 text-destructive/70 hover:bg-destructive/5">Remove</button>

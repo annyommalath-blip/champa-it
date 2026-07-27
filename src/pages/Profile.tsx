@@ -5,9 +5,10 @@ import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage, Language } from "@/context/LanguageContext";
 import { useState } from "react";
+import { formatMoney } from "@/lib/currency";
 
 export default function Profile() {
-  const { cart, cartTotal } = useApp();
+  const { cart, cartTotal, cartCurrency } = useApp();
   const { user, profile, role, signOut } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const [showLanguage, setShowLanguage] = useState(false);
@@ -148,7 +149,7 @@ export default function Profile() {
               <span className="text-[14px] font-bold text-foreground block tracking-tight">
                 {cart.length} {cart.length > 1 ? t("profile.itemsInCart") : t("profile.itemInCart")}
               </span>
-              <span className="text-[11px] text-muted-foreground/40">{t("cart.total")}: ${cartTotal.toLocaleString()}</span>
+              <span className="text-[11px] text-muted-foreground/40">{t("cart.total")}: {formatMoney(cartTotal, cartCurrency)}</span>
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-muted-foreground/15" />

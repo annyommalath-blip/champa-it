@@ -8,9 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import ImageCropper from "@/components/ImageCropper";
+import { formatMoney } from "@/lib/currency";
 
 const CURRENCIES = ["USD", "LAK", "THB"] as const;
-const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+
 const CONDITIONS = [
   { value: "new", label: "New" },
   { value: "refurbished", label: "Refurbished" },
@@ -193,7 +194,7 @@ export default function AdminProducts() {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">{p.name}</p>
                 <p className="text-xs text-muted-foreground">{p.category}</p>
-                <p className="text-sm font-bold text-primary mt-0.5">{CURRENCY_SYMBOLS[p.currency] || "$"}{Number(p.price).toLocaleString()}</p>
+                <p className="text-sm font-bold text-primary mt-0.5">{formatMoney(p.price, p.currency)}</p>
               </div>
               <span className={`text-xs px-2 py-1 rounded-full ${p.in_stock ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
                 {p.in_stock ? "In Stock" : "Out of Stock"}
