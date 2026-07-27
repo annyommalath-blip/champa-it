@@ -43,11 +43,16 @@ Deno.serve(async (req) => {
 
     const stripe = createStripeClient(environment);
 
+    // Stripe expects zero-decimal currencies (e.g. LAK) in whole units.
+    const ZERO_DECIMAL = new Set(["lak", "bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"]);
+    const toMinorUnits = (amount: number) =>
+      ZERO_DECIMAL.has(String(currency).toLowerCase()) ? Math.round(amount) : Math.round(amount * 100);
+
     const line_items = items.map((item) => ({
       price_data: {
         currency,
         product_data: { name: item.name },
-        unit_amount: Math.round(item.price * 100),
+        unit_amount: toMinorUnits(item.price),
       },
       quantity: item.quantity,
     }));
@@ -57,7 +62,7 @@ Deno.serve(async (req) => {
         price_data: {
           currency,
           product_data: { name: "Delivery" },
-          unit_amount: Math.round(deliveryFee * 100),
+          unit_amount: toMinorUnits(deliveryFee),
         },
         quantity: 1,
       });

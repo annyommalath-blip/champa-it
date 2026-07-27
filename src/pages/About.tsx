@@ -7,6 +7,7 @@ import { useApp } from "@/context/AppContext";
 import useEmblaCarousel from "embla-carousel-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { formatMoney } from "@/lib/currency";
 
 interface HeroSlide {
   title: string;
@@ -36,7 +37,7 @@ interface DbProduct {
   rating: number | null;
 }
 
-const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+
 
 export default function AboutPage() {
   const { t } = useLanguage();
@@ -109,6 +110,7 @@ export default function AboutPage() {
       description: product.description || "",
       longDescription: "",
       price: product.price,
+      currency: product.currency || "LAK",
       category: product.category,
       images: product.images || ["/placeholder.svg"],
       specs: {},
@@ -295,7 +297,7 @@ export default function AboutPage() {
               ) : (
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
                   {outletList.map((product) => {
-                    const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                    
                     const img = product.images?.[0];
                     const originalPrice = Number(product.price) * 1.35;
                     const save = Math.round(originalPrice - Number(product.price));
@@ -312,7 +314,7 @@ export default function AboutPage() {
                             <Package className="w-10 h-10 text-muted-foreground/30" />
                           )}
                           <span className="absolute top-2 left-2 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-[10px] font-bold">
-                            Save {sym}{save}
+                            Save {formatMoney(save, product.currency)}
                           </span>
                           <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/90 flex items-center justify-center active:scale-90" onClick={(e) => e.preventDefault()}>
                             <Heart className="w-3.5 h-3.5 text-foreground/70" strokeWidth={2} />
@@ -321,8 +323,8 @@ export default function AboutPage() {
                         <div className="p-3">
                           <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
                           <div className="flex items-baseline gap-1.5 mt-1.5">
-                            <span className="text-[14px] font-extrabold text-foreground">{sym}{Number(product.price).toLocaleString()}</span>
-                            <span className="text-[11px] text-muted-foreground/60 line-through">{sym}{Math.round(originalPrice).toLocaleString()}</span>
+                            <span className="text-[14px] font-extrabold text-foreground">{formatMoney(product.price, product.currency)}</span>
+                            <span className="text-[11px] text-muted-foreground/60 line-through">{formatMoney(Math.round(originalPrice), product.currency)}</span>
                           </div>
                         </div>
                       </Link>
@@ -390,7 +392,7 @@ export default function AboutPage() {
                 else if (dealsTab === 2) list.reverse(); // New deals: newest first
                 else list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || Number(b.price) - Number(a.price)); // Best-selling
                 return list.slice(0, 6).map((product) => {
-                  const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                  
                   const img = product.images?.[0];
                   return (
                     <Link key={`deal-${dealsTab}-${product.id}`} to={`/shop/${product.id}`} className="bento-card overflow-hidden active:scale-[0.98] transition-transform">
@@ -403,7 +405,7 @@ export default function AboutPage() {
                       </div>
                       <div className="p-3">
                         <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
-                        <span className="text-[14px] font-extrabold text-foreground mt-1.5 block">{sym}{Number(product.price).toLocaleString()}</span>
+                        <span className="text-[14px] font-extrabold text-foreground mt-1.5 block">{formatMoney(product.price, product.currency)}</span>
                       </div>
                     </Link>
                   );
@@ -478,7 +480,7 @@ export default function AboutPage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
               {products.slice(0, 4).map((product, idx) => {
-                const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                
                 const img = product.images?.[0] || null;
                 return (
                   <Link
@@ -518,7 +520,7 @@ export default function AboutPage() {
                           </>
                         )}
                       </div>
-                      <span className="text-[15px] font-extrabold text-foreground tracking-tight mt-1.5 block">{sym}{Number(product.price).toLocaleString()}</span>
+                      <span className="text-[15px] font-extrabold text-foreground tracking-tight mt-1.5 block">{formatMoney(product.price, product.currency)}</span>
                     </div>
                   </Link>
                 );
@@ -533,7 +535,7 @@ export default function AboutPage() {
             <h3 className="text-section-title text-foreground mb-3">Recently Viewed</h3>
             <div className="flex gap-3 overflow-x-auto scrollbar-hide -mx-5 px-5 md:mx-0 md:px-0 pb-1">
               {products.slice(4, 8).map((product) => {
-                const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+                
                 const img = product.images?.[0] || null;
                 return (
                   <Link
@@ -551,7 +553,7 @@ export default function AboutPage() {
                       )}
                     </div>
                     <h4 className="text-[11px] font-semibold text-foreground line-clamp-1 tracking-tight">{product.name}</h4>
-                    <span className="text-[12px] font-bold text-foreground/70 mt-0.5 block tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
+                    <span className="text-[12px] font-bold text-foreground/70 mt-0.5 block tracking-tight">{formatMoney(product.price, product.currency)}</span>
                   </Link>
                 );
               })}

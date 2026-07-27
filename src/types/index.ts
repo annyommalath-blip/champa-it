@@ -6,6 +6,7 @@ export interface Product {
   description: string;
   longDescription: string;
   price: number;
+  currency: string;
   category: string;
   images: string[];
   specs: Record<string, string>;

@@ -5,8 +5,9 @@ import { useApp } from "@/context/AppContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { formatMoney } from "@/lib/currency";
 
-const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+
 
 interface DbProduct {
   id: string;
@@ -71,6 +72,7 @@ export default function ShopPage() {
       description: product.description,
       longDescription: product.long_description || "",
       price: product.price,
+      currency: product.currency || "LAK",
       category: product.category,
       images: product.images || ["/placeholder.svg"],
       specs: (product.specs || {}) as Record<string, string>,
@@ -183,7 +185,7 @@ export default function ShopPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {filtered.map((product, idx) => {
-              const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+              
               const img = product.images?.[0] || null;
               const addedToCart = isInCart(product.id);
               return (
@@ -232,7 +234,7 @@ export default function ShopPage() {
                       </div>
                     )}
                     <div className="flex items-center justify-between mt-auto pt-2">
-                      <span className="text-[15px] font-extrabold text-foreground tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
+                      <span className="text-[15px] font-extrabold text-foreground tracking-tight">{formatMoney(product.price, product.currency)}</span>
                     </div>
                   </div>
                 </Link>

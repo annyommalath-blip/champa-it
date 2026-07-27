@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Package, ShoppingCart, MessageSquare, Users, FileText, Headphones } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { formatMoney } from "@/lib/currency";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ products: 0, orders: 0, conversations: 0, pendingAdmins: 0 });
@@ -97,7 +98,7 @@ export default function AdminDashboard() {
                     <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-semibold">${Number(o.total).toFixed(2)}</p>
+                    <p className="text-sm font-semibold">{formatMoney(o.total, o.currency)}</p>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       o.status === "pending" ? "bg-orange-100 text-orange-700" :
                       o.status === "confirmed" ? "bg-blue-100 text-blue-700" :

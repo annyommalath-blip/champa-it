@@ -44,7 +44,7 @@ const Email = ({
   customerName = 'Customer',
   orderId = '',
   orderTotal = '',
-  currency = 'USD',
+  currency = 'LAK',
   deliveryMethod = '',
   deliveryAddress = '',
   paymentMethod = '',
@@ -99,7 +99,7 @@ const Email = ({
                         <Text style={itemMeta}>
                           Qty {it.quantity ?? 1}
                           {typeof it.price === 'number'
-                            ? ` · ${currency} ${(it.price * (it.quantity ?? 1)).toFixed(2)}`
+                            ? ` · ${currency} ${(it.price * (it.quantity ?? 1)).toLocaleString('en-US', { minimumFractionDigits: currency.toUpperCase() === 'LAK' ? 0 : 2, maximumFractionDigits: currency.toUpperCase() === 'LAK' ? 0 : 2 })}`
                             : ''}
                         </Text>
                         {it.productUrl ? (
@@ -176,7 +176,7 @@ export const template = {
     customerName: 'Alex',
     orderId: 'abcdef1234567890',
     orderTotal: '129.00',
-    currency: 'USD',
+    currency: 'LAK',
     deliveryMethod: 'Delivery',
     deliveryAddress: '123 Samsenthai Rd, Vientiane',
     paymentMethod: 'Card',
