@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +16,65 @@ export default function ResetPassword() {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isRecovery, setIsRecovery] = useState(false);
+  const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsRecovery(true);
-    }
+    let cancelled = false;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (session && !cancelled)) {
+        setStatus("ready");
+      }
+    });
+
+    const verify = async () => {
+      const url = new URL(window.location.href);
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+
+      const errorDesc = url.searchParams.get("error_description") || hash.get("error_description");
+      if (errorDesc) {
+        if (!cancelled) setStatus("invalid");
+        return;
+      }
+
+      // 1) Implicit flow: #access_token=...&type=recovery
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        if (!cancelled) setStatus(error ? "invalid" : "ready");
+        window.history.replaceState({}, "", window.location.pathname);
+        return;
+      }
+
+      // 2) PKCE flow: ?code=...
+      const code = url.searchParams.get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (!cancelled) setStatus(error ? "invalid" : "ready");
+        window.history.replaceState({}, "", window.location.pathname);
+        return;
+      }
+
+      // 3) Token hash flow: ?token_hash=...&type=recovery
+      const tokenHash = url.searchParams.get("token_hash") || hash.get("token_hash");
+      if (tokenHash) {
+        const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
+        if (!cancelled) setStatus(error ? "invalid" : "ready");
+        window.history.replaceState({}, "", window.location.pathname);
+        return;
+      }
+
+      // 4) Already-established recovery session
+      const { data } = await supabase.auth.getSession();
+      if (!cancelled) setStatus(data.session ? "ready" : "invalid");
+    };
+
+    verify();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -45,7 +98,15 @@ export default function ResetPassword() {
     }
   };
 
-  if (!isRecovery) {
+  if (status === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (status === "invalid") {
     return (
       <div className="min-h-screen flex items-center justify-center px-5">
         <div className="text-center space-y-4">
@@ -55,6 +116,7 @@ export default function ResetPassword() {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center px-5 py-10 bg-background">
