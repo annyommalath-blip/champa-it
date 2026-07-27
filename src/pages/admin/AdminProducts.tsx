@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import ImageCropper from "@/components/ImageCropper";
-import { formatMoney } from "@/lib/currency";
+import { formatMoney, CURRENCY_SYMBOLS } from "@/lib/currency";
 
 const CURRENCIES = ["USD", "LAK", "THB"] as const;
 
