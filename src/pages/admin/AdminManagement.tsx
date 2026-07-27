@@ -141,7 +141,7 @@ export default function AdminManagement() {
     fetchData();
   };
 
-  const signupUrl = `${window.location.origin}/auth`;
+  const signupUrl = `https://champaenterprise.com/auth?mode=signup`;
 
   return (
     <div className="space-y-6">
