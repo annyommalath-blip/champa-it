@@ -76,6 +76,7 @@ export default function Notifications() {
       await supabase.from("notifications").update({ is_read: true }).eq("id", n.id);
     }
     if (n.type.startsWith("order_") && n.reference_id) navigate(`/profile/orders/${n.reference_id}`);
+    else if (n.type === "admin_request") navigate("/admin/admins");
     else if (n.type === "chat_message") navigate("/chat");
   };
 
