@@ -17,6 +17,9 @@ export default function ResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
+  const [pendingCode, setPendingCode] = useState<string | null>(null);
+  const [pendingTokenHash, setPendingTokenHash] = useState<string | null>(null);
+  const [pendingTokens, setPendingTokens] = useState<{ accessToken: string; refreshToken: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -32,16 +35,6 @@ export default function ResetPassword() {
         return true;
       }
       return false;
-    };
-
-    const finishVerification = async (error?: { message?: string } | null) => {
-      if (cancelled) return;
-
-      // The auth client can automatically consume recovery links before this
-      // page runs. If that happened, a second manual exchange reports the link
-      // as used/expired even though the recovery session is already valid.
-      const hasSession = await setReadyFromExistingSession();
-      if (!hasSession && !cancelled) setStatus(error ? "invalid" : "ready");
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -78,24 +71,24 @@ export default function ResetPassword() {
 
       // 1) Implicit flow: #access_token=...&type=recovery
       if (accessToken && refreshToken) {
-        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        await finishVerification(error);
+        setPendingTokens({ accessToken, refreshToken });
+        if (!cancelled) setStatus("ready");
         cleanResetUrl();
         return;
       }
 
       // 2) PKCE flow: ?code=...
       if (code) {
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        await finishVerification(error);
+        setPendingCode(code);
+        if (!cancelled) setStatus("ready");
         cleanResetUrl();
         return;
       }
 
       // 3) Token hash flow: ?token_hash=...&type=recovery
       if (tokenHash) {
-        const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
-        await finishVerification(error);
+        setPendingTokenHash(tokenHash);
+        if (!cancelled) setStatus("ready");
         cleanResetUrl();
         return;
       }
@@ -112,6 +105,29 @@ export default function ResetPassword() {
     };
   }, []);
 
+  const ensureRecoverySession = async () => {
+    if (pendingTokenHash) {
+      const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: pendingTokenHash });
+      return { error: error?.message ?? null };
+    }
+
+    if (pendingCode) {
+      const { error } = await supabase.auth.exchangeCodeForSession(pendingCode);
+      return { error: error?.message ?? null };
+    }
+
+    if (pendingTokens) {
+      const { error } = await supabase.auth.setSession({
+        access_token: pendingTokens.accessToken,
+        refresh_token: pendingTokens.refreshToken,
+      });
+      return { error: error?.message ?? null };
+    }
+
+    const { data } = await supabase.auth.getSession();
+    return { error: data.session ? null : "Please request a new password reset link." };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 6) {
@@ -123,6 +139,14 @@ export default function ResetPassword() {
       return;
     }
     setLoading(true);
+    const sessionResult = await ensureRecoverySession();
+    if (sessionResult.error) {
+      setLoading(false);
+      toast.error("This reset link is invalid or expired. Please request a new one.");
+      setStatus("invalid");
+      return;
+    }
+
     const { error } = await updatePassword(password);
     setLoading(false);
     if (error) {
