@@ -53,6 +53,7 @@ function getStringValue(data: Record<string, unknown>, keys: string[]) {
 function buildRecoveryUrl(data: Record<string, unknown>) {
   const tokenHash = getStringValue(data, ['token_hash', 'tokenHash', 'hashed_token'])
   const token = getStringValue(data, ['token'])
+  const email = getStringValue(data, ['email', 'recipient'])
   const rawUrl = getStringValue(data, ['url', 'confirmation_url', 'confirmationUrl'])
   const resetUrl = new URL('/reset-password', SITE_URL)
   resetUrl.searchParams.set('type', 'recovery')
@@ -64,6 +65,7 @@ function buildRecoveryUrl(data: Record<string, unknown>) {
 
   if (token) {
     resetUrl.searchParams.set('token', token)
+    if (email) resetUrl.searchParams.set('email', email)
     return resetUrl.toString()
   }
 
@@ -76,6 +78,9 @@ function buildRecoveryUrl(data: Record<string, unknown>) {
       for (const [key, value] of hash) resetUrl.searchParams.set(key, value)
 
       resetUrl.searchParams.set('type', resetUrl.searchParams.get('type') || 'recovery')
+      if (email && resetUrl.searchParams.get('token') && !resetUrl.searchParams.get('email')) {
+        resetUrl.searchParams.set('email', email)
+      }
       return resetUrl.toString()
     } catch (_error) {
       return rawUrl
