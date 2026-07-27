@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Ban, Mail, Trash2, Copy } from "lucide-react";
+import { CheckCircle, XCircle, Ban, Mail, Trash2, Copy, Send } from "lucide-react";
 
 interface AdminRequest {
   id: string;
@@ -37,6 +37,7 @@ export default function AdminManagement() {
   const [invites, setInvites] = useState<Invite[]>([]);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
+  const [resending, setResending] = useState<string | null>(null);
 
   const fetchData = async () => {
     const { data: reqs } = await supabase.from("admin_requests").select("*").order("created_at", { ascending: false });
@@ -91,11 +92,31 @@ export default function AdminManagement() {
 
   };
 
+  const resendInvite = async (inv: Invite) => {
+    setResending(inv.id);
+    const { error } = await supabase.functions.invoke("send-transactional-email", {
+      body: {
+        templateName: "admin-invite",
+        recipientEmail: inv.email,
+        idempotencyKey: `admin-invite-${inv.id}-${Date.now()}`,
+        templateData: {
+          inviteEmail: inv.email,
+          signupUrl: `${window.location.origin}/auth`,
+          invitedBy: "Champa Enterprise",
+        },
+      },
+    });
+    setResending(null);
+    if (error) toast.error("Could not resend the invitation email.");
+    else toast.success(`Invitation resent to ${inv.email}`);
+  };
+
   const revokeInvite = async (id: string) => {
     const { error } = await supabase.from("admin_invites").delete().eq("id", id);
     if (error) toast.error(error.message);
     else { toast.success("Invite revoked"); fetchData(); }
   };
+
 
   const handleAction = async (req: AdminRequest, action: "approve" | "reject" | "disable") => {
     if (!user) return;
