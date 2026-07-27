@@ -19,6 +19,7 @@ export default function ResetPassword() {
   const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
   const [pendingCode, setPendingCode] = useState<string | null>(null);
   const [pendingTokenHash, setPendingTokenHash] = useState<string | null>(null);
+  const [pendingToken, setPendingToken] = useState<{ token: string; email: string | null } | null>(null);
   const [pendingTokens, setPendingTokens] = useState<{ accessToken: string; refreshToken: string } | null>(null);
 
   useEffect(() => {
@@ -50,9 +51,11 @@ export default function ResetPassword() {
 
       const code = url.searchParams.get("code");
       const tokenHash = url.searchParams.get("token_hash") || hash.get("token_hash");
+      const token = url.searchParams.get("token") || hash.get("token");
+      const email = url.searchParams.get("email") || hash.get("email");
       const accessToken = hash.get("access_token");
       const refreshToken = hash.get("refresh_token");
-      const hasResetParams = Boolean(code || tokenHash || accessToken || refreshToken);
+      const hasResetParams = Boolean(code || tokenHash || token || accessToken || refreshToken);
 
       if (hasResetParams && await setReadyFromExistingSession()) {
         cleanResetUrl();
@@ -85,9 +88,13 @@ export default function ResetPassword() {
         return;
       }
 
-      // 3) Token hash flow: ?token_hash=...&type=recovery
-      if (tokenHash) {
-        setPendingTokenHash(tokenHash);
+      // 3) Token hash flow: ?token_hash=...&type=recovery, or backend verify-style ?token=...
+      if (tokenHash || token) {
+        if (tokenHash) {
+          setPendingTokenHash(tokenHash);
+        } else if (token) {
+          setPendingToken({ token, email });
+        }
         if (!cancelled) setStatus("ready");
         cleanResetUrl();
         return;
@@ -109,6 +116,25 @@ export default function ResetPassword() {
     if (pendingTokenHash) {
       const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: pendingTokenHash });
       return { error: error?.message ?? null };
+    }
+
+    if (pendingToken) {
+      const { error: tokenHashError } = await supabase.auth.verifyOtp({
+        type: "recovery",
+        token_hash: pendingToken.token,
+      });
+      if (!tokenHashError) return { error: null };
+
+      if (pendingToken.email) {
+        const { error } = await supabase.auth.verifyOtp({
+          type: "recovery",
+          email: pendingToken.email,
+          token: pendingToken.token,
+        });
+        return { error: error?.message ?? null };
+      }
+
+      return { error: tokenHashError.message };
     }
 
     if (pendingCode) {
