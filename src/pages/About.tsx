@@ -314,7 +314,7 @@ export default function AboutPage() {
                             <Package className="w-10 h-10 text-muted-foreground/30" />
                           )}
                           <span className="absolute top-2 left-2 px-2 py-1 rounded-md bg-destructive text-destructive-foreground text-[10px] font-bold">
-                            Save {sym}{save}
+                            Save {formatMoney(save, product.currency)}
                           </span>
                           <button className="absolute top-2 right-2 w-7 h-7 rounded-full bg-background/90 flex items-center justify-center active:scale-90" onClick={(e) => e.preventDefault()}>
                             <Heart className="w-3.5 h-3.5 text-foreground/70" strokeWidth={2} />
@@ -324,7 +324,7 @@ export default function AboutPage() {
                           <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 leading-tight">{product.name}</h4>
                           <div className="flex items-baseline gap-1.5 mt-1.5">
                             <span className="text-[14px] font-extrabold text-foreground">{formatMoney(product.price, product.currency)}</span>
-                            <span className="text-[11px] text-muted-foreground/60 line-through">{sym}{Math.round(originalPrice).toLocaleString()}</span>
+                            <span className="text-[11px] text-muted-foreground/60 line-through">{formatMoney(Math.round(originalPrice), product.currency)}</span>
                           </div>
                         </div>
                       </Link>

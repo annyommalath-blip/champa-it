@@ -42,3 +42,12 @@ export function formatMoney(amount: number | string | null | undefined, currency
     maximumFractionDigits: decimals,
   })}`;
 }
+
+/** Plain numeric string (no symbol) with the right precision — used in emails and receipts. */
+export function formatAmount(amount: number | string | null | undefined, currency?: string | null): string {
+  const code = normalizeCurrency(currency);
+  const value = Number(amount ?? 0);
+  const safe = Number.isFinite(value) ? value : 0;
+  const decimals = ZERO_DECIMAL.has(code) ? 0 : 2;
+  return safe.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
