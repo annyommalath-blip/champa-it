@@ -24,7 +24,7 @@ const SITE_URL = 'https://champaenterprise.com'
 
 const Email = ({
   inviteEmail = '',
-  signupUrl = `${SITE_URL}/auth`,
+  signupUrl = `${SITE_URL}/auth?mode=signup`,
   invitedBy = 'Champa Enterprise',
 }: Props) => (
   <Html lang="en" dir="ltr">
@@ -65,7 +65,7 @@ export const template = {
   displayName: 'Admin invitation',
   previewData: {
     inviteEmail: 'teammate@company.com',
-    signupUrl: `${SITE_URL}/auth`,
+    signupUrl: `${SITE_URL}/auth?mode=signup`,
     invitedBy: 'Champa Enterprise',
   },
 } satisfies TemplateEntry
