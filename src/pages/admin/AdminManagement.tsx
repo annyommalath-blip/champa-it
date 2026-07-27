@@ -101,7 +101,7 @@ export default function AdminManagement() {
         idempotencyKey: `admin-invite-${inv.id}-${Date.now()}`,
         templateData: {
           inviteEmail: inv.email,
-          signupUrl: `https://champaenterprise.com/auth?mode=signup&email=${encodeURIComponent(email)}`,
+          signupUrl: `https://champaenterprise.com/auth?mode=signup&email=${encodeURIComponent(inv.email)}`,
           invitedBy: "Champa Enterprise",
         },
       },
