@@ -60,12 +60,35 @@ export default function AdminManagement() {
       return;
     }
     setInviting(true);
-    const { error } = await supabase.from("admin_invites").insert({ email, invited_by: user?.id });
+    const { data: inserted, error } = await supabase
+      .from("admin_invites")
+      .insert({ email, invited_by: user?.id })
+      .select("id")
+      .single();
+    if (error) { setInviting(false); toast.error(error.message); return; }
+
+    const { error: mailError } = await supabase.functions.invoke("send-transactional-email", {
+      body: {
+        templateName: "admin-invite",
+        recipientEmail: email,
+        idempotencyKey: `admin-invite-${inserted?.id}`,
+        templateData: {
+          inviteEmail: email,
+          signupUrl: `${window.location.origin}/auth`,
+          invitedBy: "Champa Enterprise",
+        },
+      },
+    });
     setInviting(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success(`Invited ${email}. They must sign up with this email; you'll still approve their request.`);
+
+    if (mailError) {
+      toast.warning(`Invite saved for ${email}, but the email could not be sent. Share the sign-up link manually.`);
+    } else {
+      toast.success(`Invitation email sent to ${email}. They must sign up with this email; you'll still approve their request.`);
+    }
     setInviteEmail("");
     fetchData();
+
   };
 
   const revokeInvite = async (id: string) => {
