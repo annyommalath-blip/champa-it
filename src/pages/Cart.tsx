@@ -48,6 +48,11 @@ export default function CartPage() {
     }));
   }, [user, profile]);
 
+  // Reset pay-in-store selection if switching to delivery
+  useEffect(() => {
+    if (deliveryMethod === "delivery" && payMethod === "pay_in_store") setPayMethod("card");
+  }, [deliveryMethod, payMethod]);
+
   const deliveryFee = deliveryMethod === "delivery" ? DELIVERY_FEE : 0;
   const grandTotal = cartTotal + deliveryFee;
 
@@ -153,11 +158,6 @@ export default function CartPage() {
     if (user) navigate("/profile");
     else if (data?.guest_token) { persistGuestOrder(data.id as string, data.guest_token as string); navigate("/"); }
   };
-
-  // Reset pay-in-store selection if switching to delivery
-  useEffect(() => {
-    if (deliveryMethod === "delivery" && payMethod === "pay_in_store") setPayMethod("card");
-  }, [deliveryMethod, payMethod]);
 
   return (
     <div className="px-5 py-4 md:px-8 md:py-6 md:max-w-3xl md:mx-auto">
