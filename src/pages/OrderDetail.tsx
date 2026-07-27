@@ -265,6 +265,7 @@ export default function OrderDetail() {
                   description: p.description || "",
                   longDescription: p.long_description || "",
                   price,
+                  currency: p.currency || order?.currency || "LAK",
                   category: p.category || "",
                   images: p.images || ["/placeholder.svg"],
                   specs: (p.specs || {}) as Record<string, string>,
