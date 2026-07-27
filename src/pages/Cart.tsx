@@ -7,13 +7,13 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { formatMoney, deliveryFeeFor } from "@/lib/currency";
 
-const DELIVERY_FEE = 20000;
 type Step = "cart" | "info" | "delivery" | "payment";
 type PayMethod = "card" | "bank_transfer" | "pay_in_store";
 
 export default function CartPage() {
-  const { cart, removeFromCart, updateQuantity, clearCart, cartTotal } = useApp();
+  const { cart, removeFromCart, updateQuantity, clearCart, cartTotal, cartCurrency } = useApp();
   const { t } = useLanguage();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export default function CartPage() {
     if (deliveryMethod === "delivery" && payMethod === "pay_in_store") setPayMethod("card");
   }, [deliveryMethod, payMethod]);
 
-  const deliveryFee = deliveryMethod === "delivery" ? DELIVERY_FEE : 0;
+  const deliveryFee = deliveryMethod === "delivery" ? deliveryFeeFor(cartCurrency) : 0;
   const grandTotal = cartTotal + deliveryFee;
 
   if (cart.length === 0 && step === "cart") {
@@ -96,7 +96,7 @@ export default function CartPage() {
       product_id: item.product.id, name: item.product.name, price: item.product.price, quantity: item.quantity,
     }));
     const payload: any = {
-      items: orderItems, total: grandTotal,
+      items: orderItems, total: grandTotal, currency: cartCurrency,
       delivery_method: deliveryMethod, delivery_fee: deliveryFee,
       customer_info: { name: form.name, phone: form.phone, email: form.email, address: form.address },
       notes: form.notes || null,
@@ -194,7 +194,7 @@ export default function CartPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-body font-semibold text-foreground truncate">{item.product.name}</h3>
-                  <p className="text-micro text-muted-foreground">${item.product.price.toLocaleString()} {t("cart.each")}</p>
+                  <p className="text-micro text-muted-foreground">{formatMoney(item.product.price, cartCurrency)} {t("cart.each")}</p>
                 </div>
                 <div className="flex items-center gap-1">
                   <button onClick={() => updateQuantity(item.product.id, item.quantity - 1)} className="w-7 h-7 rounded-lg border border-border flex items-center justify-center active:scale-90 transition-transform">
@@ -205,7 +205,7 @@ export default function CartPage() {
                     <Plus className="w-3 h-3" />
                   </button>
                 </div>
-                <span className="text-body font-bold text-foreground w-20 text-right">${(item.product.price * item.quantity).toLocaleString()}</span>
+                <span className="text-body font-bold text-foreground w-20 text-right">{formatMoney(item.product.price * item.quantity, cartCurrency)}</span>
                 <button onClick={() => removeFromCart(item.product.id)} className="text-muted-foreground hover:text-destructive transition-colors active:scale-90">
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -214,7 +214,7 @@ export default function CartPage() {
           </div>
           <div className="app-card p-4 flex items-center justify-between mb-4">
             <span className="text-body font-semibold text-foreground">{t("cart.total")}</span>
-            <span className="text-section-title font-bold text-foreground">${cartTotal.toLocaleString()}</span>
+            <span className="text-section-title font-bold text-foreground">{formatMoney(cartTotal, cartCurrency)}</span>
           </div>
           <button onClick={() => setStep("info")} className="btn-primary w-full">{t("cart.checkout")}</button>
         </div>
@@ -264,7 +264,7 @@ export default function CartPage() {
           <div className="space-y-2">
             {([
               { key: "pickup" as const, icon: MapPin, label: t("cart.pickup"), desc: t("cart.pickupDesc"), price: t("cart.free"), priceColor: "text-success" },
-              { key: "delivery" as const, icon: Truck, label: t("cart.delivery"), desc: t("cart.deliveryDesc"), price: "₭20,000", priceColor: "text-foreground" },
+              { key: "delivery" as const, icon: Truck, label: t("cart.delivery"), desc: t("cart.deliveryDesc"), price: formatMoney(deliveryFeeFor(cartCurrency), cartCurrency), priceColor: "text-foreground" },
             ]).map(opt => (
               <button
                 key={opt.key}
@@ -295,9 +295,9 @@ export default function CartPage() {
             </div>
           )}
           <div className="mt-5 space-y-2 text-caption border-t border-border pt-4">
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>{deliveryFee > 0 ? `₭${deliveryFee.toLocaleString()}` : t("cart.free")}</span></div>
-            <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>{formatMoney(cartTotal, cartCurrency)}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>{deliveryFee > 0 ? formatMoney(deliveryFee, cartCurrency) : t("cart.free")}</span></div>
+            <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>{formatMoney(grandTotal, cartCurrency)}</span></div>
           </div>
           <div className="flex gap-2.5 mt-5">
             <button onClick={() => setStep("info")} className="btn-secondary flex-1">{t("cart.back")}</button>
@@ -348,9 +348,9 @@ export default function CartPage() {
           </div>
 
           <div className="space-y-2 text-caption mb-5 app-card p-4">
-            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>${cartTotal.toLocaleString()}</span></div>
-            {deliveryFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>₭{deliveryFee.toLocaleString()}</span></div>}
-            <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>${cartTotal.toLocaleString()}{deliveryFee > 0 ? ` + ₭${deliveryFee.toLocaleString()}` : ""}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.subtotal")}</span><span>{formatMoney(cartTotal, cartCurrency)}</span></div>
+            {deliveryFee > 0 && <div className="flex justify-between"><span className="text-muted-foreground">{t("cart.deliveryFee")}</span><span>{formatMoney(deliveryFee, cartCurrency)}</span></div>}
+            <div className="flex justify-between font-bold text-body pt-2 border-t border-border"><span>{t("cart.grandTotal")}</span><span>{formatMoney(grandTotal, cartCurrency)}</span></div>
           </div>
 
           {payMethod === "bank_transfer" && (
@@ -471,7 +471,7 @@ export default function CartPage() {
               quantity: item.quantity,
             }))}
             deliveryFee={deliveryFee}
-            currency="usd"
+            currency={cartCurrency.toLowerCase()}
             customerEmail={form.email}
             userId={user?.id}
             returnUrl={`${window.location.origin}/checkout/return?order_id=${cardOrderId}&session_id={CHECKOUT_SESSION_ID}`}
