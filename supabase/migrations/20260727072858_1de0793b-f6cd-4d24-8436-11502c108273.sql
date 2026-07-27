@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.notify_super_admin_new_admin_request() FROM PUBLIC, anon, authenticated;
