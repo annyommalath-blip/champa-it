@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, Package, Inbox } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
+import { formatMoney } from "@/lib/currency";
 
 type Order = {
   id: string;
   total: number;
+  currency?: string;
   status: string;
   created_at: string;
   delivery_method: string | null;
@@ -23,7 +25,7 @@ export default function MyOrders() {
     (async () => {
       const { data } = await supabase
         .from("orders")
-        .select("id,total,status,created_at,delivery_method,items")
+        .select("id,total,currency,status,created_at,delivery_method,items")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       setOrders((data as Order[]) || []);
@@ -67,7 +69,7 @@ export default function MyOrders() {
                   <p className="text-[11px] text-muted-foreground/60 mt-0.5">
                     {count} item{count !== 1 ? "s" : ""} · {new Date(o.created_at).toLocaleDateString()} · {o.delivery_method || "—"}
                   </p>
-                  <p className="text-[13px] font-semibold text-foreground mt-1">${Number(o.total).toLocaleString()}</p>
+                  <p className="text-[13px] font-semibold text-foreground mt-1">{formatMoney(o.total, o.currency)}</p>
                 </div>
               </Link>
             );

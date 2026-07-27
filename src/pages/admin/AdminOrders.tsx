@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Check, Package, ClipboardCheck, Truck, Home, ChevronDown, ChevronUp, XCircle } from "lucide-react";
+import { formatMoney, formatAmount } from "@/lib/currency";
 
 type Stage = {
   key: string;
@@ -83,8 +84,8 @@ export default function AdminOrders() {
                     order?.customer_info?.name ||
                     "Customer",
                   orderId: id,
-                  orderTotal: Number(order?.total ?? 0).toFixed(2),
-                  currency: (order?.currency || "USD").toUpperCase(),
+                  orderTotal: formatAmount(order?.total ?? 0, order?.currency),
+                  currency: (order?.currency || "LAK").toUpperCase(),
                   deliveryMethod: order?.delivery_method || "",
                   deliveryAddress: order?.delivery_address || "",
                   paymentMethod: order?.payment_method || "",
@@ -149,7 +150,7 @@ export default function AdminOrders() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">${Number(o.total).toFixed(2)}</p>
+                    <p className="font-bold">{formatMoney(o.total, o.currency)}</p>
                     <div className="flex flex-col items-end gap-1 mt-1">
                       <span className={`inline-flex items-center text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                         o.payment_status === "paid" ? "bg-green-500/15 text-green-600" :
@@ -241,9 +242,9 @@ export default function AdminOrders() {
                           {o.payment_method === "card" ? "Card (Stripe)" : o.payment_method === "bank_transfer" ? "Bank Transfer" : o.payment_method || "—"}
                         </span>
                         <span>Amount</span>
-                        <span className="text-foreground font-medium text-right">${Number(o.total).toFixed(2)}</span>
+                        <span className="text-foreground font-medium text-right">{formatMoney(o.total, o.currency)}</span>
                         <span>Delivery fee</span>
-                        <span className="text-foreground text-right">${Number(o.delivery_fee || 0).toFixed(2)}</span>
+                        <span className="text-foreground text-right">{formatMoney(o.delivery_fee || 0, o.currency)}</span>
                         {o.stripe_payment_intent && (
                           <>
                             <span>Stripe PI</span>
@@ -309,7 +310,7 @@ export default function AdminOrders() {
                           {items.map((it: any, idx: number) => (
                             <li key={idx} className="flex justify-between text-muted-foreground">
                               <span>{it.name || it.title || "Item"} × {it.quantity || 1}</span>
-                              <span className="text-foreground">${(Number(it.price || 0) * Number(it.quantity || 1)).toLocaleString()}</span>
+                              <span className="text-foreground">{formatMoney(Number(it.price || 0) * Number(it.quantity || 1), o.currency)}</span>
                             </li>
                           ))}
                         </ul>

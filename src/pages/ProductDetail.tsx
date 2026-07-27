@@ -6,8 +6,9 @@ import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import useEmblaCarousel from "embla-carousel-react";
+import { formatMoney } from "@/lib/currency";
 
-const CURRENCY_SYMBOLS: Record<string, string> = { USD: "$", LAK: "₭", THB: "฿" };
+
 
 interface DbProduct {
   id: string;
@@ -105,7 +106,7 @@ function ProductGallery({ images }: { images: string[] }) {
 
 /* ── Recommended Product Card ── */
 function RecommendedCard({ product }: { product: DbProduct }) {
-  const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+  
   const img = product.images?.[0] || null;
   return (
     <Link
@@ -122,7 +123,7 @@ function RecommendedCard({ product }: { product: DbProduct }) {
         )}
       </div>
       <h4 className="text-[12px] font-semibold text-foreground line-clamp-2 tracking-tight leading-[1.3]">{product.name}</h4>
-      <span className="text-[13px] font-bold text-foreground mt-0.5 block tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
+      <span className="text-[13px] font-bold text-foreground mt-0.5 block tracking-tight">{formatMoney(product.price, product.currency)}</span>
     </Link>
   );
 }
@@ -232,7 +233,7 @@ export default function ProductDetail() {
     );
   }
 
-  const sym = CURRENCY_SYMBOLS[product.currency] || "$";
+  
   const images = (product.images || []).filter(img => img && img !== "/placeholder.svg");
   const specs = product.specs || {};
   const hasSpecs = Object.keys(specs).length > 0;
@@ -273,7 +274,7 @@ export default function ProductDetail() {
 
         {/* Price + Stock */}
         <div className="flex items-center gap-3 mb-4">
-          <span className="text-[24px] font-extrabold text-foreground tracking-tight">{sym}{Number(product.price).toLocaleString()}</span>
+          <span className="text-[24px] font-extrabold text-foreground tracking-tight">{formatMoney(product.price, product.currency)}</span>
           {product.in_stock ? (
             <span className="badge-status bg-success/10 text-success text-[10px]">
               <Check className="w-2.5 h-2.5" /> In Stock
@@ -340,11 +341,11 @@ export default function ProductDetail() {
           >
             {inCart ? (
               <>
-                <Check className="w-4 h-4" /> Added · {sym}{Number(product.price * cartItem!.quantity).toLocaleString()}
+                <Check className="w-4 h-4" /> Added · {formatMoney(product.price * cartItem!.quantity, product.currency)}
               </>
             ) : (
               <>
-                <ShoppingCart className="w-4 h-4" strokeWidth={2} /> Add to Cart · {sym}{Number(product.price * qty).toLocaleString()}
+                <ShoppingCart className="w-4 h-4" strokeWidth={2} /> Add to Cart · {formatMoney(product.price * qty, product.currency)}
               </>
             )}
           </button>
