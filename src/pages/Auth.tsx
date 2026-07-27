@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -15,8 +15,10 @@ export default function Auth() {
   const { signIn, signUp, resetPassword } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [tab, setTab] = useState<"login" | "signup" | "forgot">("login");
-  const [email, setEmail] = useState("");
+  const [params] = useSearchParams();
+  const initialMode = params.get("mode") === "signup" ? "signup" : "login";
+  const [tab, setTab] = useState<"login" | "signup" | "forgot">(initialMode);
+  const [email, setEmail] = useState(params.get("email") ?? "");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");

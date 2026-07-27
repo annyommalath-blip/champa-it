@@ -75,7 +75,7 @@ export default function AdminManagement() {
         idempotencyKey: `admin-invite-${inserted?.id}`,
         templateData: {
           inviteEmail: email,
-          signupUrl: `${window.location.origin}/auth`,
+          signupUrl: `https://champaenterprise.com/auth?mode=signup&email=${encodeURIComponent(email)}`,
           invitedBy: "Champa Enterprise",
         },
       },
@@ -101,7 +101,7 @@ export default function AdminManagement() {
         idempotencyKey: `admin-invite-${inv.id}-${Date.now()}`,
         templateData: {
           inviteEmail: inv.email,
-          signupUrl: `${window.location.origin}/auth`,
+          signupUrl: `https://champaenterprise.com/auth?mode=signup&email=${encodeURIComponent(inv.email)}`,
           invitedBy: "Champa Enterprise",
         },
       },
@@ -141,7 +141,7 @@ export default function AdminManagement() {
     fetchData();
   };
 
-  const signupUrl = `${window.location.origin}/auth`;
+  const signupUrl = `https://champaenterprise.com/auth?mode=signup`;
 
   return (
     <div className="space-y-6">
