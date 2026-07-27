@@ -36,10 +36,25 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "champa-it"
+const SITE_NAME = "Champa Enterprise"
 const SENDER_DOMAIN = "order.champaenterprise.com"
 const ROOT_DOMAIN = "champaenterprise.com"
 const FROM_DOMAIN = "order.champaenterprise.com" // Domain shown in From address (may be root or sender subdomain)
+const SITE_URL = `https://${ROOT_DOMAIN}`
+
+function buildConfirmationUrl(emailType: string, data: Record<string, unknown>) {
+  const defaultUrl = typeof data.url === 'string' ? data.url : SITE_URL
+  const tokenHash = typeof data.token_hash === 'string' ? data.token_hash : ''
+
+  if (emailType === 'recovery' && tokenHash) {
+    const resetUrl = new URL('/reset-password', SITE_URL)
+    resetUrl.searchParams.set('token_hash', tokenHash)
+    resetUrl.searchParams.set('type', 'recovery')
+    return resetUrl.toString()
+  }
+
+  return defaultUrl
+}
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
@@ -219,11 +234,12 @@ async function handleWebhook(req: Request): Promise<Response> {
   }
 
   // Build template props from payload.data (HookData structure)
+  const confirmationUrl = buildConfirmationUrl(emailType, payload.data)
   const templateProps = {
     siteName: SITE_NAME,
-    siteUrl: `https://${ROOT_DOMAIN}`,
+    siteUrl: SITE_URL,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl,
     token: payload.data.token,
     email: payload.data.email,
     oldEmail: payload.data.old_email,
@@ -237,10 +253,18 @@ async function handleWebhook(req: Request): Promise<Response> {
   })
 
   // Enqueue email for async processing by the dispatcher (process-email-queue).
-  const supabase = createClient(
-    Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-  )
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    console.error('Missing backend environment for auth email queue', { run_id, emailType })
+    return new Response(JSON.stringify({ error: 'Server configuration error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  const supabase = createClient(supabaseUrl, serviceRoleKey)
 
   const messageId = crypto.randomUUID()
 
