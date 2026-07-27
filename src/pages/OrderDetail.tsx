@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useApp } from "@/context/AppContext";
+import { formatMoney } from "@/lib/currency";
 
 
 const STAGES = [
@@ -37,7 +38,7 @@ export default function OrderDetail() {
     const items = Array.isArray(data?.items) ? data.items : [];
     const ids = items.map((it: any) => it.product_id).filter(Boolean);
     if (ids.length > 0) {
-      const { data: prods } = await supabase.from("products").select("id,name,images").in("id", ids);
+      const { data: prods } = await supabase.from("products").select("id,name,images,currency").in("id", ids);
       const map: Record<string, any> = {};
       (prods || []).forEach((p: any) => { map[p.id] = { ...p, image: Array.isArray(p.images) ? p.images[0] : null }; });
       setProducts(map);
@@ -122,7 +123,7 @@ export default function OrderDetail() {
 
         <div className="mt-4 flex items-baseline justify-between border-t border-border/50 pt-3">
           <p className="text-[13px] font-bold text-foreground">Total</p>
-          <p className="text-[20px] font-bold text-foreground tracking-tight">₭{Number(order.total).toLocaleString()}</p>
+          <p className="text-[20px] font-bold text-foreground tracking-tight">{formatMoney(order.total, order.currency)}</p>
         </div>
       </div>
 
@@ -234,12 +235,12 @@ export default function OrderDetail() {
                   <div className="flex-1 min-w-0 text-[12px] space-y-1">
                     <p><span className="font-bold text-foreground">SKU:</span> <span className="text-muted-foreground font-mono">{String(it.product_id || "").slice(0, 8).toUpperCase()}</span></p>
                     <p><span className="font-bold text-foreground">Quantity:</span> <span className="text-muted-foreground">{it.quantity}</span></p>
-                    <p><span className="font-bold text-foreground">Unit Price:</span> <span className="text-muted-foreground">₭{Number(it.price).toLocaleString()}</span></p>
+                    <p><span className="font-bold text-foreground">Unit Price:</span> <span className="text-muted-foreground">{formatMoney(it.price, order.currency)}</span></p>
                   </div>
                 </div>
                 <div className="mt-3 flex items-baseline justify-between text-[13px]">
                   <p className="font-bold text-foreground">Item Total</p>
-                  <p className="font-bold text-foreground">₭{lineTotal.toLocaleString()}</p>
+                  <p className="font-bold text-foreground">{formatMoney(lineTotal, order.currency)}</p>
                 </div>
               </div>
             );
@@ -290,7 +291,7 @@ export default function OrderDetail() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-semibold text-foreground line-clamp-3 leading-snug">{p.name}</p>
-                      <p className="text-[14px] font-bold text-foreground mt-1">₭{price.toLocaleString()}</p>
+                      <p className="text-[14px] font-bold text-foreground mt-1">{formatMoney(price, p.currency || order.currency)}</p>
                     </div>
                   </div>
                   <button
