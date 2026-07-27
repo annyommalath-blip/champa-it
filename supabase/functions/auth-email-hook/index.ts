@@ -42,18 +42,52 @@ const ROOT_DOMAIN = "champaenterprise.com"
 const FROM_DOMAIN = "order.champaenterprise.com" // Domain shown in From address (may be root or sender subdomain)
 const SITE_URL = `https://${ROOT_DOMAIN}`
 
-function buildConfirmationUrl(emailType: string, data: Record<string, unknown>) {
-  const defaultUrl = typeof data.url === 'string' ? data.url : SITE_URL
-  const tokenHash = typeof data.token_hash === 'string' ? data.token_hash : ''
+function getStringValue(data: Record<string, unknown>, keys: string[]) {
+  for (const key of keys) {
+    const value = data[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+  }
+  return ''
+}
 
-  if (emailType === 'recovery' && tokenHash) {
-    const resetUrl = new URL('/reset-password', SITE_URL)
+function buildRecoveryUrl(data: Record<string, unknown>) {
+  const tokenHash = getStringValue(data, ['token_hash', 'tokenHash', 'hashed_token'])
+  const token = getStringValue(data, ['token'])
+  const rawUrl = getStringValue(data, ['url', 'confirmation_url', 'confirmationUrl'])
+  const resetUrl = new URL('/reset-password', SITE_URL)
+  resetUrl.searchParams.set('type', 'recovery')
+
+  if (tokenHash) {
     resetUrl.searchParams.set('token_hash', tokenHash)
-    resetUrl.searchParams.set('type', 'recovery')
     return resetUrl.toString()
   }
 
-  return defaultUrl
+  if (token) {
+    resetUrl.searchParams.set('token', token)
+    return resetUrl.toString()
+  }
+
+  if (rawUrl) {
+    try {
+      const sourceUrl = new URL(rawUrl)
+      for (const [key, value] of sourceUrl.searchParams) resetUrl.searchParams.set(key, value)
+
+      const hash = new URLSearchParams(sourceUrl.hash.replace(/^#/, ''))
+      for (const [key, value] of hash) resetUrl.searchParams.set(key, value)
+
+      resetUrl.searchParams.set('type', resetUrl.searchParams.get('type') || 'recovery')
+      return resetUrl.toString()
+    } catch (_error) {
+      return rawUrl
+    }
+  }
+
+  return resetUrl.toString()
+}
+
+function buildConfirmationUrl(emailType: string, data: Record<string, unknown>) {
+  if (emailType === 'recovery') return buildRecoveryUrl(data)
+  return getStringValue(data, ['url', 'confirmation_url', 'confirmationUrl']) || SITE_URL
 }
 
 // Sample data for preview mode ONLY (not used in actual email sending).
