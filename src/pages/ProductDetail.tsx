@@ -183,6 +183,7 @@ export default function ProductDetail() {
       description: product.description || "",
       longDescription: product.long_description || "",
       price: product.price,
+      currency: product.currency || "LAK",
       category: product.category,
       images: product.images || ["/placeholder.svg"],
       specs: (product.specs || {}) as Record<string, string>,

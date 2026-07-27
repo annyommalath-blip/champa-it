@@ -109,6 +109,7 @@ export default function AboutPage() {
       description: product.description || "",
       longDescription: "",
       price: product.price,
+      currency: product.currency || "LAK",
       category: product.category,
       images: product.images || ["/placeholder.svg"],
       specs: {},
