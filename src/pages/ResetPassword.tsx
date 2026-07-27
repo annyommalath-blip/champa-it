@@ -10,7 +10,7 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 
 export default function ResetPassword() {
-  const { updatePassword } = useAuth();
+  const { updatePassword, signOut } = useAuth();
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -21,9 +21,33 @@ export default function ResetPassword() {
   useEffect(() => {
     let cancelled = false;
 
+    const cleanResetUrl = () => {
+      window.history.replaceState({}, "", window.location.pathname);
+    };
+
+    const setReadyFromExistingSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        if (!cancelled) setStatus("ready");
+        return true;
+      }
+      return false;
+    };
+
+    const finishVerification = async (error?: { message?: string } | null) => {
+      if (cancelled) return;
+
+      // The auth client can automatically consume recovery links before this
+      // page runs. If that happened, a second manual exchange reports the link
+      // as used/expired even though the recovery session is already valid.
+      const hasSession = await setReadyFromExistingSession();
+      if (!hasSession && !cancelled) setStatus(error ? "invalid" : "ready");
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "PASSWORD_RECOVERY" || (session && !cancelled)) {
         setStatus("ready");
+        cleanResetUrl();
       }
     });
 
@@ -31,37 +55,48 @@ export default function ResetPassword() {
       const url = new URL(window.location.href);
       const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 
+      const code = url.searchParams.get("code");
+      const tokenHash = url.searchParams.get("token_hash") || hash.get("token_hash");
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+      const hasResetParams = Boolean(code || tokenHash || accessToken || refreshToken);
+
+      if (hasResetParams && await setReadyFromExistingSession()) {
+        cleanResetUrl();
+        return;
+      }
+
       const errorDesc = url.searchParams.get("error_description") || hash.get("error_description");
       if (errorDesc) {
+        if (await setReadyFromExistingSession()) {
+          cleanResetUrl();
+          return;
+        }
         if (!cancelled) setStatus("invalid");
         return;
       }
 
       // 1) Implicit flow: #access_token=...&type=recovery
-      const accessToken = hash.get("access_token");
-      const refreshToken = hash.get("refresh_token");
       if (accessToken && refreshToken) {
         const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        if (!cancelled) setStatus(error ? "invalid" : "ready");
-        window.history.replaceState({}, "", window.location.pathname);
+        await finishVerification(error);
+        cleanResetUrl();
         return;
       }
 
       // 2) PKCE flow: ?code=...
-      const code = url.searchParams.get("code");
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (!cancelled) setStatus(error ? "invalid" : "ready");
-        window.history.replaceState({}, "", window.location.pathname);
+        await finishVerification(error);
+        cleanResetUrl();
         return;
       }
 
       // 3) Token hash flow: ?token_hash=...&type=recovery
-      const tokenHash = url.searchParams.get("token_hash") || hash.get("token_hash");
       if (tokenHash) {
         const { error } = await supabase.auth.verifyOtp({ type: "recovery", token_hash: tokenHash });
-        if (!cancelled) setStatus(error ? "invalid" : "ready");
-        window.history.replaceState({}, "", window.location.pathname);
+        await finishVerification(error);
+        cleanResetUrl();
         return;
       }
 
@@ -94,7 +129,8 @@ export default function ResetPassword() {
       toast.error(error);
     } else {
       toast.success("Password updated successfully!");
-      navigate("/");
+      await signOut();
+      navigate("/auth");
     }
   };
 
