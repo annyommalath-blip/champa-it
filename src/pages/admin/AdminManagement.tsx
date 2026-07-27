@@ -202,14 +202,26 @@ export default function AdminManagement() {
                       {inv.used_at ? "Signed up" : "Awaiting sign-up"}
                     </span>
                     {!inv.used_at && (
-                      <button
-                        onClick={() => revokeInvite(inv.id)}
-                        className="p-1.5 rounded hover:bg-destructive/10 text-destructive"
-                        aria-label="Revoke invite"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <>
+                        <button
+                          onClick={() => resendInvite(inv)}
+                          disabled={resending === inv.id}
+                          className="p-1.5 rounded hover:bg-secondary text-foreground disabled:opacity-50 transition-colors"
+                          aria-label="Resend invitation email"
+                          title="Resend invitation email"
+                        >
+                          <Send className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => revokeInvite(inv.id)}
+                          className="p-1.5 rounded hover:bg-destructive/10 text-destructive transition-colors"
+                          aria-label="Revoke invite"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </>
                     )}
+
                   </div>
                 </div>
               ))}
