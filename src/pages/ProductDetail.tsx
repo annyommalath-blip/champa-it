@@ -361,7 +361,7 @@ export default function ProductDetail() {
         )}
 
         {hasSpecs && (
-          <ExpandableSection title="Specifications">
+          <ExpandableSection title="Technical Details">
             <div className="space-y-0">
               {Object.entries(specs).map(([key, val]) => (
                 <div key={key} className="flex justify-between py-2 text-[13px]">
