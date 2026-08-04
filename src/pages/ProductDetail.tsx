@@ -15,6 +15,8 @@ interface DbProduct {
   name: string;
   description: string;
   long_description: string | null;
+  shipping_returns?: string | null;
+  warranty_info?: string | null;
   price: number;
   currency: string;
   category: string;
@@ -353,7 +355,7 @@ export default function ProductDetail() {
 
         {/* ── Expandable Sections ── */}
         {product.long_description && (
-          <ExpandableSection title="Description" defaultOpen>
+          <ExpandableSection title="Specification" defaultOpen>
             <p className="text-[13px] text-muted-foreground/60 leading-relaxed whitespace-pre-line">{product.long_description}</p>
           </ExpandableSection>
         )}
@@ -371,19 +373,17 @@ export default function ProductDetail() {
           </ExpandableSection>
         )}
 
-        <ExpandableSection title="Shipping & Returns">
-          <div className="space-y-2 text-[13px] text-muted-foreground/60 leading-relaxed">
-            <p>Free standard shipping on all orders over $500. Express shipping available at checkout.</p>
-            <p>30-day return policy for unused items in original packaging. Contact support for RMA authorization.</p>
-          </div>
-        </ExpandableSection>
+        {product.shipping_returns?.trim() && (
+          <ExpandableSection title="Shipping & Returns">
+            <p className="text-[13px] text-muted-foreground/60 leading-relaxed whitespace-pre-line">{product.shipping_returns}</p>
+          </ExpandableSection>
+        )}
 
-        <ExpandableSection title="Warranty & Support">
-          <div className="space-y-2 text-[13px] text-muted-foreground/60 leading-relaxed">
-            <p>All products include a standard 1-year manufacturer warranty. Extended warranties available.</p>
-            <p>For support, contact us via the Chat tab or email support@champa.la</p>
-          </div>
-        </ExpandableSection>
+        {product.warranty_info?.trim() && (
+          <ExpandableSection title="Warranty & Support">
+            <p className="text-[13px] text-muted-foreground/60 leading-relaxed whitespace-pre-line">{product.warranty_info}</p>
+          </ExpandableSection>
+        )}
 
         {/* ── More from category ── */}
         {moreFromCategory.length > 0 && (

@@ -25,6 +25,8 @@ interface Product {
   name: string;
   description: string;
   long_description: string | null;
+  shipping_returns: string | null;
+  warranty_info: string | null;
   price: number;
   currency: string;
   category: string;
@@ -37,7 +39,7 @@ interface Product {
 }
 
 const emptyProduct = {
-  name: "", description: "", long_description: "", price: 0, currency: "USD", category: "Uncategorized",
+  name: "", description: "", long_description: "", shipping_returns: "", warranty_info: "", price: 0, currency: "USD", category: "Uncategorized",
   condition: "new",
   images: [] as string[], in_stock: true, stock_quantity: 0, rating: 0, specs: {} as Record<string, string>,
 };
@@ -73,6 +75,7 @@ export default function AdminProducts() {
     setEditing(p);
     setForm({
       name: p.name, description: p.description, long_description: p.long_description || "",
+      shipping_returns: p.shipping_returns || "", warranty_info: p.warranty_info || "",
       price: p.price, currency: p.currency || "USD", category: p.category,
       condition: p.condition || "new",
       images: p.images || [],
@@ -88,6 +91,8 @@ export default function AdminProducts() {
       name: form.name,
       description: form.description,
       long_description: form.long_description,
+      shipping_returns: form.shipping_returns,
+      warranty_info: form.warranty_info,
       price: form.price,
       currency: form.currency,
       category: form.category,
@@ -235,12 +240,34 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-muted-foreground">Long Description</label>
+              <label className="text-xs font-medium text-muted-foreground">Specification</label>
+              <textarea
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                rows={4}
+                value={form.long_description}
+                onChange={(e) => setForm({ ...form, long_description: e.target.value })}
+                placeholder="One spec per line, e.g. Processor: Intel i7"
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">Line breaks are preserved on the listing page.</p>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Shipping &amp; Returns</label>
               <textarea
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 rows={3}
-                value={form.long_description}
-                onChange={(e) => setForm({ ...form, long_description: e.target.value })}
+                value={form.shipping_returns}
+                onChange={(e) => setForm({ ...form, shipping_returns: e.target.value })}
+                placeholder="Shipping and return policy for this product"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-muted-foreground">Warranty &amp; Support</label>
+              <textarea
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                rows={3}
+                value={form.warranty_info}
+                onChange={(e) => setForm({ ...form, warranty_info: e.target.value })}
+                placeholder="Warranty terms and support contact"
               />
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
