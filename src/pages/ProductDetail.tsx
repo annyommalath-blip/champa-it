@@ -287,7 +287,7 @@ export default function ProductDetail() {
         {/* About this item (short description) */}
         {product.description && (
           <div className="mb-5">
-            <p className="text-[13px] text-muted-foreground/70 leading-relaxed">{product.description}</p>
+            <p className="text-[13px] text-muted-foreground/70 leading-relaxed whitespace-pre-line">{product.description}</p>
           </div>
         )}
 
@@ -354,7 +354,7 @@ export default function ProductDetail() {
         {/* ── Expandable Sections ── */}
         {product.long_description && (
           <ExpandableSection title="Description" defaultOpen>
-            <p className="text-[13px] text-muted-foreground/60 leading-relaxed">{product.long_description}</p>
+            <p className="text-[13px] text-muted-foreground/60 leading-relaxed whitespace-pre-line">{product.long_description}</p>
           </ExpandableSection>
         )}
 
