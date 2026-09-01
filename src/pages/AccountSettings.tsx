@@ -50,6 +50,29 @@ export default function AccountSettings() {
     }
   };
 
+  const deleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("delete-account", { body: {} });
+      const errMsg = (data as { error?: string } | null)?.error;
+      if (error || errMsg) {
+        toast.error(errMsg || error?.message || "Could not delete your account. Please try again.");
+        setDeleting(false);
+        return;
+      }
+      localStorage.removeItem("saved_products");
+      await signOut();
+      setDeleteOpen(false);
+      toast.success("Your account has been deleted");
+      navigate("/");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not delete your account.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
   return (
     <div className="px-5 py-5 space-y-5 md:max-w-md md:mx-auto md:px-8 md:py-8 animate-fade-in">
       <Link to="/profile" className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-medium">
