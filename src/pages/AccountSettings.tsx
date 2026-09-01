@@ -102,6 +102,67 @@ export default function AccountSettings() {
       <button onClick={save} disabled={saving} className="btn-primary w-full">
         {saving ? "Saving..." : "Save changes"}
       </button>
+
+      {/* Danger zone */}
+      <section className="pt-4 border-t border-border/40 space-y-3">
+        <div>
+          <p className="text-[10px] font-bold text-destructive/60 uppercase tracking-[0.15em]">Danger zone</p>
+          <p className="text-[12px] text-muted-foreground/60 mt-1.5 leading-relaxed">
+            Deleting your account permanently removes your profile, phone number, address, saved items,
+            notifications and chat history. This cannot be undone.
+          </p>
+        </div>
+        <button
+          onClick={() => { setConfirmText(""); setDeleteOpen(true); }}
+          className="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl border-[1.5px] border-destructive/30 text-destructive text-[14px] font-semibold hover:bg-destructive/5 transition-colors active:scale-[0.98]"
+        >
+          <Trash2 className="w-4 h-4" strokeWidth={1.8} /> Delete Account
+        </button>
+      </section>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete your account permanently?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-left">
+                <p>
+                  This permanently deletes your account and personal data: profile details (name, phone,
+                  address), saved items, notifications, chat conversations and any admin access.
+                </p>
+                <p>
+                  Completed orders are kept for accounting and legal reasons, but they are anonymized —
+                  your name, email and phone number are removed from them.
+                </p>
+                <p className="font-medium text-foreground">This action cannot be undone.</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div>
+            <label className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider">
+              Type DELETE to confirm
+            </label>
+            <input
+              value={confirmText}
+              onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="DELETE"
+              autoCapitalize="characters"
+              className="input-field mt-1"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={confirmText.trim().toUpperCase() !== "DELETE" || deleting}
+              onClick={(e) => { e.preventDefault(); deleteAccount(); }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Delete my account"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
+
 }
