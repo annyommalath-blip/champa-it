@@ -199,12 +199,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <span className="text-[14px] text-muted-foreground/70">Search Champa</span>
             </Link>
           </div>
-          <div className="flex gap-5 overflow-x-auto scrollbar-hide px-5 pb-3 text-[13px] font-semibold text-primary-foreground">
-            <Link to="/shop" className="flex-shrink-0">Shop</Link>
-            <Link to="/services" className="flex-shrink-0">Services</Link>
-            <Link to="/shop" className="flex-shrink-0">Deals</Link>
-            <Link to="/contact" className="flex-shrink-0">Get Quote</Link>
-            <Link to="/profile/orders" className="flex-shrink-0">Track Order</Link>
+          <div className="flex justify-around w-full gap-3 overflow-x-auto scrollbar-hide px-5 pb-3 text-[13px] font-semibold text-primary-foreground">
+            <Link to="/shop" className="flex-shrink-0 text-center">Shop</Link>
+            <Link to="/services" className="flex-shrink-0 text-center">Services</Link>
+            <Link to="/shop" className="flex-shrink-0 text-center">Deals</Link>
+            <Link to="/contact" className="flex-shrink-0 text-center">Get Quote</Link>
+            <Link to="/profile/orders" className="flex-shrink-0 text-center">Track Order</Link>
           </div>
         </header>
       ) : (
