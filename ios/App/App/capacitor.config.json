@@ -2,5 +2,14 @@
 	"appId": "co.median.ios.pwoenzz",
 	"appName": "ChampaIT",
 	"webDir": "dist",
-	"packageClassList": []
+	"plugins": {
+		"StatusBar": {
+			"overlaysWebView": false,
+			"style": "LIGHT",
+			"backgroundColor": "#F7F7F8"
+		}
+	},
+	"packageClassList": [
+		"StatusBarPlugin"
+	]
 }
