@@ -269,7 +269,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <button
           onClick={() => setChatOpen(true)}
           aria-label={t("nav.chat")}
-          className="fixed right-4 bottom-[92px] md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background hover:scale-105"
+          className="fixed right-4 bottom-[84px] md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background hover:scale-105"
         >
           <Headphones className="w-6 h-6" strokeWidth={2} />
           {unreadChat > 0 && (
