@@ -330,7 +330,7 @@
   }
 
   .safe-area-top {
-    padding-top: max(env(safe-area-inset-top, 0px), 44px);
+    padding-top: max(env(safe-area-inset-top, 0px), 64px);
   }
 
   .safe-area-x {
