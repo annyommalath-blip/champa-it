@@ -233,11 +233,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </header>
       )}
 
-      <main className="flex-1 md:pb-0 pb-[72px]">{children}</main>
+      <main className="flex-1 md:pb-0 pb-[88px]">{children}</main>
 
       {/* Mobile bottom tabs */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-border/30 safe-area-bottom">
-        <div className="flex items-center justify-around h-[64px] px-2">
+        <div className="flex items-center justify-around h-[80px] px-2">
           {navKeys.map((item) => {
             const Icon = item.icon;
             const active = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
@@ -245,15 +245,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className="flex flex-col items-center justify-center gap-1 py-1 min-w-[48px] transition-all active:scale-90"
+                className="flex flex-col items-center justify-center gap-1.5 py-2 min-w-[56px] transition-all active:scale-90"
               >
                 <Icon
-                  className={`w-[20px] h-[20px] transition-colors ${
+                  className={`w-[24px] h-[24px] transition-colors ${
                     active ? "text-foreground" : "text-muted-foreground/50"
                   }`}
                   strokeWidth={active ? 2.2 : 1.6}
                 />
-                <span className={`text-[10px] font-semibold leading-none tracking-tight ${
+                <span className={`text-[12px] font-semibold leading-none tracking-tight ${
                   active ? "text-foreground" : "text-muted-foreground/40"
                 }`}>
                   {t(item.labelKey)}
@@ -269,7 +269,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <button
           onClick={() => setChatOpen(true)}
           aria-label={t("nav.chat")}
-          className="fixed right-4 bottom-[84px] md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background hover:scale-105"
+          className="fixed right-4 bottom-[100px] md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background hover:scale-105"
         >
           <Headphones className="w-6 h-6" strokeWidth={2} />
           {unreadChat > 0 && (
