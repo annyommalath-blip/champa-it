@@ -167,7 +167,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Mobile top bar — yellow branded on home */}
       {location.pathname === "/" ? (
         <header className="md:hidden sticky top-0 z-50 bg-primary safe-area-top">
-          <div className="px-5 pt-3 pb-3 flex items-center justify-between">
+          <div className="px-5 pt-2 pb-3 flex items-center justify-between">
             <Link to="/" className="flex items-center">
               <img src={logo} alt="Champa Enterprise" className="h-9 w-auto object-contain" />
             </Link>
@@ -208,7 +208,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </header>
       ) : (
-        <header className="md:hidden px-5 min-h-[48px] pt-[env(safe-area-inset-top,0px)] glass-header sticky top-0 z-50 border-b border-border/30 flex items-center justify-between">
+        <header className="md:hidden px-5 min-h-[56px] safe-area-top pb-2 glass-header sticky top-0 z-50 border-b border-border/30 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img src={logo} alt="Champa" className="h-7 w-auto object-contain" />
           </Link>
