@@ -6,6 +6,12 @@ import { Capacitor } from '@capacitor/core';
  */
 export async function initNativeStatusBar() {
   if (!Capacitor.isNativePlatform()) return;
+  // Marks the document so CSS can apply a guaranteed status-bar offset,
+  // since env(safe-area-inset-top) is unreliable in this WebView setup.
+  document.documentElement.classList.add('native-app');
+  if (Capacitor.getPlatform() === 'ios') {
+    document.documentElement.classList.add('native-ios');
+  }
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar');
     await StatusBar.setOverlaysWebView({ overlay: false });
