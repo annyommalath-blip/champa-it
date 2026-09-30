@@ -360,10 +360,10 @@
     }
   }
 
-  /* iOS/Capacitor: env() insets are not reliably applied in this WebView,
-     so combine the plugin's measured height with a hard minimum. */
+  /* The native iOS WebView is constrained inside Apple's safe-area frame.
+     Keep only normal header breathing room here to avoid a doubled inset. */
   .native-ios .safe-area-top {
-    padding-top: max(env(safe-area-inset-top, 0px), var(--native-status-bar-height, 0px), 55px);
+    padding-top: 14px;
   }
 
 
