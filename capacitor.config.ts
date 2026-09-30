@@ -4,6 +4,9 @@ const config: CapacitorConfig = {
   appId: 'co.median.ios.pwoenzz',
   appName: 'ChampaIT',
   webDir: 'dist',
+  ios: {
+    contentInset: 'always',
+  },
   plugins: {
     StatusBar: {
       overlaysWebView: false,

@@ -16,6 +16,10 @@ export async function initNativeStatusBar() {
     const { StatusBar, Style } = await import('@capacitor/status-bar');
     await StatusBar.setOverlaysWebView({ overlay: false });
     await StatusBar.setStyle({ style: Style.Light });
+    const info = await StatusBar.getInfo();
+    if (Capacitor.getPlatform() === 'ios' && info.height > 0) {
+      document.documentElement.style.setProperty('--native-status-bar-height', `${info.height}px`);
+    }
   } catch {
     // plugin not available in this build — ignore
   }
