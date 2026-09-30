@@ -83,7 +83,9 @@
 
   html, body {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+    position: relative;
   }
 
   body {
@@ -98,7 +100,24 @@
 
   #root {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
+  }
+
+  /* Lock the native iOS WebView to vertical scrolling only */
+  .native-ios html,
+  .native-ios body,
+  html.native-ios,
+  body.native-ios {
+    overflow-x: clip;
+    overscroll-behavior: none;
+    touch-action: pan-y;
+  }
+
+  /* Horizontal carousels/marquees keep their own sideways scrolling */
+  .native-ios .overflow-x-auto,
+  .native-ios [data-radix-scroll-area-viewport] {
+    touch-action: pan-x pan-y;
   }
 }
 
