@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'ChampaIT',
   webDir: 'dist',
   ios: {
-    contentInset: 'always',
+    contentInset: 'never',
   },
   plugins: {
     StatusBar: {

@@ -1,6 +1,34 @@
 import UIKit
 import Capacitor
 
+final class AppViewController: CAPBridgeViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        guard let webView = webView else { return }
+
+        let safeAreaContainer = UIView(frame: view.bounds)
+        safeAreaContainer.backgroundColor = UIColor(
+            red: 247.0 / 255.0,
+            green: 247.0 / 255.0,
+            blue: 248.0 / 255.0,
+            alpha: 1.0
+        )
+
+        view = safeAreaContainer
+        safeAreaContainer.addSubview(webView)
+        webView.translatesAutoresizingMaskIntoConstraints = false
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+
+        NSLayoutConstraint.activate([
+            webView.topAnchor.constraint(equalTo: safeAreaContainer.safeAreaLayoutGuide.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: safeAreaContainer.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: safeAreaContainer.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: safeAreaContainer.safeAreaLayoutGuide.bottomAnchor)
+        ])
+    }
+}
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
