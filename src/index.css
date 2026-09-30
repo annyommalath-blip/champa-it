@@ -342,9 +342,9 @@
   }
 
   /* iOS/Capacitor: env() insets are not reliably applied in this WebView,
-     so force a hard minimum offset below the status bar. */
+     so combine the plugin's measured height with a hard minimum. */
   .native-ios .safe-area-top {
-    padding-top: max(env(safe-area-inset-top, 0px), 55px);
+    padding-top: max(env(safe-area-inset-top, 0px), var(--native-status-bar-height, 0px), 55px);
   }
 
 
