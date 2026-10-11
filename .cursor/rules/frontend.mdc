@@ -1,0 +1,14 @@
+---
+description: React/TS page ownership, i18n, cart, and UI primitives
+globs: src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend
+
+- One page ≈ one route; keep screen queries in the page. Extract `src/hooks/` only when a second screen needs the same logic.
+- Do not put product logic in `src/components/ui/` (shadcn).
+- Customer copy via `t()` → add both `en` and `lo` in `src/context/LanguageContext.tsx`.
+- Auth/role via `useAuth` / `ProtectedRoute`. Cart currency rule lives in `AppContext` (single currency per cart).
+- New routes: `src/App.tsx` + nav (`Layout` / `Profile` / `AdminLayout`) per `docs/FEATURE_MAP.md`.
+- Toasts: `sonner`. Domain types: `src/types/index.ts`. Native APIs: `src/lib/native.ts` only.

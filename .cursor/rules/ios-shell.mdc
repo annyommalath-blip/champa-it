@@ -1,0 +1,14 @@
+---
+description: Capacitor iOS safe-area, status bar, and release sync
+globs: src/lib/native.ts,src/components/Layout.tsx,src/index.css,src/components/ui/sheet.tsx,src/components/ui/sonner.tsx,src/components/ui/toast.tsx,capacitor.config.ts,ios/**
+alwaysApply: false
+---
+
+# iOS shell
+
+Follow [AGENTS.md](AGENTS.md):
+
+- WebView is edge-to-edge (`contentInset: never`, StatusBar overlays). CSS `env(safe-area-inset-*)` via `--sat` / `--sab` owns insets.
+- Status bar style by path: `syncStatusBarForPath` in `src/lib/native.ts` (light icons on `/`, dark elsewhere).
+- Sheets/toasts must clear island and home indicator.
+- Before Xcode/TestFlight: `npm run ios:sync`. Run the TestFlight QA list in AGENTS.md after chrome changes.

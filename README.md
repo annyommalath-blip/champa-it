@@ -1,5 +1,14 @@
 # Welcome to your Lovable project
 
+## Documentation
+
+Project architecture and contributor guidance (start here for features):
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — product, stack, data, routes
+- [docs/CODING_PRINCIPLES.md](docs/CODING_PRINCIPLES.md) — how to add code without eroding structure
+- [docs/FEATURE_MAP.md](docs/FEATURE_MAP.md) — per-domain file owners and change checklist
+- [AGENTS.md](AGENTS.md) — iOS safe-area rules and TestFlight QA
+
 ## Project info
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID

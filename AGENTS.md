@@ -1,5 +1,7 @@
 # Project architecture rules
 
+Before implementing or editing a feature, open the matching domain in [docs/FEATURE_MAP.md](docs/FEATURE_MAP.md) and follow its owners plus the cross-cutting checklist. Broader context: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/CODING_PRINCIPLES.md](docs/CODING_PRINCIPLES.md).
+
 - The native iOS WebView is edge-to-edge; CSS `env(safe-area-inset-*)` (via `--sat` / `--sab` tokens) owns top and bottom insets so branded headers can paint under the status bar while controls stay clear of the Dynamic Island and home indicator.
 - Prepare Xcode releases with `npm run ios:sync` so archived iOS web assets never lag behind the current app.
 

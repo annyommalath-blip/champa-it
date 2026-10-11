@@ -1,0 +1,30 @@
+---
+description: Open Feature Map first; folder ownership and cross-cutting checklist for every change
+alwaysApply: true
+---
+
+# Champa project map
+
+Single-merchant IT hardware shop + services desk + admin portal. Stack: Vite/React/TS, Supabase, Stripe Checkout, Capacitor iOS. Docs: `docs/ARCHITECTURE.md`, `docs/CODING_PRINCIPLES.md`, `docs/FEATURE_MAP.md`.
+
+## Before coding
+
+1. Open `docs/FEATURE_MAP.md` and read **only** the domain you are changing.
+2. Apply that section’s owners, then the **cross-cutting checklist** (page, route in `App.tsx`, nav, i18n en+lo, migration/RLS, admin, Edge Function, email registry, badges, iOS chrome).
+3. Do not search the whole repo or read all of `src/integrations/supabase/types.ts` to find owners.
+
+## Folder ownership
+
+- `src/pages/`, `src/pages/admin/` — screens
+- `src/components/` — app UI; `src/components/ui/` — shadcn only
+- `src/context/` — auth, cart, language
+- `src/lib/` — helpers; `src/types/` — shared domain types
+- `supabase/migrations/` — append-only schema + RLS
+- `supabase/functions/` — secrets and privileged work
+- `ios/`, `src/lib/native.ts`, safe-area CSS — native shell ([AGENTS.md](AGENTS.md))
+
+## Hard rules
+
+- Products ≠ services. Do not invent Stripe Connect.
+- Money / delete-account / email → Edge Functions via `supabase.functions.invoke`.
+- Match existing patterns; keep diffs focused.

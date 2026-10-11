@@ -1,0 +1,14 @@
+---
+description: Supabase migrations, RLS, Edge Functions, Stripe, email templates
+globs: supabase/**
+alwaysApply: false
+---
+
+# Backend (Supabase)
+
+- New schema = new migration under `supabase/migrations/`. Never edit applied migrations.
+- Every client-readable table needs RLS (anon key is public in the WebView).
+- Stripe secrets and payment state updates stay in Edge Functions (`create-checkout`, `payments-webhook`). Client does not mark orders paid.
+- Single merchant — no Stripe Connect.
+- Transactional templates: add under `functions/_shared/transactional-email-templates/` and register in `registry.ts`.
+- After schema changes, update generated `src/integrations/supabase/types.ts` for the affected tables only.
