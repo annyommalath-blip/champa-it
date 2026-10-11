@@ -37,6 +37,9 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
   const [greeting, setGreeting] = useState(DEFAULT_GREETING);
   const [creating, setCreating] = useState(false);
   const [view, setView] = useState<"home" | "history" | "chat">("home");
+  const [guestToken, setGuestTokenState] = useState<string | null>(null);
+  const guestTokenRef = useRef<string | null>(null);
+  const setGuestToken = (t: string | null) => { guestTokenRef.current = t; setGuestTokenState(t); };
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -79,6 +82,14 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
   // Load + subscribe messages for active conversation
   useEffect(() => {
     if (!activeConvId) { setMessages([]); return; }
+    if (!user && guestToken) {
+      const load = () => supabase
+        .rpc("get_guest_messages", { _conversation_id: activeConvId, _token: guestToken })
+        .then(({ data }) => { if (data) setMessages(data as unknown as Message[]); });
+      load();
+      const t = setInterval(load, 4000);
+      return () => clearInterval(t);
+    }
     supabase
       .from("chat_messages")
       .select("*")
@@ -108,7 +119,7 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [activeConvId]);
+  }, [activeConvId, user, guestToken]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -124,9 +135,22 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
     const name = user ? (displayName || "Customer") : guestName.trim();
     if (!name) return null;
     setCreating(true);
+    if (!user) {
+      const { data, error } = await supabase.rpc("create_guest_conversation", {
+        _name: name,
+        _greeting: greeting.replace(/\{name\}/gi, name),
+      });
+      setCreating(false);
+      const created = Array.isArray(data) ? data[0] : null;
+      if (error || !created) return null;
+      setGuestToken(created.guest_token);
+      setActiveConvId(created.id);
+      setView("chat");
+      return created.id;
+    }
     const { data, error } = await supabase
       .from("chat_conversations")
-      .insert({ guest_name: name, user_id: user?.id || null })
+      .insert({ guest_name: name, user_id: user.id })
       .select()
       .single();
     setCreating(false);
@@ -148,6 +172,14 @@ export default function ChatWidget({ open, onClose }: { open: boolean; onClose: 
     if (!trimmed) return;
     const convId = await ensureConversation();
     if (!convId) return;
+    if (!user) {
+      const tok = guestTokenRef.current;
+      if (!tok) return;
+      await supabase.rpc("send_guest_message", { _conversation_id: convId, _token: tok, _content: trimmed });
+      const { data } = await supabase.rpc("get_guest_messages", { _conversation_id: convId, _token: tok });
+      if (data) setMessages(data as unknown as Message[]);
+      return;
+    }
     await supabase.from("chat_messages").insert({
       conversation_id: convId,
       sender_type: "guest",
