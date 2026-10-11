@@ -531,6 +531,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_guest_conversation: {
+        Args: { _greeting: string; _name: string }
+        Returns: {
+          guest_token: string
+          id: string
+        }[]
+      }
       current_user_has_role: {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
@@ -543,6 +550,24 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      get_guest_messages: {
+        Args: { _conversation_id: string; _token: string }
+        Returns: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string | null
+          sender_name: string | null
+          sender_type: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "chat_messages"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       get_user_role: {
         Args: { _user_id: string }
@@ -571,6 +596,10 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      send_guest_message: {
+        Args: { _content: string; _conversation_id: string; _token: string }
+        Returns: undefined
       }
     }
     Enums: {
