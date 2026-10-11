@@ -73,6 +73,19 @@
     --shadow-card: 0 1px 3px hsl(228 24% 10% / 0.04), 0 0 0 1px hsl(220 13% 91% / 0.6);
     --shadow-card-hover: 0 8px 24px hsl(228 24% 10% / 0.08), 0 0 0 1px hsl(220 13% 91% / 0.7);
     --shadow-glow: 0 0 20px hsl(50 84% 52% / 0.12);
+
+    /* Safe-area tokens — single inset owner for edge-to-edge WebView */
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --safe-top-min: 8px;
+    --safe-bottom-min: 8px;
+    --header-control-height: 56px;
+    --tab-bar-height: 64px;
+    --tab-clearance-extra: 8px;
+    --sticky-under-header: calc(var(--header-control-height) + max(var(--sat), var(--safe-top-min)));
+    --fab-above-dock: calc(var(--tab-bar-height) + max(var(--sab), var(--safe-bottom-min)) + 12px);
   }
 }
 
@@ -344,32 +357,36 @@
     display: none;
   }
 
-  .safe-area-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-
   .safe-area-top {
-    /* iOS notch / Dynamic Island: real inset + breathing room.
-       Falls back to a small comfort value when env() is unsupported. */
-    padding-top: calc(env(safe-area-inset-top, 12px) + 14px);
+    padding-top: max(var(--sat), var(--safe-top-min));
   }
 
-  @supports (padding-top: env(safe-area-inset-top)) {
-    .safe-area-top {
-      padding-top: calc(max(env(safe-area-inset-top), 12px) + 14px);
+  .safe-area-bottom {
+    padding-bottom: max(var(--sab), var(--safe-bottom-min));
+  }
+
+  .safe-area-x {
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+  }
+
+  /* Main scroll clearance for fixed tab dock (not a second env(top)). */
+  .main-with-dock {
+    padding-bottom: calc(var(--tab-bar-height) + max(var(--sab), var(--safe-bottom-min)) + var(--tab-clearance-extra));
+  }
+
+  @media (min-width: 768px) {
+    .main-with-dock {
+      padding-bottom: 0;
     }
   }
 
-  /* The native iOS WebView is constrained inside Apple's safe-area frame.
-     Keep only normal header breathing room here to avoid a doubled inset. */
-  .native-ios .safe-area-top {
-    padding-top: 14px;
+  .sticky-under-header {
+    top: var(--sticky-under-header);
   }
 
-
-  .safe-area-x {
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
+  .fab-above-dock {
+    bottom: var(--fab-above-dock);
   }
 
   /* ── Legacy compat ── */

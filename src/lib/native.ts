@@ -2,24 +2,31 @@ import { Capacitor } from '@capacitor/core';
 
 /**
  * Native-only setup. Safe no-op in the browser / Lovable preview.
- * Ensures the iOS status bar does not overlay the WebView.
+ * Status bar overlays the WebView so CSS env(safe-area-inset-*) is meaningful.
  */
 export async function initNativeStatusBar() {
   if (!Capacitor.isNativePlatform()) return;
-  // Marks the document so CSS can apply a guaranteed status-bar offset,
-  // since env(safe-area-inset-top) is unreliable in this WebView setup.
   document.documentElement.classList.add('native-app');
   if (Capacitor.getPlatform() === 'ios') {
     document.documentElement.classList.add('native-ios');
   }
   try {
     const { StatusBar, Style } = await import('@capacitor/status-bar');
-    await StatusBar.setOverlaysWebView({ overlay: false });
-    await StatusBar.setStyle({ style: Style.Light });
-    const info = await StatusBar.getInfo();
-    if (Capacitor.getPlatform() === 'ios' && info.height > 0) {
-      document.documentElement.style.setProperty('--native-status-bar-height', `${info.height}px`);
-    }
+    await StatusBar.setOverlaysWebView({ overlay: true });
+    await StatusBar.setStyle({ style: Style.Dark });
+  } catch {
+    // plugin not available in this build — ignore
+  }
+}
+
+/** Light icons on home branded header; dark icons elsewhere. No-op on web. */
+export async function syncStatusBarForPath(pathname: string) {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const { StatusBar, Style } = await import('@capacitor/status-bar');
+    await StatusBar.setStyle({
+      style: pathname === '/' ? Style.Light : Style.Dark,
+    });
   } catch {
     // plugin not available in this build — ignore
   }

@@ -5,6 +5,7 @@ import { useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { syncStatusBarForPath } from "@/lib/native";
 import ChatWidget from "@/components/ChatWidget";
 import logo from "@/assets/logo.jpg";
 
@@ -119,7 +120,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
   }, [chatOpen, user]);
 
-
+  useEffect(() => {
+    void syncStatusBarForPath(location.pathname);
+  }, [location.pathname]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -233,7 +236,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </header>
       )}
 
-      <main className="flex-1 md:pb-0 pb-[72px]">{children}</main>
+      <main className="flex-1 main-with-dock">{children}</main>
 
       {/* Mobile bottom tabs */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-header border-t border-border/30 safe-area-bottom">
@@ -269,7 +272,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <button
           onClick={() => setChatOpen(true)}
           aria-label={t("nav.chat")}
-          className="fixed right-4 bottom-[84px] md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background hover:scale-105"
+          className="fixed right-4 fab-above-dock md:bottom-6 md:right-6 z-40 w-14 h-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center active:scale-90 transition-transform ring-4 ring-background hover:scale-105"
         >
           <Headphones className="w-6 h-6" strokeWidth={2} />
           {unreadChat > 0 && (

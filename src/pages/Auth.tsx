@@ -71,7 +71,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-5 py-10 bg-background">
+    <div className="min-h-screen flex items-center justify-center px-5 py-10 bg-background safe-area-top safe-area-bottom">
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">

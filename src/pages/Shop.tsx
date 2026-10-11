@@ -94,7 +94,7 @@ export default function ShopPage() {
       </div>
 
       {/* Sticky search */}
-      <div className="px-5 py-2.5 md:px-8 sticky top-[48px] md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
+      <div className="px-5 py-2.5 md:px-8 sticky sticky-under-header md:top-[56px] z-30 bg-background/80 backdrop-blur-xl">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[17px] h-[17px] text-muted-foreground/40" strokeWidth={2} />
           <input

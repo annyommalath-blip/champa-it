@@ -243,7 +243,7 @@ export default function ProductDetail() {
   return (
     <div className="animate-fade-in pb-8">
       {/* ── Sticky Top Bar ── */}
-      <div className="sticky top-[48px] md:top-[56px] z-40 glass-header border-b border-border/20 px-4 h-[44px] flex items-center justify-between">
+      <div className="sticky sticky-under-header md:top-[56px] z-40 glass-header border-b border-border/20 px-4 h-[44px] flex items-center justify-between">
         <button onClick={() => navigate(-1)} className="p-1.5 rounded-xl active:scale-90 transition-transform">
           <ArrowLeft className="w-5 h-5 text-foreground" strokeWidth={2} />
         </button>

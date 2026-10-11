@@ -20,11 +20,12 @@ final class AppViewController: CAPBridgeViewController {
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.scrollView.contentInsetAdjustmentBehavior = .never
 
+        // Edge-to-edge: CSS env(safe-area-inset-*) owns insets in the web layer.
         NSLayoutConstraint.activate([
-            webView.topAnchor.constraint(equalTo: safeAreaContainer.safeAreaLayoutGuide.topAnchor),
+            webView.topAnchor.constraint(equalTo: safeAreaContainer.topAnchor),
             webView.leadingAnchor.constraint(equalTo: safeAreaContainer.leadingAnchor),
             webView.trailingAnchor.constraint(equalTo: safeAreaContainer.trailingAnchor),
-            webView.bottomAnchor.constraint(equalTo: safeAreaContainer.safeAreaLayoutGuide.bottomAnchor)
+            webView.bottomAnchor.constraint(equalTo: safeAreaContainer.bottomAnchor)
         ])
     }
 }
